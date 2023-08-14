@@ -1,0 +1,20 @@
+<!-- offer_detail.html -->
+
+{% extends 'base.html' %}
+{% block content %}
+<h1>Offer Detail</h1>
+
+<h2>Offer by: {{ offer.author.username }}</h2>
+<p>Тебя зовут: {{ request.user.username }}</p>
+
+<!-- Displaying offer details -->
+<h3>Details of the Offer</h3>
+<ul>
+    <li>Currency Offered: {{ offer.currency_offered }}</li>
+    <li>Amount Offered: {{ offer.amount_offered }}</li>
+    <li>Currency Needed: {{ offer.currency_needed }}</li>
+    <li>Publishing Date: {{ offer.publishing_date|date:"d E Y" }}</li>
+    <li>Status: {{ offer.get_status_display }}</li>
+</ul>
+
+{% endblock %}

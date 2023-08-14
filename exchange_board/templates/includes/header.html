@@ -3,15 +3,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Your App Name</title>
-    <!-- Здесь можно добавить ссылки на стили и скрипты, если они вам нужны -->
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
 </head>
 <body>
-    <header>
-        <nav>
-            <ul>
-                <li><a href="{% url 'index' %}">Home</a></li>
-                <!-- Добавьте или удалите ссылки в зависимости от вашего приложения -->
-            </ul>
+
+    <!-- Header -->
+    <header class="bg-light py-3">
+        <nav class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <!-- Левая часть -->
+                <ul class="list-unstyled mb-0 d-flex">
+                    <li class="mr-3"><a href="{% url 'index' %}" class="text-dark">Home</a></li>
+                    <!-- Добавьте или удалите ссылки в зависимости от вашего приложения -->
+                </ul>
+
+                <!-- Правая часть -->
+                <div>
+                    <a href="#" class="text-dark">Все заявки на обмен валюты</a>
+                </div>
+            </div>
         </nav>
     </header>
