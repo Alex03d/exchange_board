@@ -1,8 +1,9 @@
 # views.py
-
+from django.contrib.auth import authenticate, login
 from django.shortcuts import render, redirect
 from .forms import CustomUserCreationForm
 from .models import Invitation, CustomUser
+
 
 def register(request, invite_code):
     # Проверка наличия приглашения
@@ -38,3 +39,16 @@ def create_invite(request):
         return redirect('dashboard')  # Redirect to dashboard or any other page
     else:
         return render(request, 'error.html', {'message': 'No invitations left.'})
+
+
+def login_view(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect('index')  # Или другую страницу после успешного входа
+        else:
+            return render(request, 'login.html', {'error': 'Invalid username or password.'})
+    return render(request, 'login.html')

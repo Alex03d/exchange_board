@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.conf import settings
 
 
 OPEN = 'open'
@@ -37,7 +37,7 @@ CONFIRMATION_CHOICES = [
 
 class Offer(models.Model):
     author = models.ForeignKey(
-        User,
+        settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='offers'
     )
@@ -72,7 +72,7 @@ class Transaction(models.Model):
         related_name='transaction'
     )
     accepting_user = models.ForeignKey(
-        User,
+        settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='accepted_transactions'
     )
