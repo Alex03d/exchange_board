@@ -8,7 +8,7 @@
     {% for offer in offers %}
     <div class="card mb-4">
         <div class="card-body">
-            <h5 class="card-title">Автор: {{ offer.author.get_full_name }}</h5>
+            <h5 class="card-title">Автор: {{ offer.author.username }}</h5>
             <p class="card-text">
                 Дата публикации: {{ offer.publishing_date|date:"d E Y" }} <br>
                 Количество валюты на продажу: {{ offer.amount_offered }} {{ offer.currency_offered }} <br>

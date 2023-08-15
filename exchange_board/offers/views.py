@@ -1,8 +1,9 @@
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
-from .forms import UploadScreenshotForm
+from .forms import UploadScreenshotForm, OfferForm
 from .models import Offer, Transaction
+from users.views import handshake_count
 
 
 def index(request):
@@ -12,6 +13,20 @@ def index(request):
     }
     template = 'offers/index.html'
     return render(request, template, context)
+
+
+@login_required
+def create_offer(request):
+    if request.method == 'POST':
+        form = OfferForm(request.POST)
+        if form.is_valid():
+            offer = form.save(commit=False)
+            offer.author = request.user
+            offer.save()
+            return redirect('offer_detail', offer_id=offer.id)
+    else:
+        form = OfferForm()
+    return render(request, 'offers/create_offer.html', {'form': form})
 
 
 @login_required
@@ -33,10 +48,15 @@ def transaction_detail(request, transaction_id):
     offer = transaction.offer
     accepting_user = transaction.accepting_user
 
+    offer_user_code = transaction.offer.author.referral_code
+    accepting_user_code = transaction.accepting_user.referral_code
+    handshakes = handshake_count(offer_user_code, accepting_user_code)
+
     context = {
         'transaction': transaction,
         'offer': offer,
-        'accepting_user': accepting_user
+        'accepting_user': accepting_user,
+        'handshakes': handshakes,
     }
 
     return render(request, 'transaction_detail.html', context)

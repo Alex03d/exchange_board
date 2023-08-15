@@ -9,7 +9,9 @@
         <h2>Offer by: {{ offer.author.username }}</h2>
         <h2>Accepted by: {{ accepting_user.username }}</h2>
         <p class="lead">Тебя зовут: {{ request.user.username }}</p>
+        <p class="lead">Количество рукопожатий между сторонами: {{ handshakes }}</p>
     </div>
+
 
     {% if transaction.author_asserts_transfer_done == 'no' %}
         {% if request.user.id == transaction.offer.author.id %}
