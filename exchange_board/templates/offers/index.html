@@ -35,7 +35,7 @@
                 {% if offer.author == request.user %}
                     <a href="{% url 'offer_detail' offer.id %}" class="btn btn-dark">Ваша заявка ожидает отклика</a>
                 {% else %}
-                    <a href="{% url 'start_transaction' offer.id %}" class="btn btn-success">начать транзакцию</a>
+                    <a href="{% url 'offer_detail' offer.id %}" class="btn btn-success">Детали заявки</a>
                 {% endif %}
             {% endif %}
         </div>

@@ -63,10 +63,22 @@ def transaction_detail(request, transaction_id):
     return render(request, 'transaction_detail.html', context)
 
 
+# @login_required
+# def offer_detail(request, offer_id):
+#     offer = get_object_or_404(Offer, id=offer_id)
+#     return render(request, 'offer_detail.html', {'offer': offer})
 @login_required
 def offer_detail(request, offer_id):
     offer = get_object_or_404(Offer, id=offer_id)
-    return render(request, 'offer_detail.html', {'offer': offer})
+    author_code = offer.author.referral_code
+    current_user_code = request.user.referral_code
+    handshakes = handshake_count(author_code, current_user_code)
+    context = {
+        'offer': offer,
+        'handshakes': handshakes,
+        'handshake_range': range(handshakes),
+    }
+    return render(request, 'offer_detail.html', context)
 
 
 @login_required

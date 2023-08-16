@@ -2,10 +2,38 @@
 
 {% extends 'base.html' %}
 {% block content %}
-<h1>Offer Detail</h1>
 
-<h2>Offer by: {{ offer.author.username }}</h2>
-<p>Тебя зовут: {{ request.user.username }}</p>
+<div class="container mt-5">
+    <h1>Offer Details</h1>
+
+    <div class="mb-4">
+    <h2>Offer by: {{ offer.author.username }}</h2>
+    <p class="lead">Тебя зовут: {{ request.user.username }}</p>
+    <p class="lead">Между вами {{ handshakes }} рукопожатий(ия):</p>
+        <div class="handshake-chain">
+            <span class="emoji">👤</span> <!-- начальный пользователь -->
+            {% for i in handshake_range %}
+                <span class="line">─────</span>
+                <span class="emoji">👤</span>
+            {% endfor %}
+        </div>
+    </div>
+
+    <style>
+        .handshake-chain {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        .emoji {
+            font-size: 1.5em;
+        }
+
+        .line {
+            margin: 0 5px;
+        }
+    </style>
 
 <!-- Displaying offer details -->
 <h3>Details of the Offer</h3>
@@ -16,5 +44,10 @@
     <li>Publishing Date: {{ offer.publishing_date|date:"d E Y" }}</li>
     <li>Status: {{ offer.get_status_display }}</li>
 </ul>
+
+<!-- Start transaction button -->
+{% if not offer.author == request.user %}
+<a href="{% url 'start_transaction' offer.id %}" class="btn btn-success">Start Transaction</a>
+{% endif %}
 
 {% endblock %}
