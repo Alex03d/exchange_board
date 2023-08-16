@@ -6,12 +6,34 @@
     <h1>Transaction Detail</h1>
 
     <div class="mb-4">
-        <h2>Offer by: {{ offer.author.username }}</h2>
-        <h2>Accepted by: {{ accepting_user.username }}</h2>
-        <p class="lead">Тебя зовут: {{ request.user.username }}</p>
-        <p class="lead">Количество рукопожатий между сторонами: {{ handshakes }}</p>
+    <h2>Offer by: {{ offer.author.username }}</h2>
+    <h2>Accepted by: {{ accepting_user.username }}</h2>
+    <p class="lead">Тебя зовут: {{ request.user.username }}</p>
+    <p class="lead">Количество рукопожатий между сторонами: {{ handshakes }}</p>
+        <div class="handshake-chain">
+            <span class="emoji">👤</span> <!-- начальный пользователь -->
+            {% for i in handshake_range %}
+                <span class="line">─────</span>
+                <span class="emoji">👤</span>
+            {% endfor %}
+        </div>
     </div>
 
+    <style>
+        .handshake-chain {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        .emoji {
+            font-size: 1.5em;
+        }
+
+        .line {
+            margin: 0 5px;
+        }
+    </style>
 
     {% if transaction.author_asserts_transfer_done == 'no' %}
         {% if request.user.id == transaction.offer.author.id %}

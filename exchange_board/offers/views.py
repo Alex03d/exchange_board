@@ -57,6 +57,7 @@ def transaction_detail(request, transaction_id):
         'offer': offer,
         'accepting_user': accepting_user,
         'handshakes': handshakes,
+        'handshake_range': range(handshakes),
     }
 
     return render(request, 'transaction_detail.html', context)
@@ -73,21 +74,41 @@ def upload_screenshot(request, transaction_id, user_role):
     transaction = get_object_or_404(Transaction, id=transaction_id)
 
     if user_role == "author" and transaction.offer.author != request.user:
-        return HttpResponseForbidden("You don't have permission to perform this action.")
-    elif user_role == "accepting_user" and transaction.accepting_user != request.user:
-        return HttpResponseForbidden("You don't have permission to perform this action.")
+        return HttpResponseForbidden(
+            "You don't have permission to perform this action."
+        )
+    elif (
+            user_role == "accepting_user" and
+            transaction.accepting_user != request.user
+    ):
+        return HttpResponseForbidden(
+            "You don't have permission to perform this action."
+        )
 
     if request.method == "POST":
-        form = UploadScreenshotForm(request.POST, request.FILES, instance=transaction)
+        form = UploadScreenshotForm(
+            request.POST,
+            request.FILES,
+            instance=transaction
+        )
         if form.is_valid():
             form.save()
-            return redirect('transaction_detail', transaction_id=transaction.id)
+            return redirect(
+                'transaction_detail',
+                transaction_id=transaction.id
+            )
 
     else:
         form = UploadScreenshotForm(instance=transaction)
 
-    template_name = 'author_upload_screenshot.html' if user_role == "author" else 'accepting_upload_screenshot.html'
-    return render(request, template_name, {'form': form, 'transaction': transaction})
+    template_name = ('author_upload_screenshot.html'
+                     if user_role == "author"
+                     else 'accepting_upload_screenshot.html')
+    return render(
+        request,
+        template_name,
+        {'form': form, 'transaction': transaction}
+    )
 
 
 def author_uploads_screenshot(request, transaction_id):
@@ -102,7 +123,9 @@ def accepting_user_uploads_screenshot(request, transaction_id):
 def accepting_user_confirms_money_received(request, transaction_id):
     transaction = get_object_or_404(Transaction, id=transaction_id)
     if transaction.accepting_user != request.user:
-        return HttpResponseForbidden("You don't have permission to perform this action.")
+        return HttpResponseForbidden(
+            "You don't have permission to perform this action."
+        )
 
     transaction.accepting_user_confirms_money_received = 'YES'
     transaction.save()
@@ -122,7 +145,9 @@ def author_confirms_money_received(request, transaction_id):
 def accepting_user_asserts_transfer_done(request, transaction_id):
     transaction = get_object_or_404(Transaction, id=transaction_id)
     if transaction.accepting_user != request.user:
-        return HttpResponseForbidden("You don't have permission to perform this action.")
+        return HttpResponseForbidden(
+            "You don't have permission to perform this action."
+        )
 
     transaction.accepting_user_asserts_transfer_done = 'YES'
     transaction.save()
