@@ -1,50 +1,43 @@
 {% load static %}
+<!-- Header -->
+<header class="bg-light py-3">
+    <nav class="container navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="{% url 'index' %}">Home</a>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nomads&Nomads</title>
-    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
-    <link rel="stylesheet" href="{% static 'css/custom.css' %}">
-</head>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <!-- Левая часть -->
+            <ul class="navbar-nav mr-auto">
+                {% if user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'users:user_profile' request.user.username %}">My Profile</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'users:follow_index' %}">Followed Users</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'users:create_invite' %}">Invite a Friend</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'create_offer' %}">Start a Deal</a>
+                </li>
+                {% else %}
+                <!-- Если нужны какие-либо ссылки для не аутентифицированных пользователей, разместите их здесь -->
+                {% endif %}
+            </ul>
 
-<body>
-
-    <!-- Header -->
-    <header class="bg-light py-3">
-        <nav class="container navbar navbar-expand-lg navbar-light bg-light">
-            <a class="navbar-brand" href="#">Nomads & Nomads</a>
-
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <!-- Левая часть -->
-                <ul class="navbar-nav mr-auto">
+            <!-- Правая часть -->
+            <ul class="navbar-nav">
+                {% if user.is_authenticated %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'index' %}">Home</a>
+                        <a href="{% url 'users:logout' %}" class="btn btn-secondary">Logout</a>
                     </li>
-                    <!-- Добавьте или удалите ссылки в зависимости от вашего приложения -->
+                {% else %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'create_invite' %}">Generate Invitation Link</a>
+                        <a href="{% url 'users:login' %}" class="btn btn-minimalist">Login</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'create_offer' %}">Create an offer</a>
-                    </li>
-                </ul>
-
-                <!-- Правая часть -->
-                <ul class="navbar-nav">
-                    {% if user.is_authenticated %}
-                        <li class="nav-item">
-                            <a href="{% url 'logout' %}" class="btn btn-secondary">Logout</a>
-                        </li>
-                    {% else %}
-                        <li class="nav-item">
-                            <a href="{% url 'login' %}" class="btn btn-primary">Login</a>
-                        </li>
-                        <!-- Пользователи могут зарегистрироваться только по приглашению, поэтому мы не предоставляем прямую ссылку на регистрацию здесь -->
-                    {% endif %}
-                </ul>
-            </div>
-        </nav>
-    </header>
-
-</body>
+                    <!-- Пользователи могут зарегистрироваться только по приглашению, поэтому мы не предоставляем прямую ссылку на регистрацию здесь -->
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+</header>

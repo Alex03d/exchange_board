@@ -3,15 +3,15 @@
 {% block content %}
 <form method="post">
     {% csrf_token %}
-    <label for="username">Username:</label>
+    <label for="username" class="text-color">Username:</label>
     <input type="text" name="username" required>
     <br>
-    <label for="password">Password:</label>
+    <label for="password" class="text-color">Password:</label>
     <input type="password" name="password" required>
     <br>
     <input type="submit" value="Login">
     {% if error %}
-    <p><strong>{{ error }}</strong></p>
+    <p class="text-color"><strong>{{ error }}</strong></p>
     {% endif %}
 </form>
 {% endblock %}

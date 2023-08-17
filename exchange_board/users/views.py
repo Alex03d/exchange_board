@@ -1,8 +1,9 @@
 from django.contrib.auth import authenticate, login, logout
-from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from .forms import CustomUserCreationForm
-from .models import Invitation, CustomUser
+from .models import Invitation, CustomUser, UserFollow
 
 
 def register(request, invite_code):
@@ -32,11 +33,11 @@ def register(request, invite_code):
             if not inviter.is_superuser:
                 inviter.invites_left -= 1
                 inviter.save()
-            return redirect('login')
+            return redirect('users:login')
     else:
         form = CustomUserCreationForm()
 
-    return render(request, 'register.html', {'form': form})
+    return render(request, 'users/register.html', {'form': form})
 
 
 def create_invite(request):
@@ -51,7 +52,7 @@ def create_invite(request):
             user.save()
         invite_link = request.build_absolute_uri(
             reverse(
-                'register_with_invite',
+                'users:register_with_invite',
                 kwargs={'invite_code': new_invite.code}
             )
         )
@@ -80,10 +81,10 @@ def login_view(request):
         else:
             return render(
                 request,
-                'login.html',
+                'users/login.html',
                 {'error': 'Invalid username or password.'}
             )
-    return render(request, 'login.html')
+    return render(request, 'users/login.html')
 
 
 def logout_view(request):
@@ -103,3 +104,45 @@ def handshake_count(code1, code2):
         common_base += 1
 
     return (len(parts1) - common_base) + (len(parts2) - common_base)
+
+
+@login_required
+def follow_index(request):
+    # Получаем список пользователей, на которых подписан текущий пользователь
+    following_users = request.user.follower.all().values_list('author', flat=True)
+    authors = CustomUser.objects.filter(id__in=following_users)
+
+    context = {
+        'following_users': authors,
+    }
+
+    return render(request, 'users/follow.html', context)
+
+
+@login_required
+def profile_follow(request, username):
+    author = get_object_or_404(CustomUser, username=username)
+    if author != request.user and not UserFollow.objects.filter(
+        user=request.user, author=author
+    ).exists():
+        UserFollow.objects.create(user=request.user, author=author)
+    return redirect("users:user_profile", username=username)
+
+
+@login_required
+def profile_unfollow(request, username):
+    author = get_object_or_404(CustomUser, username=username)
+    if UserFollow.objects.filter(user=request.user, author=author).exists():
+        UserFollow.objects.get(user=request.user, author=author).delete()
+    return redirect("users:user_profile", username=username)
+
+
+def user_profile(request, username):
+    user_profile = get_object_or_404(CustomUser, username=username)
+    is_following = UserFollow.objects.filter(author=user_profile, user=request.user).exists()
+
+    context = {
+        'user_profile': user_profile,
+        'is_following': is_following,
+    }
+    return render(request, 'users/profile.html', context)

@@ -11,6 +11,27 @@
     <meta name="msapplication-TileColor" content="#000">
     <meta name="theme-color" content="#ffffff">
     <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <style>
+        .btn-minimalist {
+            border: 1px solid #333 !important;
+            background-color: #f2f2f2 !important;
+            color: #444 !important;
+            border-radius: 5px !important;
+        }
+
+        .btn-minimalist:hover {
+            background-color: #e5e5e5 !important;
+        }
+
+        .text-border {
+            border: 1px solid #bbb !important;
+            padding: 5px !important;
+            display: inline-block !important;
+            margin: 5px 0 !important;
+            color: #999 !important;
+            border-radius: 3px !important;
+        }
+    </style>
     <title>{% block title %}{{ title }}{% endblock title %}</title>
   </head>
   <body>

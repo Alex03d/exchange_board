@@ -78,7 +78,7 @@ def offer_detail(request, offer_id):
         'handshakes': handshakes,
         'handshake_range': range(handshakes),
     }
-    return render(request, 'offer_detail.html', context)
+    return render(request, 'offers/offer_detail.html', context)
 
 
 @login_required
