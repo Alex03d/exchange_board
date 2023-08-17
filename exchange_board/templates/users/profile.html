@@ -1,18 +1,17 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <div class="card mb-4" style="border: 1px solid #e0e0e0;">
-        <div class="card-body">
-
+    <div>
+        <div>
             {% if user != user_profile %}
                 {% if not is_following %}
-                    <a href="{% url 'users:profile_follow' user_profile.username %}" class="btn btn-minimalist">Follow</a>
+                    <a href="{% url 'users:profile_follow' user_profile.username %}">Follow</a>
                 {% else %}
-                    <a href="{% url 'users:profile_unfollow' user_profile.username %}" class="btn btn-minimalist">Unfollow</a>
+                    <a href="{% url 'users:profile_unfollow' user_profile.username %}">Unfollow</a>
                 {% endif %}
             {% endif %}
 
-            <h5 class="card-title" style="color: #333;">Your name:
+            <h5>Your name:
                 {% if user_profile.username %}
                     {{ user_profile.username }}
                 {% else %}
@@ -20,7 +19,7 @@
                 {% endif %}
             </h5>
 
-            <h5 class="card-title" style="color: #333;">Email:
+            <h5>Email:
                 {% if user_profile.email %}
                     {{ user_profile.email }}
                 {% else %}
@@ -28,8 +27,8 @@
                 {% endif %}
             </h5>
 
-            <h5 class="card-title" style="color: #333;">Offers</h5>
-            <ul class="text-color">
+            <h5>Offers</h5>
+            <ul>
             {% for offer in user_profile.offers.all %}
                 <li>
                     {{ offer.amount_offered }} {{ offer.currency_offered }} to {{ offer.currency_needed }} - {{ offer.status }}
@@ -39,8 +38,8 @@
             {% endfor %}
             </ul>
 
-            <h5 class="card-title" style="color: #333;">Transactions</h5>
-            <ul class="text-color">
+            <h5>Transactions</h5>
+            <ul>
             {% for transaction in user_profile.accepted_transactions.all %}
                 <li>
                     Transaction for {{ transaction.offer }} - {{ transaction.status }}

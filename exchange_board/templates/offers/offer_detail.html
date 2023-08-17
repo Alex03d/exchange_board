@@ -19,35 +19,19 @@
         </div>
     </div>
 
-    <style>
-        .handshake-chain {
-            display: flex;
-            align-items: center;
-            justify-content: flex-start;
-        }
+    <!-- Displaying offer details -->
+    <h3>Details of the Offer</h3>
+    <ul>
+        <li>Currency Offered: {{ offer.currency_offered }}</li>
+        <li>Amount Offered: {{ offer.amount_offered }}</li>
+        <li>Currency Needed: {{ offer.currency_needed }}</li>
+        <li>Publishing Date: {{ offer.publishing_date|date:"d E Y" }}</li>
+        <li>Status: {{ offer.get_status_display }}</li>
+    </ul>
 
-        .emoji {
-            font-size: 1.5em;
-        }
-
-        .line {
-            margin: 0 5px;
-        }
-    </style>
-
-<!-- Displaying offer details -->
-<h3>Details of the Offer</h3>
-<ul>
-    <li>Currency Offered: {{ offer.currency_offered }}</li>
-    <li>Amount Offered: {{ offer.amount_offered }}</li>
-    <li>Currency Needed: {{ offer.currency_needed }}</li>
-    <li>Publishing Date: {{ offer.publishing_date|date:"d E Y" }}</li>
-    <li>Status: {{ offer.get_status_display }}</li>
-</ul>
-
-<!-- Start transaction button -->
-{% if not offer.author == request.user %}
-<a href="{% url 'start_transaction' offer.id %}" class="btn btn-success">Start Transaction</a>
-{% endif %}
+    <!-- Start transaction button -->
+    {% if not offer.author == request.user %}
+    <a href="{% url 'start_transaction' offer.id %}" class="btn-minimalist">Start Transaction</a>
+    {% endif %}
 
 {% endblock %}

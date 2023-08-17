@@ -1,13 +1,11 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h1 class="title-color">Following</h1>
+    <h1>Following</h1>
 
-    <ul class="text-color">
+    <ul>
         {% for user in following_users %}
             <li>{{ user.username }}</li>
         {% endfor %}
     </ul>
 {% endblock %}
-
-

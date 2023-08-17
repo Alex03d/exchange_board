@@ -7,8 +7,8 @@ Your Invitation Link
 
 {% block content %}
 <h1>Your Invitation Link</h1>
-<input type="text" id="invite-link" value="{{ invite_link }}" readonly class="text-border">
-<button onclick="copyToClipboard()" class="btn btn-minimalist">Copy to Clipboard</button>
+<input type="text" id="invite-link" value="{{ invite_link }}" readonly>
+<button onclick="copyToClipboard()" class="btn-minimalist">Copy to Clipboard</button>
 <p>Copy and share the above link to invite someone.</p>
 <h2>Your Previous Invitations</h2>
 <ul>
@@ -16,7 +16,7 @@ Your Invitation Link
     <li>{{ invite.code }}</li>
     {% endfor %}
 </ul>
-<a href="{% url 'index' %}" class="btn btn-minimalist">Go to Dashboard</a>
+<a href="{% url 'index' %}" class="btn-minimalist">Go to Dashboard</a>
 
 <script>
     function copyToClipboard() {
