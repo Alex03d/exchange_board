@@ -64,19 +64,19 @@ def transaction_detail(request, transaction_id):
 
     accepting_user_confirmed_but_not_paid_back = (
             transaction.accepting_user_confirms_money_received == 'YES'
-            and transaction.author_money_confirms_received == 'no'
+            and transaction.author_confirms_money_received == 'no'
             and transaction.accepting_user_asserts_transfer_done == 'no'
     )
 
     accepting_user_paid_back_author_not_confirmed = (
             transaction.accepting_user_confirms_money_received == 'YES'
-            and transaction.author_money_confirms_received == 'no'
+            and transaction.author_confirms_money_received == 'no'
             and transaction.accepting_user_asserts_transfer_done == 'YES'
     )
 
     accepting_user_author_both_confirmed = (
             transaction.accepting_user_confirms_money_received == 'YES'
-            and transaction.author_money_confirms_received == 'YES'
+            and transaction.author_confirms_money_received == 'YES'
     )
 
     current_user_is_author = (
@@ -191,7 +191,7 @@ def accepting_user_confirms_money_received(request, transaction_id):
 @login_required
 def author_confirms_money_received(request, transaction_id):
     transaction = get_object_or_404(Transaction, id=transaction_id)
-    transaction.author_money_confirms_received = 'YES'
+    transaction.author_confirms_money_received = 'YES'
     transaction.status = 'CLOSED'
     transaction.save()
     return redirect('transaction_detail', transaction_id=transaction.id)

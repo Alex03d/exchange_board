@@ -5,9 +5,9 @@
         <div>
             {% if user != user_profile %}
                 {% if not is_following %}
-                    <a href="{% url 'users:profile_follow' user_profile.username %}">Follow</a>
+                    <a href="{% url 'users:profile_follow' user_profile.username %}" class="btn-minimalist">Follow</a>
                 {% else %}
-                    <a href="{% url 'users:profile_unfollow' user_profile.username %}">Unfollow</a>
+                    <a href="{% url 'users:profile_unfollow' user_profile.username %}" class="btn-minimalist">Unfollow</a>
                 {% endif %}
             {% endif %}
 

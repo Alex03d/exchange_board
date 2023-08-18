@@ -101,7 +101,7 @@ class Transaction(models.Model):
         blank=True,
         null=True
     )
-    author_money_confirms_received = models.CharField(
+    author_confirms_money_received = models.CharField(
         max_length=3,
         choices=CONFIRMATION_CHOICES,
         default=NO
