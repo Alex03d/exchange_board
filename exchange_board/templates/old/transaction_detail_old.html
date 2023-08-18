@@ -1,0 +1,265 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <h1>Transaction Detail</h1>
+
+    <div class="container mt-4 mb-4">
+        <h2>Offer by: {{ offer.author.username }}</h2>
+        <h2>Accepted by: {{ accepting_user.username }}</h2>
+        <p class="lead">Тебя зовут: {{ request.user.username }}</p>
+        <p class="lead">Количество рукопожатий между сторонами: {{ handshakes }}</p>
+        <div class="handshake-chain">
+            <span class="emoji">👤</span> <!-- начальный пользователь -->
+            {% for i in handshake_range %}
+                <span class="line">─</span>
+                <span class="emoji">👤</span>
+            {% endfor %}
+    </div>
+
+    {% if transaction.author_asserts_transfer_done == 'no' %}
+        {% if request.user.id == transaction.offer.author.id %}
+            <div class="alert alert-warning" role="alert">
+                Переведите деньги на счет контрагента {{ transaction.accepting_user.username }}
+            </div>
+
+            <form action="{% url 'author_uploads_screenshot' transaction.id %}" method="post" enctype="multipart/form-data" class="mb-3">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label>После отправки загрузите скриншот об отправке</label>
+                    <input type="file" name="author_uploads_transfer_screenshot" class="form-control-file" onchange="displayImage(this, 'authorUploadedScreenshot')">
+                </div>
+                <img id="authorUploadedScreenshot" src="" alt="Uploaded Screenshot" style="display: none; width: 300px;">
+                <button type="submit" class="btn btn-primary">Upload Screenshot</button>
+            </form>
+
+            <a href="{% url 'author_asserts_transfer_done' transaction.id %}" class="btn btn-info">Stage 1. Нажмите на эту ссылку, если вы утверждаете что сделали перевод</a>
+
+        {% elif request.user.id == transaction.accepting_user.id %}
+            <div class="alert alert-info" role="alert">
+                Stage 1. Пожалуйста дождитесь отправки денег от автора заявки.
+            </div>
+        {% endif %}
+
+    {% elif transaction.author_asserts_transfer_done == 'YES' and transaction.accepting_user_confirms_money_received == 'no' %}
+        {% if request.user == transaction.offer.author %}
+            <div class="alert alert-info" role="alert">
+                Stage 2. Дождитесь подтверждения от контрагента.
+            </div>
+        {% elif request.user == transaction.accepting_user %}
+            <div class="alert alert-info" role="alert">
+                Stage 2. Автор заявки утверждает, что сделал перевод.
+            </div>
+            {% if transaction.author_uploads_transfer_screenshot %}
+                <img src="{{ transaction.author_uploads_transfer_screenshot.url }}" alt="Screenshot from author" width="300" class="img-thumbnail mb-3">
+            {% else %}
+                <p>No screenshot uploaded by the author yet.</p>
+            {% endif %}
+
+            <a href="{% url 'accepting_user_confirms_money_received' transaction.id %}" class="btn btn-info">Stage 2. подтвердить получение перевода</a>
+        {% endif %}
+
+    {% elif transaction.accepting_user_confirms_money_received == 'YES' and transaction.author_money_confirms_received == 'no' and transaction.accepting_user_asserts_transfer_done == 'no' %}
+        {% if request.user == transaction.offer.author %}
+            <div class="alert alert-info" role="alert">
+                Stage 3. Контрагент подтвердил получение перевода.
+            </div>
+            <p>Дождитесь ответного перевода от контрагента.</p>
+            <a href="{% url 'author_confirms_money_received' transaction.id %}" class="btn btn-info">подтвердите получение ответного перевода</a>
+
+        {% elif request.user == transaction.accepting_user %}
+            <div class="alert alert-warning" role="alert">
+                Stage 3. Сделайте ответный перевод на счет автора заявки {{ transaction.offer.author.username }}.
+            </div>
+
+            <form action="{% url 'accepting_user_uploads_screenshot' transaction.id %}" method="post" enctype="multipart/form-data" class="mb-3">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label>После отправки загрузите скриншот об отправке</label>
+                    <input type="file" name="accepting_user_uploads_transfer_screenshot" class="form-control-file" onchange="displayImage(this, 'acceptingUserUploadedScreenshot')">
+                </div>
+                <img id="acceptingUserUploadedScreenshot" src="" alt="Uploaded Screenshot" style="display: none; width: 300px;">
+                <button type="submit" class="btn btn-primary">Upload Screenshot</button>
+            </form>
+
+            <a href="{% url 'accepting_user_asserts_transfer_done' transaction.id %}" class="btn btn-info">Нажмите на эту ссылку, если вы утверждаете что сделали перевод</a>
+        {% endif %}
+
+    {% elif transaction.accepting_user_confirms_money_received == 'YES' and transaction.author_money_confirms_received == 'no' and transaction.accepting_user_asserts_transfer_done == 'YES' %}
+        {% if request.user == transaction.offer.author %}
+            <div class="alert alert-info" role="alert">
+                Stage 4 Контрагент утверждает о совершении ответного перевода.
+            </div>
+            {% if transaction.accepting_user_uploads_transfer_screenshot %}
+                <img src="{{ transaction.accepting_user_uploads_transfer_screenshot.url }}" alt="Screenshot from accepting user" width="300" class="img-thumbnail mb-3">
+            {% else %}
+                <p>No screenshot uploaded by the accepting user yet.</p>
+            {% endif %}
+
+            <a href="{% url 'author_confirms_money_received' transaction.id %}" class="btn btn-info">Stage 4  подтвердите получение ответного перевода</a>
+
+        {% elif request.user == transaction.accepting_user %}
+            <div class="alert alert-info" role="alert">
+                Stage 4 Дождитесь подтверждения от контрагента.
+            </div>
+        {% endif %}
+
+    {% elif transaction.accepting_user_confirms_money_received == 'YES' and transaction.author_money_confirms_received == 'YES' %}
+        <div class="alert alert-success" role="alert">
+            Stage 5. Сделка успешно завершена.
+        </div>
+    {% endif %}
+
+<script>
+function displayImage(fileInput, imgElementId) {
+    var file = fileInput.files[0];
+    var reader = new FileReader();
+
+    reader.onloadend = function() {
+        document.getElementById(imgElementId).style.display = "block";
+        document.getElementById(imgElementId).src = reader.result;
+    }
+
+    if (file) {
+        reader.readAsDataURL(file);
+    } else {
+        document.getElementById(imgElementId).style.display = "none";
+    }
+}
+</script>
+{% endblock %}
+
+        Новый:
+
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1>Transaction Detail</h1>
+
+<div class="container mt-4 mb-4">
+    <h2>Offer by: {{ offer.author.username }}</h2>
+    <h2>Accepted by: {{ accepting_user.username }}</h2>
+    <p class="lead">Тебя зовут: {{ request.user.username }}</p>
+    <p class="lead">Количество рукопожатий между сторонами: {{ handshakes }}</p>
+    <div class="handshake-chain">
+        <span class="emoji">👤</span> <!-- начальный пользователь -->
+        {% for i in handshake_range %}
+            <span class="line">─</span>
+            <span class="emoji">👤</span>
+        {% endfor %}
+    </div>
+
+    {% if author_asserts_transfer_done_no %}
+        {% if request.user.id == transaction.offer.author.id %}
+            <div class="alert alert-warning" role="alert">
+                Переведите деньги на счет контрагента {{ transaction.accepting_user.username }}
+            </div>
+
+            <form action="{% url 'author_uploads_screenshot' transaction.id %}" method="post" enctype="multipart/form-data" class="mb-3">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label>После отправки загрузите скриншот об отправке</label>
+                    <input type="file" name="author_uploads_transfer_screenshot" class="form-control-file" onchange="displayImage(this, 'authorUploadedScreenshot')">
+                </div>
+                <img id="authorUploadedScreenshot" src="" alt="Uploaded Screenshot" style="display: none; width: 300px;">
+                <button type="submit" class="btn btn-primary">Upload Screenshot</button>
+            </form>
+
+            <a href="{% url 'author_asserts_transfer_done' transaction.id %}" class="btn btn-info">Stage 1. Нажмите на эту ссылку, если вы утверждаете что сделали перевод</a>
+
+        {% elif request.user.id == transaction.accepting_user.id %}
+            <div class="alert alert-info" role="alert">
+                Stage 1. Пожалуйста дождитесь отправки денег от автора заявки.
+            </div>
+        {% endif %}
+
+    {% elif author_asserts_transfer_done_yes %}
+        {% if request.user == transaction.offer.author %}
+            <div class="alert alert-info" role="alert">
+                Stage 2. Дождитесь подтверждения от контрагента.
+            </div>
+        {% elif request.user == transaction.accepting_user %}
+            <div class="alert alert-info" role="alert">
+                Stage 2. Автор заявки утверждает, что сделал перевод.
+            </div>
+            {% if transaction.author_uploads_transfer_screenshot %}
+                <img src="{{ transaction.author_uploads_transfer_screenshot.url }}" alt="Screenshot from author" width="300" class="img-thumbnail mb-3">
+            {% else %}
+                <p>No screenshot uploaded by the author yet.</p>
+            {% endif %}
+
+            <a href="{% url 'accepting_user_confirms_money_received' transaction.id %}" class="btn btn-info">Stage 2. подтвердить получение перевода</a>
+        {% endif %}
+
+    {% elif accepting_user_confirmed_but_not_paid_back %}
+        {% if current_user_is_author %}
+            <div class="alert alert-info" role="alert">
+                Stage 3. Контрагент подтвердил получение перевода.
+            </div>
+            <p>Дождитесь ответного перевода от контрагента.</p>
+            <a href="{% url 'author_confirms_money_received' transaction.id %}" class="btn btn-info">подтвердите получение ответного перевода</a>
+
+        {% elif current_user_is_accepting_user %}
+            <div class="alert alert-warning" role="alert">
+                Stage 3. Сделайте ответный перевод на счет автора заявки {{ transaction.offer.author.username }}.
+            </div>
+
+            <form action="{% url 'accepting_user_uploads_screenshot' transaction.id %}" method="post" enctype="multipart/form-data" class="mb-3">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label>После отправки загрузите скриншот об отправке</label>
+                    <input type="file" name="accepting_user_uploads_transfer_screenshot" class="form-control-file" onchange="displayImage(this, 'acceptingUserUploadedScreenshot')">
+                </div>
+                <img id="acceptingUserUploadedScreenshot" src="" alt="Uploaded Screenshot" style="display: none; width: 300px;">
+                <button type="submit" class="btn btn-primary">Upload Screenshot</button>
+            </form>
+
+            <a href="{% url 'accepting_user_asserts_transfer_done' transaction.id %}" class="btn btn-info">Нажмите на эту ссылку, если вы утверждаете что сделали перевод</a>
+        {% endif %}
+
+    {% elif accepting_user_paid_back_author_not_confirmed %}
+        {% if current_user_is_author %}
+            <div class="alert alert-info" role="alert">
+                Stage 4 Контрагент утверждает о совершении ответного перевода.
+            </div>
+            {% if transaction.accepting_user_uploads_transfer_screenshot %}
+                <img src="{{ transaction.accepting_user_uploads_transfer_screenshot.url }}" alt="Screenshot from accepting user" width="300" class="img-thumbnail mb-3">
+            {% else %}
+                <p>No screenshot uploaded by the accepting user yet.</p>
+            {% endif %}
+
+            <a href="{% url 'author_confirms_money_received' transaction.id %}" class="btn btn-info">Stage 4  подтвердите получение ответного перевода</a>
+
+        {% elif current_user_is_accepting_user %}
+            <div class="alert alert-info" role="alert">
+                Stage 4 Дождитесь подтверждения от контрагента.
+            </div>
+        {% endif %}
+
+    {% elif accepting_user_author_both_confirmed %}
+        <div class="alert alert-success" role="alert">
+            Stage 5. Сделка успешно завершена.
+        </div>
+    {% endif %}
+
+</div>
+
+<script>
+    function displayImage(fileInput, imgElementId) {
+        var file = fileInput.files[0];
+        var reader = new FileReader();
+
+        reader.onloadend = function() {
+            document.getElementById(imgElementId).style.display = "block";
+            document.getElementById(imgElementId).src = reader.result;
+        }
+
+        if (file) {
+            reader.readAsDataURL(file);
+        } else {
+            document.getElementById(imgElementId).style.display = "none";
+        }
+    }
+</script>
+{% endblock %}

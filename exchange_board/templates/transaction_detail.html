@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container mt-5">
+
     <h1>Transaction Detail</h1>
 
-    <div class="mb-4">
+    <div class="container mt-4 mb-4">
         <h2>Offer by: {{ offer.author.username }}</h2>
         <h2>Accepted by: {{ accepting_user.username }}</h2>
         <p class="lead">Тебя зовут: {{ request.user.username }}</p>
@@ -15,27 +15,10 @@
                 <span class="line">─</span>
                 <span class="emoji">👤</span>
             {% endfor %}
-        </div>
     </div>
 
-    <style>
-        .handshake-chain {
-            display: flex;
-            align-items: center;
-            justify-content: flex-start;
-        }
-
-        .emoji {
-            font-size: 1.5em;
-        }
-
-        .line {
-            margin: 0 5px;
-        }
-    </style>
-
-    {% if transaction.author_asserts_transfer_done == 'no' %}
-        {% if request.user.id == transaction.offer.author.id %}
+    {% if author_not_asserts_paid %}
+        {% if current_user_is_author %}
             <div class="alert alert-warning" role="alert">
                 Переведите деньги на счет контрагента {{ transaction.accepting_user.username }}
             </div>
@@ -52,19 +35,18 @@
 
             <a href="{% url 'author_asserts_transfer_done' transaction.id %}" class="btn btn-info">Stage 1. Нажмите на эту ссылку, если вы утверждаете что сделали перевод</a>
 
-        {% elif request.user.id == transaction.accepting_user.id %}
+        {% elif current_user_is_accepting_user %}
             <div class="alert alert-info" role="alert">
                 Stage 1. Пожалуйста дождитесь отправки денег от автора заявки.
             </div>
         {% endif %}
 
-    {% elif transaction.author_asserts_transfer_done == 'YES' and transaction.accepting_user_confirms_money_received == 'no' %}
-        {% if request.user == transaction.offer.author %}
+    {% elif author_asserts_paid and accepting_user_not_confirmed %}
+        {% if current_user_is_author %}
             <div class="alert alert-info" role="alert">
                 Stage 2. Дождитесь подтверждения от контрагента.
             </div>
-
-        {% elif request.user == transaction.accepting_user %}
+        {% elif current_user_is_accepting_user %}
             <div class="alert alert-info" role="alert">
                 Stage 2. Автор заявки утверждает, что сделал перевод.
             </div>
@@ -77,15 +59,15 @@
             <a href="{% url 'accepting_user_confirms_money_received' transaction.id %}" class="btn btn-info">Stage 2. подтвердить получение перевода</a>
         {% endif %}
 
-    {% elif transaction.accepting_user_confirms_money_received == 'YES' and transaction.author_money_confirms_received == 'no' and transaction.accepting_user_asserts_transfer_done == 'no' %}
-        {% if request.user == transaction.offer.author %}
+    {% elif accepting_user_confirmed_but_not_paid_back %}
+        {% if current_user_is_author %}
             <div class="alert alert-info" role="alert">
                 Stage 3. Контрагент подтвердил получение перевода.
             </div>
             <p>Дождитесь ответного перевода от контрагента.</p>
             <a href="{% url 'author_confirms_money_received' transaction.id %}" class="btn btn-info">подтвердите получение ответного перевода</a>
 
-        {% elif request.user == transaction.accepting_user %}
+        {% elif current_user_is_accepting_user %}
             <div class="alert alert-warning" role="alert">
                 Stage 3. Сделайте ответный перевод на счет автора заявки {{ transaction.offer.author.username }}.
             </div>
@@ -103,8 +85,8 @@
             <a href="{% url 'accepting_user_asserts_transfer_done' transaction.id %}" class="btn btn-info">Нажмите на эту ссылку, если вы утверждаете что сделали перевод</a>
         {% endif %}
 
-    {% elif transaction.accepting_user_confirms_money_received == 'YES' and transaction.author_money_confirms_received == 'no' and transaction.accepting_user_asserts_transfer_done == 'YES' %}
-        {% if request.user == transaction.offer.author %}
+    {% elif accepting_user_paid_back_author_not_confirmed %}
+        {% if current_user_is_author %}
             <div class="alert alert-info" role="alert">
                 Stage 4 Контрагент утверждает о совершении ответного перевода.
             </div>
@@ -116,18 +98,17 @@
 
             <a href="{% url 'author_confirms_money_received' transaction.id %}" class="btn btn-info">Stage 4  подтвердите получение ответного перевода</a>
 
-        {% elif request.user == transaction.accepting_user %}
+        {% elif current_user_is_accepting_user %}
             <div class="alert alert-info" role="alert">
                 Stage 4 Дождитесь подтверждения от контрагента.
             </div>
         {% endif %}
 
-    {% elif transaction.accepting_user_confirms_money_received == 'YES' and transaction.author_money_confirms_received == 'YES' %}
+    {% elif accepting_user_author_both_confirmed %}
         <div class="alert alert-success" role="alert">
             Stage 5. Сделка успешно завершена.
         </div>
     {% endif %}
-</div>
 
 <script>
 function displayImage(fileInput, imgElementId) {

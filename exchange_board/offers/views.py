@@ -52,21 +52,65 @@ def transaction_detail(request, transaction_id):
     accepting_user_code = transaction.accepting_user.referral_code
     handshakes = handshake_count(offer_user_code, accepting_user_code)
 
+    author_not_asserts_paid = (
+            transaction.author_asserts_transfer_done == 'no'
+    )
+    accepting_user_not_confirmed = (
+            transaction.accepting_user_confirms_money_received == 'no'
+    )
+    author_asserts_paid = (
+            transaction.author_asserts_transfer_done == 'YES'
+    )
+
+    accepting_user_confirmed_but_not_paid_back = (
+            transaction.accepting_user_confirms_money_received == 'YES'
+            and transaction.author_money_confirms_received == 'no'
+            and transaction.accepting_user_asserts_transfer_done == 'no'
+    )
+
+    accepting_user_paid_back_author_not_confirmed = (
+            transaction.accepting_user_confirms_money_received == 'YES'
+            and transaction.author_money_confirms_received == 'no'
+            and transaction.accepting_user_asserts_transfer_done == 'YES'
+    )
+
+    accepting_user_author_both_confirmed = (
+            transaction.accepting_user_confirms_money_received == 'YES'
+            and transaction.author_money_confirms_received == 'YES'
+    )
+
+    current_user_is_author = (
+            request.user == transaction.offer.author
+    )
+    current_user_is_accepting_user = (
+            request.user == transaction.accepting_user
+    )
+
     context = {
         'transaction': transaction,
         'offer': offer,
         'accepting_user': accepting_user,
         'handshakes': handshakes,
         'handshake_range': range(handshakes),
+
+        'accepting_user_not_confirmed': accepting_user_not_confirmed,
+        'author_not_asserts_paid': author_not_asserts_paid,
+        'author_asserts_paid': author_asserts_paid,
+
+        'accepting_user_confirmed_but_not_paid_back':
+            accepting_user_confirmed_but_not_paid_back,
+        'accepting_user_paid_back_author_not_confirmed':
+            accepting_user_paid_back_author_not_confirmed,
+        'accepting_user_author_both_confirmed':
+            accepting_user_author_both_confirmed,
+
+        'current_user_is_author': current_user_is_author,
+        'current_user_is_accepting_user': current_user_is_accepting_user,
     }
 
     return render(request, 'transaction_detail.html', context)
 
 
-# @login_required
-# def offer_detail(request, offer_id):
-#     offer = get_object_or_404(Offer, id=offer_id)
-#     return render(request, 'offer_detail.html', {'offer': offer})
 @login_required
 def offer_detail(request, offer_id):
     offer = get_object_or_404(Offer, id=offer_id)
