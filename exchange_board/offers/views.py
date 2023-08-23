@@ -157,9 +157,9 @@ def upload_screenshot(request, transaction_id, user_role):
     else:
         form = UploadScreenshotForm(instance=transaction)
 
-    template_name = ('author_upload_screenshot.html'
+    template_name = ('offers/author_upload_screenshot.html'
                      if user_role == "author"
-                     else 'accepting_upload_screenshot.html')
+                     else 'offers/accepting_upload_screenshot.html')
     return render(
         request,
         template_name,

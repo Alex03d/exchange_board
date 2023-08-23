@@ -61,7 +61,7 @@ class Offer(models.Model):
     )
 
     def __str__(self):
-        return (f"{self.author} - {self.amount_offered} "
+        return (f"{self.author} - {self.amount_offered:.2f} "
                 f"{self.currency_offered} to {self.currency_needed}")
 
 

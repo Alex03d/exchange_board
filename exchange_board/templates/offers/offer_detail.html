@@ -22,7 +22,7 @@
     <h3>Details of the Offer</h3>
     <ul>
         <li>Currency Offered: {{ offer.currency_offered }}</li>
-        <li>Amount Offered: {{ offer.amount_offered }}</li>
+        <li>Amount Offered: {{ offer.amount_offered|floatformat:2 }}</li>
         <li>Currency Needed: {{ offer.currency_needed }}</li>
         <li>Publishing Date: {{ offer.publishing_date|date:"d E Y" }}</li>
         <li>Status: {{ offer.get_status_display }}</li>
