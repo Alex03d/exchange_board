@@ -3,7 +3,7 @@ from django.conf import settings
 
 
 OPEN = 'open'
-IN_PROGRESS = 'in_progress'
+IN_PROGRESS = 'in progress'
 CLOSED = 'closed'
 DISPUTE = 'dispute'
 

@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 from .forms import UploadScreenshotForm, OfferForm
-from .models import Offer, Transaction
+from .models import Offer, Transaction, OPEN, IN_PROGRESS, CLOSED, DISPUTE
 from users.views import handshake_count
 
 
@@ -34,6 +34,10 @@ def start_transaction(request, offer_id):
     offer = get_object_or_404(Offer, id=offer_id)
     if offer.author == request.user:
         return redirect('index')
+
+    offer.status = IN_PROGRESS
+    offer.save()
+
     transaction, created = Transaction.objects.get_or_create(
         offer=offer,
         accepting_user=request.user
@@ -194,6 +198,11 @@ def author_confirms_money_received(request, transaction_id):
     transaction.author_confirms_money_received = 'YES'
     transaction.status = 'CLOSED'
     transaction.save()
+
+    offer = transaction.offer
+    offer.status = CLOSED
+    offer.save()
+
     return redirect('transaction_detail', transaction_id=transaction.id)
 
 
