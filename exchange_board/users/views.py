@@ -71,6 +71,9 @@ def create_invite(request):
 
 
 def login_view(request):
+    if request.user.is_authenticated:
+        return redirect('index')
+
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
@@ -108,7 +111,6 @@ def handshake_count(code1, code2):
 
 @login_required
 def follow_index(request):
-    # Получаем список пользователей, на которых подписан текущий пользователь
     following_users = request.user.follower.all().values_list('author', flat=True)
     authors = CustomUser.objects.filter(id__in=following_users)
 
@@ -139,7 +141,10 @@ def profile_unfollow(request, username):
 
 def user_profile(request, username):
     user_profile = get_object_or_404(CustomUser, username=username)
-    is_following = UserFollow.objects.filter(author=user_profile, user=request.user).exists()
+    is_following = False
+
+    if request.user.is_authenticated:
+        is_following = UserFollow.objects.filter(author=user_profile, user=request.user).exists()
 
     context = {
         'user_profile': user_profile,

@@ -125,7 +125,10 @@ class TransactionViewTests(TestCase):
         )
         self.client.login(username='testuser2', password='password2')
 
-        response = self.client.get(reverse('transaction_detail', args=[transaction.id]))
+        response = self.client.get(reverse(
+            'transaction_detail',
+            args=[transaction.id])
+        )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Transaction')
 
@@ -136,7 +139,9 @@ class TransactionViewTests(TestCase):
         )
         self.client.login(username='testuser1', password='password1')
 
-        response = self.client.get(reverse('author_uploads_screenshot', args=[transaction.id]))
+        response = self.client.get(
+            reverse('author_uploads_screenshot', args=[transaction.id])
+        )
         self.assertEqual(response.status_code, 200)
 
     def test_accepting_user_uploads_screenshot(self):
@@ -146,7 +151,10 @@ class TransactionViewTests(TestCase):
         )
         self.client.login(username='testuser2', password='password2')
 
-        response = self.client.get(reverse('accepting_user_uploads_screenshot', args=[transaction.id]))
+        response = self.client.get(reverse(
+            'accepting_user_uploads_screenshot',
+            args=[transaction.id])
+        )
         self.assertEqual(response.status_code, 200)
 
     def test_author_confirms_money_received(self):
@@ -156,14 +164,19 @@ class TransactionViewTests(TestCase):
         )
         self.client.login(username='testuser1', password='password1')
 
-        response = self.client.get(reverse('author_confirms_money_received', args=[transaction.id]))
+        response = self.client.get(reverse(
+            'author_confirms_money_received',
+            args=[transaction.id])
+        )
         self.assertEqual(response.status_code, 302)
         transaction.refresh_from_db()
         self.assertEqual(transaction.author_confirms_money_received, 'YES')
 
     def test_offer_detail_view(self):
         self.client.login(username='testuser1', password='password1')
-        response = self.client.get(reverse('offer_detail', args=[self.offer.id]))
+        response = self.client.get(
+            reverse('offer_detail', args=[self.offer.id])
+        )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Currency Offered: USD')
         self.assertContains(response, 'Amount Offered: 100.00')
@@ -176,8 +189,10 @@ class TransactionViewTests(TestCase):
         )
         self.client.login(username='testuser1', password='password1')
         with open('media/tests/IMG_3511.PNG', 'rb') as screenshot:
-            response = self.client.post(reverse('author_uploads_screenshot', args=[transaction.id]),
-                                        {'author_uploads_transfer_screenshot': screenshot})
+            response = self.client.post(
+                reverse('author_uploads_screenshot', args=[transaction.id]),
+                {'author_uploads_transfer_screenshot': screenshot}
+            )
         self.assertEqual(response.status_code, 302)
         transaction.refresh_from_db()
         self.assertIsNotNone(transaction.author_uploads_transfer_screenshot)
@@ -189,8 +204,11 @@ class TransactionViewTests(TestCase):
         )
         self.client.login(username='testuser2', password='password2')
         with open('media/tests/IMG_3511.PNG', 'rb') as screenshot:
-            response = self.client.post(reverse('accepting_user_uploads_screenshot', args=[transaction.id]),
-                                        {'accepting_user_uploads_transfer_screenshot': screenshot})
+            response = self.client.post(
+                reverse('accepting_user_uploads_screenshot',
+                        args=[transaction.id]),
+                {'accepting_user_uploads_transfer_screenshot': screenshot}
+            )
         self.assertEqual(response.status_code, 302)
         transaction.refresh_from_db()
         self.assertIsNotNone(transaction.accepting_user_uploads_transfer_screenshot)
@@ -201,7 +219,10 @@ class TransactionViewTests(TestCase):
             accepting_user=self.user2
         )
         self.client.login(username='testuser1', password='password1')
-        response = self.client.get(reverse('author_asserts_transfer_done', args=[transaction.id]))
+        response = self.client.get(reverse(
+            'author_asserts_transfer_done',
+            args=[transaction.id])
+        )
         self.assertEqual(response.status_code, 302)
         transaction.refresh_from_db()
         self.assertEqual(transaction.author_asserts_transfer_done, 'YES')
@@ -212,11 +233,13 @@ class TransactionViewTests(TestCase):
             accepting_user=self.user2
         )
         self.client.login(username='testuser2', password='password2')
-        response = self.client.get(reverse('accepting_user_asserts_transfer_done', args=[transaction.id]))
+        response = self.client.get(reverse(
+            'accepting_user_asserts_transfer_done',
+            args=[transaction.id])
+        )
         self.assertEqual(response.status_code, 302)
         transaction.refresh_from_db()
-        self.assertEqual(transaction.accepting_user_asserts_transfer_done, 'YES')
-
-
-
-
+        self.assertEqual(
+            transaction.accepting_user_asserts_transfer_done,
+            'YES'
+        )
