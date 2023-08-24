@@ -21,7 +21,7 @@
         .btn-minimalist {
             display: inline-block;
             font-weight: 400;
-            text-align: center;
+            text-align: left;
             white-space: nowrap;
             vertical-align: middle;
             user-select: none;
@@ -36,6 +36,7 @@
             color: #444;
             border-radius: 5px;
             text-decoration: none;
+            margin-bottom: 1rem;
         }
 
         .btn-minimalist:hover {
@@ -89,6 +90,46 @@
             color: #000;
             border-color: #b0b0b0;
         }
+
+        .simple-list {
+            list-style-type: none; /* убираем маркеры списка */
+            padding-left: 0;
+        }
+
+        .simple-list li {
+            margin-bottom: 15px; /* вертикальные отступы между элементами списка */
+        }
+
+        .simple-list a {
+            color: #555; /* цвет ссылок */
+            text-decoration: none; /* убираем подчеркивание */
+            font-weight: bold; /* делаем текст жирным */
+        }
+
+        .simple-list a:hover {
+            color: #333; /* цвет ссылки при наведении */
+            text-decoration: underline; /* подчеркивание при наведении */
+        }
+
+        .user-link {
+
+            padding: 8px 12px;
+            background-color: #f7f7f7; /* светло-серый цвет фона */
+            border: 1px solid #e0e0e0; /* рамка вокруг прямоугольника */
+            text-decoration: none; /* убираем подчеркивание у ссылки */
+            color: #333; /* цвет текста */
+            border-radius: 4px; /* скругленные углы */
+            transition: background-color 0.3s; /* плавное изменение фона при наведении */
+            display: inline-flex; /* позволяет контейнеру автоматически настраивать свою ширину */
+            align-items: center; /* выравнивание содержимого по вертикали */
+            justify-content: left;
+            min-width: 210px;
+        }
+
+        .user-link:hover {
+            background-color: #e0e0e0; /* цвет фона при наведении */
+        }
+
 
     </style>
     <title>{% block title %}{{ title }}{% endblock title %}</title>

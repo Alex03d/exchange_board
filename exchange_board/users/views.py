@@ -1,5 +1,6 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.db.models import Count
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from .forms import CustomUserCreationForm
@@ -58,10 +59,18 @@ def create_invite(request):
         )
 
         previous_invitations = Invitation.objects.filter(inviter=user)
+        previous_invitations_urls = [
+            request.build_absolute_uri(
+                reverse(
+                    'users:register_with_invite',
+                    kwargs={'invite_code': invite.code}
+                )
+            ) for invite in previous_invitations
+        ]
 
         return render(request, 'invite_link.html', {
             'invite_link': invite_link,
-            'previous_invitations': previous_invitations
+            'previous_invitations': previous_invitations_urls
         })
     else:
         return render(
@@ -112,7 +121,10 @@ def handshake_count(code1, code2):
 @login_required
 def follow_index(request):
     following_users = request.user.follower.all().values_list('author', flat=True)
-    authors = CustomUser.objects.filter(id__in=following_users)
+    authors = CustomUser.objects.filter(id__in=following_users).annotate(
+        offers_count=Count('offers'),
+        transactions_count=Count('accepted_transactions')
+    )
 
     context = {
         'following_users': authors,

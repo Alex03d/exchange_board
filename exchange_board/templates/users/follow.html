@@ -1,11 +1,27 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h1>Following</h1>
 
-    <ul>
-        {% for user in following_users %}
-            <li>{{ user.username }}</li>
-        {% endfor %}
-    </ul>
+<div class="container mt-5">
+    <h1 class="display-6 text-left mb-5">Following</h1>
+
+    {% for user in following_users %}
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">
+                <a href="{% url 'users:user_profile' username=user.username %}" class="user-link">
+                    {{ user.username|capfirst }}
+                </a>
+            </h5>
+            <p class="card-text">
+                Date Joined: {{ user.date_joined|date:"d E Y" }} <br>
+                Offers: {{ user.offers_count }} <br>
+                Transactions: {{ user.transactions_count }} <br>
+            </p>
+        </div>
+    </div>
+    {% endfor %}
+
+</div>
+
 {% endblock %}

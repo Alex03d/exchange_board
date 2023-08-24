@@ -11,9 +11,9 @@ Your Invitation Link
 <button onclick="copyToClipboard()" class="btn-minimalist">Copy to Clipboard</button>
 <p>Copy and share the above link to invite someone.</p>
 <h2>Your Previous Invitations</h2>
-<ul>
-    {% for invite in previous_invitations %}
-    <li>{{ invite.code }}</li>
+<ul class="simple-list">
+    {% for invite_url in previous_invitations %}
+    <li><a href="{{ invite_url }}" target="_blank">{{ invite_url }}</a></li>
     {% endfor %}
 </ul>
 <a href="{% url 'index' %}" class="btn-minimalist">Go to Dashboard</a>

@@ -19,24 +19,36 @@
             {% if offer.transaction %}
                 {% if offer.author == request.user %}
                     {% if offer.transaction.status == "CLOSED" %}
-                        <a href="{% url 'transaction_detail' offer.transaction.id %}" class="btn-minimalist">Ваша прошлая заявка. Сделка закрыта</a>
+                        <a href="{% url 'transaction_detail' offer.transaction.id %}" class="btn-minimalist">
+                            Your previous request<br>Transaction closed
+                        </a>
                     {% else %}
-                        <a href="{% url 'transaction_detail' offer.transaction.id %}" class="btn-minimalist">На Вашу заявку есть отклик. Открыта транзакция</a>
+                        <a href="{% url 'transaction_detail' offer.transaction.id %}" class="btn-minimalist">
+                            You have a response<br>Transaction is open
+                        </a>
                     {% endif %}
                 {% elif offer.transaction.accepting_user == request.user %}
                     {% if offer.transaction.status == "CLOSED" %}
-                        <a href="{% url 'transaction_detail' offer.transaction.id %}" class="btn-minimalist">Вы отреагировали на эту заявку. Сделка закрыта</a>
+                        <a href="{% url 'transaction_detail' offer.transaction.id %}" class="btn-minimalist">
+                            You responded to this offer<br>Transaction closed
+                        </a>
                     {% else %}
-                        <a href="{% url 'transaction_detail' offer.transaction.id %}" class="btn-minimalist">Вы отреагировали на эту заявку. Сделка в процессе исполнения</a>
+                        <a href="{% url 'transaction_detail' offer.transaction.id %}" class="btn-minimalist">
+                            You responded to this offer<br>Transaction in progress
+                        </a>
                     {% endif %}
                 {% else %}
-                    <p class="text-border">Транзакция в процессе исполнения</p>
+                    <p class="text-border">Transaction in progress</p>
                 {% endif %}
             {% else %}
                 {% if offer.author == request.user %}
-                    <a href="{% url 'offer_detail' offer.id %}" class="btn-minimalist">Ваша заявка ожидает отклика</a>
+                    <a href="{% url 'offer_detail' offer.id %}" class="btn-minimalist">
+                        Your offer is awaiting response
+                    </a>
                 {% else %}
-                    <a href="{% url 'offer_detail' offer.id %}" class="btn-minimalist">Детали заявки</a>
+                    <a href="{% url 'offer_detail' offer.id %}" class="btn-minimalist">
+                        Offer details
+                    </a>
                 {% endif %}
             {% endif %}
         </div>
