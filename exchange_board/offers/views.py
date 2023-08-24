@@ -15,6 +15,18 @@ def index(request):
     return render(request, template, context)
 
 
+# @login_required
+# def create_offer(request):
+#     if request.method == 'POST':
+#         form = OfferForm(request.POST)
+#         if form.is_valid():
+#             offer = form.save(commit=False)
+#             offer.author = request.user
+#             offer.save()
+#             return redirect('offer_detail', offer_id=offer.id)
+#     else:
+#         form = OfferForm()
+#     return render(request, 'offers/create_offer.html', {'form': form})
 @login_required
 def create_offer(request):
     if request.method == 'POST':
@@ -26,6 +38,7 @@ def create_offer(request):
             return redirect('offer_detail', offer_id=offer.id)
     else:
         form = OfferForm()
+
     return render(request, 'offers/create_offer.html', {'form': form})
 
 

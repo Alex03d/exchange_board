@@ -3,17 +3,49 @@
 {% block content %}
 <h2>Create New Offer</h2>
 
-    <form method="post" class="row justify-content-left">
-        {% csrf_token %}
-        <div class="col-lg-4 col-12">
-            {% for field in form %}
-            <div class="form-group">
-                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                <input type="{{ field.field.widget.input_type }}" class="form-control" id="{{ field.id_for_label }}" name="{{ field.name }}" value="{{ field.value }}">
-            </div>
-            {% endfor %}
-            <button type="submit" class="btn-minimalist mt-3">Submit</button>
+<form method="post" class="row justify-content-left">
+    {% csrf_token %}
+    <div class="col-lg-4 col-12">
+
+        <div class="text-border-block">
+            For security reasons during our testing period,<br>
+            we have set temporary transfer limits:<br>
         </div>
-    </form>
+
+        <div class="text-border-block">
+            50 dollars for USD<br>
+            5000 rubles for RUB<br>
+            150 000 tugriks for MNT
+        </div>
+
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger mt-2">
+                {{ form.non_field_errors.0 }}
+            </div>
+        {% endif %}
+
+
+        {% for field in form %}
+        <div class="form-group">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {% if field.field.widget.input_type == 'select' %}
+                <select class="form-control" id="{{ field.id_for_label }}" name="{{ field.name }}">
+                    {% for choice_value, choice_label in field.field.choices %}
+                        <option value="{{ choice_value }}" {% if field.value == choice_value %}selected{% endif %}>{{ choice_label }}</option>
+                    {% endfor %}
+                </select>
+            {% else %}
+                <input type="{{ field.field.widget.input_type }}" class="form-control" id="{{ field.id_for_label }}" name="{{ field.name }}" value="{{ field.value }}">
+            {% endif %}
+            {% if field.errors %}
+                <div class="alert alert-danger mt-2">
+                    {{ field.errors.0 }}
+                </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+        <button type="submit" class="btn-minimalist mt-3">Submit</button>
+    </div>
+</form>
 
 {% endblock %}

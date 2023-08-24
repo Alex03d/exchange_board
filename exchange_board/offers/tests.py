@@ -56,6 +56,28 @@ class OfferViewTests(TestCase):
                 'currency_needed': 'RUB'
             }
         )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(Offer.objects.exists())
+        self.assertContains(response, "Limit exceeded for dollars!")
+        self.assertFalse(Offer.objects.filter(author=user).exists())
+
+    def test_offer_creation_within_limit(self):
+        user = CustomUser.objects.create_user(
+            username='testuser',
+            password='password'
+        )
+        self.client.login(username='testuser', password='password')
+
+        response = self.client.post(
+            reverse('create_offer'),
+            {
+                'currency_offered': 'USD',
+                'amount_offered': 40.00,
+                'currency_needed': 'RUB'
+            }
+        )
+
         self.assertEqual(response.status_code, 302)
         self.assertTrue(Offer.objects.exists())
         self.assertEqual(Offer.objects.first().author, user)
