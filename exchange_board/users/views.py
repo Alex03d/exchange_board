@@ -158,20 +158,6 @@ def user_profile(request, username):
     if request.user.is_authenticated:
         is_following = UserFollow.objects.filter(author=user_profile, user=request.user).exists()
 
-    context = {
-        'user_profile': user_profile,
-        'is_following': is_following,
-    }
-    return render(request, 'users/profile.html', context)
-
-
-def user_profile(request, username):
-    user_profile = get_object_or_404(CustomUser, username=username)
-    is_following = False
-
-    if request.user.is_authenticated:
-        is_following = UserFollow.objects.filter(author=user_profile, user=request.user).exists()
-
     inviter = user_profile.invited_by
     context = {
         'user_profile': user_profile,
