@@ -30,6 +30,15 @@
                             Data not provided
                         {% endif %}
                     </h5>
+
+                    <h5>Invited by:
+                    {% if inviter %}
+                        <a href="{% url 'users:user_profile' inviter.username %}">{{ inviter.username|capfirst }}</a>
+                    {% else %}
+                        <p>Administrator.</p>
+                    {% endif %}
+                    </h5>
+
                 </div>
             </div>
 
