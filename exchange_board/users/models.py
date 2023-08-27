@@ -77,7 +77,7 @@ class CustomUser(AbstractUser):
         related_name="referrals"
     )
 
-    invites_left = models.PositiveSmallIntegerField(default=2)
+    invites_left = models.PositiveSmallIntegerField(default=3)
     referral_code = models.CharField(max_length=255,
                                      blank=True,
                                      null=True,

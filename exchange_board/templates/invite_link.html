@@ -7,9 +7,16 @@ Your Invitation Link
 
 {% block content %}
 <h1>Your Invitation Link</h1>
+
+{% if has_invites %}
 <input type="text" id="invite-link" value="{{ invite_link }}" readonly>
-<button onclick="copyToClipboard()" class="btn-minimalist">Copy to Clipboard</button>
+<button id="generate-button" onclick="generateAndShowLink()" class="btn-minimalist">Сгенерировать ссылку</button>
+<button id="copy-button" onclick="copyToClipboard()" class="btn-minimalist" style="display: none;">Copy to Clipboard</button>
 <p>Copy and share the above link to invite someone.</p>
+{% else %}
+<p>You have no invitations left.</p>
+{% endif %}
+
 <h2>Your Previous Invitations</h2>
 <ul class="simple-list">
     {% for invite_url in previous_invitations %}
@@ -24,6 +31,16 @@ Your Invitation Link
         copyText.select();
         document.execCommand("copy");
         alert("Copied the text: " + copyText.value);
+    }
+
+    function generateAndShowLink() {
+        fetch("{% url 'users:generate_invite' %}")
+        .then(response => response.json())
+        .then(data => {
+            const inviteInput = document.getElementById("invite-link");
+            inviteInput.value = data.invite_link;
+            document.getElementById("copy-button").style.display = "block";
+        });
     }
 </script>
 {% endblock %}

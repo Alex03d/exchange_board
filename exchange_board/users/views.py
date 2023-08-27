@@ -1,6 +1,7 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from .forms import CustomUserCreationForm
@@ -31,7 +32,7 @@ def register(request, invite_code):
             user.save()
             invitation.used = True
             invitation.save()
-            if not inviter.is_superuser:
+            if not inviter.is_superuser and inviter.invites_left > 0:
                 inviter.invites_left -= 1
                 inviter.save()
             return redirect('users:login')
@@ -41,9 +42,28 @@ def register(request, invite_code):
     return render(request, 'users/register.html', {'form': form})
 
 
-def create_invite(request):
+def create_invite_page(request):
     user = request.user
+    previous_invitations = Invitation.objects.filter(inviter=user)
+    previous_invitations_urls = [
+        request.build_absolute_uri(
+            reverse(
+                'users:register_with_invite',
+                kwargs={'invite_code': invite.code}
+            )
+        ) for invite in previous_invitations
+    ]
 
+    has_invites = user.is_superuser or (Invitation.objects.filter(inviter=user).count() < 3 and user.invites_left > 0)
+
+    return render(request, 'invite_link.html', {
+        'previous_invitations': previous_invitations_urls,
+        'has_invites': has_invites
+    })
+
+
+def generate_invite_link(request):
+    user = request.user
     created_invites = Invitation.objects.filter(inviter=user).count()
 
     if user.is_superuser or (created_invites < 3 and user.invites_left > 0):
@@ -58,25 +78,45 @@ def create_invite(request):
             )
         )
 
-        previous_invitations = Invitation.objects.filter(inviter=user)
-        previous_invitations_urls = [
-            request.build_absolute_uri(
-                reverse(
-                    'users:register_with_invite',
-                    kwargs={'invite_code': invite.code}
-                )
-            ) for invite in previous_invitations
-        ]
+        return JsonResponse({'invite_link': invite_link})
 
-        return render(request, 'invite_link.html', {
-            'invite_link': invite_link,
-            'previous_invitations': previous_invitations_urls
-        })
-    else:
-        return render(
-            request,
-            'error.html', {'message': 'No invitations left.'}
-        )
+    return JsonResponse({'error': 'No invitations left.'}, status=400)
+# def create_invite(request):
+#     user = request.user
+#
+#     created_invites = Invitation.objects.filter(inviter=user).count()
+#
+#     if user.is_superuser or (created_invites < 3 and user.invites_left > 0):
+#         new_invite = Invitation.objects.create(inviter=user)
+#         if not user.is_superuser:
+#             user.invites_left -= 1
+#             user.save()
+#         invite_link = request.build_absolute_uri(
+#             reverse(
+#                 'users:register_with_invite',
+#                 kwargs={'invite_code': new_invite.code}
+#             )
+#         )
+#
+#         previous_invitations = Invitation.objects.filter(inviter=user)
+#         previous_invitations_urls = [
+#             request.build_absolute_uri(
+#                 reverse(
+#                     'users:register_with_invite',
+#                     kwargs={'invite_code': invite.code}
+#                 )
+#             ) for invite in previous_invitations
+#         ]
+#
+#         return render(request, 'invite_link.html', {
+#             'invite_link': invite_link,
+#             'previous_invitations': previous_invitations_urls
+#         })
+#     else:
+#         return render(
+#             request,
+#             'error.html', {'message': 'No invitations left.'}
+#         )
 
 
 def login_view(request):

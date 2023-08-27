@@ -88,17 +88,17 @@ class InviteViewTestCase(TestCase):
             email="superuser@example.com",
             password="testpassword123"
         )
-        self.create_invite_url = reverse('users:create_invite')
+        self.generate_invite_url = reverse('users:generate_invite')
 
-    def test_superuser_create_invite(self):
+    def test_superuser_generate_invite(self):
         self.client.login(username="superuser", password="testpassword123")
-        response = self.client.get(self.create_invite_url)
+        response = self.client.get(self.generate_invite_url)
         self.assertEqual(response.status_code, 200)
         # Maybe check for certain elements in the returned context
 
-    def test_regular_user_create_invite(self):
+    def test_regular_user_generate_invite(self):
         self.client.login(username="testuser", password="testpassword123")
-        response = self.client.get(self.create_invite_url)
+        response = self.client.get(self.generate_invite_url)
         self.assertEqual(response.status_code, 200)
         # Maybe check for certain elements in the returned context
 
@@ -108,8 +108,10 @@ class InviteViewTestCase(TestCase):
         self.user.save()
 
         self.client.login(username="testuser", password="testpassword123")
-        response = self.client.get(self.create_invite_url)
-        self.assertContains(response, 'No invitations left.')
+        response = self.client.get(self.generate_invite_url)
+        self.assertContains(response, 'No invitations left.', status_code=400)
+        self.assertNotContains(response, 'сгенерировать', status_code=400)
+        self.assertNotContains(response, 'скопировать', status_code=400)
 
 
 class HandshakeCountTestCase(TestCase):
@@ -232,26 +234,40 @@ class CreateInviteViewTestCase(TestCase):
             password="testpassword123",
             email="superuser@example.com"
         )
-        self.create_invite_url = reverse('users:create_invite')
+        self.generate_invite_url = reverse('users:generate_invite')
 
-    def test_create_invite(self):
+    def test_generate_invite(self):
         self.client.login(username="testuser", password="testpassword123")
-        response = self.client.get(self.create_invite_url)
+        response = self.client.get(self.generate_invite_url)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Invitation.objects.count(), 1)
 
-    def test_create_invite_no_invites_left(self):
+    def test_generate_invite_link_no_invites_left(self):
         self.user.invites_left = 0
         self.user.save()
-        self.client.login(username="testuser", password="testpassword123")
-        response = self.client.get(self.create_invite_url)
-        self.assertContains(response, 'No invitations left.')
 
-    def test_superuser_create_invite(self):
+        self.client.login(username="testuser", password="testpassword123")
+        response = self.client.get(reverse('users:generate_invite'))
+
+        # Check if the response status is 400 and contains the error message
+        self.assertEqual(response.status_code, 400)
+        self.assertContains(response, 'No invitations left.', status_code=400)
+
+    def test_superuser_generate_invite_link(self):
         self.client.login(username="superuser", password="testpassword123")
-        response = self.client.get(self.create_invite_url)
+        response = self.client.get(reverse('users:generate_invite'))
+
+        # Check if the response status is 200 and contains the invite link
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(Invitation.objects.count(), 1)
+        self.assertIn('invite_link', response.json())
+
+    def test_regular_user_generate_invite_link(self):
+        self.client.login(username="testuser", password="testpassword123")
+        response = self.client.get(reverse('users:generate_invite'))
+
+        # Check if the response status is 200 and contains the invite link
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('invite_link', response.json())
 
 
 class LoginViewTestCase(TestCase):
