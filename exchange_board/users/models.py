@@ -85,6 +85,8 @@ class CustomUser(AbstractUser):
                                      help_text=("Unique referral "
                                                 "code for the user."))
 
+    invitation_code_used = models.UUIDField(null=True, blank=True)
+
     def save(self, *args, **kwargs):
         if self.is_superuser:
             last_code = (
@@ -106,6 +108,14 @@ class Invitation(models.Model):
         related_name="invitations_created"
     )
     used = models.BooleanField(default=False)
+
+    invited_user = models.OneToOneField(
+        CustomUser,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="invitation_used"
+    )
 
     def __str__(self):
         return (f"{self.inviter.username}'s invitation - "
