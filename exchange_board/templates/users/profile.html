@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
+{% load custom_filters %}
 <div class="container mt-5">
 
             {% if user != user_profile %}
@@ -49,7 +49,7 @@
                     <ul class="simple-list">
                     {% for offer in user_profile.offers.all %}
                         <li>
-                            {{ offer.amount_offered }} {{ offer.currency_offered }} to {{ offer.currency_needed }} - {{ offer.status }}
+                            {{ offer.amount_offered|intspace }} {{ offer.currency_offered }} to {{ offer.currency_needed }} - {{ offer.status }}
                         </li>
                     {% empty %}
                         <li>Data not provided</li>
@@ -65,7 +65,7 @@
                     <ul class="simple-list">
                     {% for transaction in user_profile.accepted_transactions.all %}
                         <li>
-                            Transaction for {{ transaction.offer }} - {{ transaction.status }}
+                            Transaction for {{ transaction.offer.amount_offered|intspace }} {{ transaction.offer.currency_offered }} - {{ transaction.status }}
                         </li>
                     {% empty %}
                         <li>Data not provided</li>
