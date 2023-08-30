@@ -29,8 +29,9 @@
                     <label>После отправки загрузите скриншот об отправке</label>
                     <input type="file" name="author_uploads_transfer_screenshot" class="form-control-file" onchange="displayImage(this, 'authorUploadedScreenshot')">
                 </div>
+                <button type="submit" class="btn btn-minimalist">Upload Screenshot</button>
                 <img id="authorUploadedScreenshot" src="" alt="Uploaded Screenshot" style="display: none; width: 300px;">
-                <button type="submit" class="btn btn-primary">Upload Screenshot</button>
+
             </form>
 
             <a href="{% url 'author_asserts_transfer_done' transaction.id %}" class="btn btn-info">Stage 1. Нажмите на эту ссылку, если вы утверждаете что сделали перевод</a>
@@ -50,13 +51,15 @@
             <div class="alert alert-info" role="alert">
                 Stage 2. Автор заявки утверждает, что сделал перевод.
             </div>
+
+            <a href="{% url 'accepting_user_confirms_money_received' transaction.id %}" class="btn btn-minimalist">Stage 2. подтвердить получение перевода</a>
+            <br>
             {% if transaction.author_uploads_transfer_screenshot %}
                 <img src="{{ transaction.author_uploads_transfer_screenshot.url }}" alt="Screenshot from author" width="300" class="img-thumbnail mb-3">
             {% else %}
                 <p>No screenshot uploaded by the author yet.</p>
             {% endif %}
 
-            <a href="{% url 'accepting_user_confirms_money_received' transaction.id %}" class="btn btn-info">Stage 2. подтвердить получение перевода</a>
         {% endif %}
 
     {% elif accepting_user_confirmed_but_not_paid_back %}
@@ -78,8 +81,8 @@
                     <label>После отправки загрузите скриншот об отправке</label>
                     <input type="file" name="accepting_user_uploads_transfer_screenshot" class="form-control-file" onchange="displayImage(this, 'acceptingUserUploadedScreenshot')">
                 </div>
+                <button type="submit" class="btn btn-minimalist">Upload Screenshot</button>
                 <img id="acceptingUserUploadedScreenshot" src="" alt="Uploaded Screenshot" style="display: none; width: 300px;">
-                <button type="submit" class="btn btn-primary">Upload Screenshot</button>
             </form>
 
             <a href="{% url 'accepting_user_asserts_transfer_done' transaction.id %}" class="btn btn-info">Нажмите на эту ссылку, если вы утверждаете что сделали перевод</a>
