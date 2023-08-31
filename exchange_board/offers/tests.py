@@ -38,7 +38,7 @@ class OfferViewTests(TestCase):
             currency_needed='RUB'
         )
         response = self.client.get(reverse('index'))
-        self.assertContains(response, 'Currency for sale: 100.00 USD')
+        self.assertContains(response, 'Currency for sale: 100 USD')
         self.assertContains(response, 'Requested currency: RUB')
 
     def test_offer_creation(self):
