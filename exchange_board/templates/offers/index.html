@@ -1,6 +1,7 @@
 <!-- templates/offers/index.html -->
 {% extends 'base.html' %}
 {% block content %}
+{% load custom_filters %}
 
 <div class="container mt-5">
     <h1 class="display-6 text-left mb-5">Hi, {{request.user|capfirst }}!</h1>
@@ -11,7 +12,7 @@
             <h5 class="card-title">Posted by {{ offer.author.username|capfirst }}</h5>
             <p class="card-text">
                 Date: {{ offer.publishing_date|date:"d E Y" }} <br>
-                Currency for sale: {{ offer.amount_offered|floatformat:2 }} {{ offer.currency_offered }} <br>
+                Currency for sale: {{ offer.amount_offered|intspace }} {{ offer.currency_offered }} <br>
                 Requested currency: {{ offer.currency_needed }} <br>
                 Status: {{ offer.status }} <br>
             </p>
