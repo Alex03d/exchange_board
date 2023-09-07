@@ -6,6 +6,14 @@ from . import views
 urlpatterns = [
     path('', views.index, name='index'),
     path('offer/create/', views.create_offer, name='create_offer'),
+    path('request-transaction/<int:offer_id>/',
+             views.create_request_for_transaction,
+             name='request_transaction'),
+    path('view-request/<int:request_id>/',
+         views.view_requests_for_transaction,
+         name='view_requests_for_transaction'),
+    path('accept-request/<int:request_id>/', views.accept_request, name='accept_request'),
+    path('reject-request/<int:request_id>/', views.reject_request, name='reject_request'),
     path('start-transaction/<int:offer_id>/',
          views.start_transaction,
          name='start_transaction'

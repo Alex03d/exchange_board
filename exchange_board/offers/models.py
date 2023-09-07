@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from users.models import CustomUser
 
 
 OPEN = 'open'
@@ -9,6 +10,7 @@ DISPUTE = 'dispute'
 
 STATUS_CHOICES_OFFER = [
     (OPEN, 'Open'),
+    ('PENDING', 'Pending'),
     (IN_PROGRESS, 'In Progress'),
     (CLOSED, 'Closed'),
 ]
@@ -63,6 +65,35 @@ class Offer(models.Model):
     def __str__(self):
         return (f"{self.author} - {self.amount_offered:.2f} "
                 f"{self.currency_offered} to {self.currency_needed}")
+
+
+class RequestForTransaction(models.Model):
+    offer = models.ForeignKey(
+        Offer,
+        on_delete=models.CASCADE,
+        related_name='requests_for_transaction'
+    )
+    applicant = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE
+    )
+    applied_date = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(
+        max_length=10,
+        choices=[
+            ('PENDING', 'Pending'),
+            ('ACCEPTED', 'Accepted'),
+            ('REJECTED', 'Rejected')
+        ],
+        default='PENDING'
+    )
+
+    class Meta:
+        unique_together = ('offer', 'applicant')
+
+    def __str__(self):
+        return (f"Request from {self.applicant} "
+                f"for {self.offer} - {self.status}")
 
 
 class Transaction(models.Model):

@@ -12,7 +12,7 @@
             <h5 class="card-title">Posted by {{ offer.author.username|capfirst }}</h5>
             <p class="card-text">
                 Date: {{ offer.publishing_date|date:"d E Y" }} <br>
-                Currency for sale: {{ offer.amount_offered|intspace }} {{ offer.currency_offered }} <br>
+                Currency for sale: <strong> {{ offer.amount_offered|intspace }} {{ offer.currency_offered }} </strong> <br>
                 Requested currency: {{ offer.currency_needed }} <br>
                 Status: {{ offer.status }} <br>
             </p>

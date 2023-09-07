@@ -1,9 +1,10 @@
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, HttpResponseNotFound
 from django.shortcuts import get_object_or_404, redirect, render
 from .forms import UploadScreenshotForm, OfferForm
-from .models import Offer, Transaction, OPEN, IN_PROGRESS, CLOSED, DISPUTE
+from .models import (Offer, Transaction, OPEN, IN_PROGRESS,
+                     CLOSED, DISPUTE, RequestForTransaction)
 from users.views import handshake_count
 
 
@@ -234,3 +235,42 @@ def author_asserts_transfer_done(request, transaction_id):
         transaction.status = 'IN_PROGRESS'
         transaction.save()
     return redirect('transaction_detail', transaction_id=transaction.id)
+
+
+@login_required
+def create_request_for_transaction(request, offer_id):
+    offer = get_object_or_404(Offer, id=offer_id)
+    if offer.author == request.user:
+        return redirect('index')
+
+    RequestForTransaction.objects.create(offer=offer, applicant=request.user)
+    # Можете добавить сообщение или редирект на другую страницу, например, на страницу предложения
+    return redirect('offer_detail', offer_id=offer.id)
+
+
+@login_required
+def view_requests_for_transaction(request, request_id):
+    # Получаем все заявки для данного предложения
+    rfts = RequestForTransaction.objects.filter(offer__id=request_id)
+
+    # Проверяем первую заявку, чтобы убедиться, что текущий пользователь является автором предложения
+    if not rfts.exists():
+        return HttpResponseNotFound("No requests found for this offer.")
+
+    if rfts.first().offer.author != request.user:  # Только автор предложения может видеть заявки
+        return HttpResponseForbidden("You don't have permission to perform this action.")
+
+    # Здесь вы можете предоставить функциональность для принятия или отклонения заявки.
+    # При принятии заявки вы можете запустить транзакцию, как раньше.
+
+    return render(request, 'offers/request_for_transaction_detail.html', {'requests_for_transaction': rfts})
+
+
+def accept_request(request, request_id):
+    # Ваш код для принятия заявки
+    pass
+
+
+def reject_request(request, request_id):
+    # Ваш код для отклонения заявки
+    pass

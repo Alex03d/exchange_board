@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+
+{% for request_for_transaction in requests_for_transaction %}
+    <div class="mb-4">
+        <h2>Transaction Request by: {{ request_for_transaction.applicant.username|capfirst }}</h2>
+        <h3>For Offer by: {{ request_for_transaction.offer.author.username|capfirst }}</h3>
+
+        <!-- Displaying request details -->
+        <h3>Details of the Offer</h3>
+        <ul>
+            <li>Currency Offered: {{ request_for_transaction.offer.currency_offered }}</li>
+            <li>Amount Offered: <strong>{{ request_for_transaction.offer.amount_offered|floatformat:2 }}</strong></li>
+            <li>Currency Needed: {{ request_for_transaction.offer.currency_needed }}</li>
+            <li>Publishing Date: {{ request_for_transaction.offer.publishing_date|date:"d E Y" }}</li>
+            <li>Status: {{ request_for_transaction.offer.get_status_display }}</li>
+        </ul>
+
+        <!-- Accept or Reject Request -->
+        <a href="{% url 'accept_request' request_for_transaction.id %}" class="btn-minimalist">Accept Request</a>
+        <a href="{% url 'reject_request' request_for_transaction.id %}" class="btn-minimalist">Reject Request</a>
+    </div>
+{% endfor %}
+
+{% endblock %}
