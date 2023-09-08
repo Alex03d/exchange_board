@@ -129,10 +129,15 @@ def offer_detail(request, offer_id):
     author_code = offer.author.referral_code
     current_user_code = request.user.referral_code
     handshakes = handshake_count(author_code, current_user_code)
+    user_has_sent_request = RequestForTransaction.objects.filter(
+        applicant=request.user,
+        offer=offer
+    ).exists()
     context = {
         'offer': offer,
         'handshakes': handshakes,
         'handshake_range': range(handshakes),
+        'user_has_sent_request': user_has_sent_request
     }
     return render(request, 'offers/offer_detail.html', context)
 

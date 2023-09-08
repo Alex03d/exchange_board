@@ -26,7 +26,11 @@
 
     <!-- Request transaction button -->
     {% if not offer.author == request.user %}
-    <a href="{% url 'request_transaction' offer.id %}" class="btn-minimalist">Request Transaction</a>
+        {% if user_has_sent_request %}
+            <p class="text-border">Request Sent</p>
+        {% else %}
+            <a href="{% url 'request_transaction' offer.id %}" class="btn-minimalist">Request Transaction</a>
+        {% endif %}
     {% endif %}
 
 {% endblock %}
