@@ -1,5 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
+from django.db.models import OuterRef, Exists
 from django.http import HttpResponseForbidden, HttpResponseNotFound
 from django.shortcuts import get_object_or_404, redirect, render
 from .forms import UploadScreenshotForm, OfferForm
@@ -9,7 +10,9 @@ from users.views import handshake_count
 
 
 def index(request):
-    offers_list = Offer.objects.order_by('-publishing_date')
+    # offers_list = Offer.objects.order_by('-publishing_date')
+    offers_list = Offer.objects.order_by('-publishing_date').annotate(
+        has_requests=Exists(RequestForTransaction.objects.filter(offer=OuterRef('pk'))))
     paginator = Paginator(offers_list, 10)
 
     page = request.GET.get('page')
@@ -249,24 +252,16 @@ def create_request_for_transaction(request, offer_id):
         return redirect('index')
 
     RequestForTransaction.objects.create(offer=offer, applicant=request.user)
-    # Можете добавить сообщение или редирект на другую страницу, например, на страницу предложения
     return redirect('offer_detail', offer_id=offer.id)
 
 
 @login_required
 def view_requests_for_transaction(request, request_id):
-    # Получаем все заявки для данного предложения
     rfts = RequestForTransaction.objects.filter(offer__id=request_id)
-
-    # Проверяем первую заявку, чтобы убедиться, что текущий пользователь является автором предложения
     if not rfts.exists():
         return HttpResponseNotFound("No requests found for this offer.")
-
-    if rfts.first().offer.author != request.user:  # Только автор предложения может видеть заявки
+    if rfts.first().offer.author != request.user:
         return HttpResponseForbidden("You don't have permission to perform this action.")
-
-    # Здесь вы можете предоставить функциональность для принятия или отклонения заявки.
-    # При принятии заявки вы можете запустить транзакцию, как раньше.
 
     return render(request, 'offers/request_for_transaction_detail.html', {'requests_for_transaction': rfts})
 

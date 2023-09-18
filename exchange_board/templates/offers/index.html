@@ -43,13 +43,25 @@
                 {% endif %}
             {% else %}
                 {% if offer.author == request.user %}
+                    {% if offer.has_requests %}
+                    <a href="{% url 'offer_detail' offer.id %}" class="btn-minimalist">
+                        Your offer has a response
+                    </a>
+                    {% else %}
                     <a href="{% url 'offer_detail' offer.id %}" class="btn-minimalist">
                         Your offer is awaiting response
                     </a>
+                    {% endif %}
                 {% else %}
+                    {% if offer.has_requests %}
+                    <a href="{% url 'offer_detail' offer.id %}" class="btn-minimalist">
+                        This offer has a response
+                    </a>
+                    {% else %}
                     <a href="{% url 'offer_detail' offer.id %}" class="btn-minimalist">
                         Offer details
                     </a>
+                    {% endif %}
                 {% endif %}
             {% endif %}
         </div>
