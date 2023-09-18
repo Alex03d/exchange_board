@@ -31,15 +31,18 @@ class OfferViewTests(TestCase):
             username='testuser',
             referral_code='123ABC'
         )
-        Offer.objects.create(
+        user.set_password('password')
+        user.save()
+        self.client.login(username='testuser', password='password')
+        offer = Offer.objects.create(
             author=user,
             currency_offered='USD',
-            amount_offered=100,
+            amount_offered=50,
             currency_needed='RUB'
         )
-        response = self.client.get(reverse('index'))
-        self.assertContains(response, 'Currency for sale: 100 USD')
-        self.assertContains(response, 'Requested currency: RUB')
+        response = self.client.get(reverse('offer_detail', args=[offer.id]))
+        self.assertContains(response, 'Amount Offered: <strong>50.00</strong>')
+        self.assertContains(response, 'Currency Needed: RUB')
 
     def test_offer_creation(self):
         user = CustomUser.objects.create_user(
@@ -126,7 +129,7 @@ class TransactionViewTests(TestCase):
         self.offer = Offer.objects.create(
             author=self.user1,
             currency_offered='USD',
-            amount_offered=100,
+            amount_offered=50,
             currency_needed='RUB'
         )
 
@@ -201,7 +204,7 @@ class TransactionViewTests(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Currency Offered: USD')
-        self.assertContains(response, 'Amount Offered: 100.00')
+        self.assertContains(response, 'Amount Offered: <strong>50.00</strong>')
         self.assertContains(response, 'Currency Needed: RUB')
 
     def test_author_upload_screenshot_post(self):
