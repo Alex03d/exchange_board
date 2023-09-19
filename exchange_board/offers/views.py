@@ -296,15 +296,12 @@ def accept_request(request, request_id):
     request_for_transaction = get_object_or_404(RequestForTransaction, id=request_id)
     offer = request_for_transaction.offer
 
-    # Проверка, чтобы только автор предложения мог принять заявку
     if offer.author != request.user:
         return HttpResponseForbidden("You don't have permission to perform this action.")
 
-    # Устанавливаем статус заявки в "ACCEPTED"
     request_for_transaction.status = 'ACCEPTED'
     request_for_transaction.save()
 
-    # Начинаем транзакцию
     offer.status = IN_PROGRESS
     offer.save()
 
@@ -313,7 +310,6 @@ def accept_request(request, request_id):
         accepting_user=request_for_transaction.applicant
     )
 
-    # Перенаправляем пользователя на страницу деталей транзакции
     return redirect('transaction_detail', transaction_id=transaction.id)
 
 
@@ -322,11 +318,9 @@ def reject_request(request, request_id):
     request_for_transaction = get_object_or_404(RequestForTransaction, id=request_id)
     offer = request_for_transaction.offer
 
-    # Проверка, чтобы только автор предложения мог отклонить заявку
     if offer.author != request.user:
         return HttpResponseForbidden("You don't have permission to perform this action.")
 
-    # Устанавливаем статус заявки в "REJECTED"
     request_for_transaction.status = 'REJECTED'
     request_for_transaction.save()
 
