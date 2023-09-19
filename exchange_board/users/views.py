@@ -167,10 +167,19 @@ def user_profile(request, username):
     if request.user.is_authenticated:
         is_following = UserFollow.objects.filter(author=user_profile, user=request.user).exists()
 
+    user_profile_code = user_profile.referral_code
+    if request.user.is_authenticated:
+        current_user_code = request.user.referral_code
+    else:
+        current_user_code = None
+    handshakes = handshake_count(user_profile_code, current_user_code)
+
     inviter = user_profile.invited_by
     context = {
         'user_profile': user_profile,
         'is_following': is_following,
         'inviter': inviter,
+        'handshakes': handshakes,
+        'handshake_range': range(handshakes),
     }
     return render(request, 'users/profile.html', context)

@@ -31,6 +31,12 @@
         {% else %}
             <a href="{% url 'request_transaction' offer.id %}" class="btn-minimalist">Request Transaction</a>
         {% endif %}
+    {% else %}
+        {% if requests_for_transaction %}
+            <a href="{% url 'view_requests_for_transaction' offer.id %}" class="btn-minimalist">View Applicants</a>
+        {% else %}
+            <p class="text-border">No Requests</p>
+        {% endif %}
     {% endif %}
 
 {% endblock %}

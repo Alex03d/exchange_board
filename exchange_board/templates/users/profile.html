@@ -12,6 +12,15 @@
                 {% endif %}
             {% endif %}
 
+            <p class="lead">You have {{ handshakes }} handshake(s) between you:</p>
+            <div class="handshake-chain">
+                <span class="emoji">👤</span> <!-- начальный пользователь -->
+                {% for i in handshake_range %}
+                    <span class="line">─</span>
+                    <span class="emoji">👤</span>
+                {% endfor %}
+            </div>
+
             <!-- Внутренний блок для имени пользователя -->
             <div class="card mt-3">
                 <div class="card-body">

@@ -10,7 +10,6 @@ from users.views import handshake_count
 
 
 def index(request):
-    # offers_list = Offer.objects.order_by('-publishing_date')
     offers_list = Offer.objects.order_by('-publishing_date').annotate(
         has_requests=Exists(RequestForTransaction.objects.filter(offer=OuterRef('pk'))))
     paginator = Paginator(offers_list, 10)
@@ -136,11 +135,13 @@ def offer_detail(request, offer_id):
         applicant=request.user,
         offer=offer
     ).exists()
+    rfts = RequestForTransaction.objects.filter(offer__id=offer_id)
     context = {
         'offer': offer,
         'handshakes': handshakes,
         'handshake_range': range(handshakes),
-        'user_has_sent_request': user_has_sent_request
+        'user_has_sent_request': user_has_sent_request,
+        'requests_for_transaction': rfts
     }
     return render(request, 'offers/offer_detail.html', context)
 
@@ -257,20 +258,70 @@ def create_request_for_transaction(request, offer_id):
 
 @login_required
 def view_requests_for_transaction(request, request_id):
-    rfts = RequestForTransaction.objects.filter(offer__id=request_id)
+    rfts = RequestForTransaction.objects.filter(offer__id=request_id).exclude(status='REJECTED')
     if not rfts.exists():
-        return HttpResponseNotFound("No requests found for this offer.")
+        return HttpResponseNotFound('No requests found for this offer. <a href="/">Return to home</a>.')
     if rfts.first().offer.author != request.user:
+        return HttpResponseForbidden(
+            'You don\'t have permission to perform this action. <a href="/">Return to home</a>.')
+
+    applicants_data = []
+    for rft in rfts:
+        applicant_code = rft.applicant.referral_code
+        current_user_code = request.user.referral_code
+        handshakes = handshake_count(applicant_code, current_user_code)
+        applicants_data.append({
+            'applicant': rft.applicant,
+            'referral_code': applicant_code,
+            'handshakes': handshakes,
+            'handshake_range': range(handshakes),
+            'request_for_transaction': rft  # Добавляем объект RequestForTransaction здесь
+        })
+    context = {
+        'requests_for_transaction': rfts,
+        'applicants_data': applicants_data,
+    }
+    return render(request, 'offers/request_for_transaction_detail.html', context)
+
+
+@login_required
+def accept_request(request, request_id):
+    rft = get_object_or_404(RequestForTransaction, id=request_id)
+    offer = rft.offer
+
+    # Проверка, чтобы только автор предложения мог принять заявку
+    if offer.author != request.user:
         return HttpResponseForbidden("You don't have permission to perform this action.")
 
-    return render(request, 'offers/request_for_transaction_detail.html', {'requests_for_transaction': rfts})
+    # Устанавливаем статус заявки в "ACCEPTED"
+    rft.status = 'ACCEPTED'
+    rft.save()
+
+    # Начинаем транзакцию
+    offer.status = IN_PROGRESS
+    offer.save()
+
+    transaction, created = Transaction.objects.get_or_create(
+        offer=offer,
+        accepting_user=rft.applicant
+    )
+
+    # Перенаправляем пользователя на страницу деталей транзакции
+    return redirect('transaction_detail', transaction_id=transaction.id)
 
 
-def accept_request(request, request_id):
-    # Ваш код для принятия заявки
-    pass
 
-
+@login_required
 def reject_request(request, request_id):
-    # Ваш код для отклонения заявки
-    pass
+    rft = get_object_or_404(RequestForTransaction, id=request_id)
+    offer = rft.offer
+
+    # Проверка, чтобы только автор предложения мог отклонить заявку
+    if offer.author != request.user:
+        return HttpResponseForbidden("You don't have permission to perform this action.")
+
+    # Устанавливаем статус заявки в "REJECTED"
+    rft.status = 'REJECTED'
+    rft.save()
+
+    return redirect('view_requests_for_transaction', request_id=offer.id)

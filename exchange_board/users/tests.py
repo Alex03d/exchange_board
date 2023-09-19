@@ -169,14 +169,15 @@ class UserProfileViewTestCase(TestCase):
         self.client = Client()
         self.user = CustomUser.objects.create_user(
             username="testuser",
-            password="testpassword123"
+            password="testpassword123",
+            referral_code="1-2-3"
         )
+        self.client.login(username="testuser", password="testpassword123")
         self.profile_url = reverse('users:user_profile', args=['testuser'])
 
     def test_user_profile(self):
         response = self.client.get(self.profile_url)
         self.assertEqual(response.status_code, 200)
-        # Maybe check for certain elements in the returned context, e.g.:
         self.assertContains(response, 'testuser')
 
 
