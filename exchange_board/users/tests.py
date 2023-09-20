@@ -9,7 +9,7 @@ class CustomUserModelTestCase(TestCase):
     def test_superuser_referral_code_creation(self):
         user = CustomUser.objects.create_superuser(
             username="superuser",
-            email="superuser@example.com",
+            email="superuser3@example.com",
             password="testpassword123")
         self.assertEqual(user.referral_code, "1")
 
@@ -20,7 +20,7 @@ class RegistrationViewTestCase(TestCase):
         self.client = Client()
         self.inviter = CustomUser.objects.create_user(
             username="inviter",
-            password="testpassword123"
+            password="testpassword123",
         )
         self.invitation = Invitation.objects.create(inviter=self.inviter)
         self.valid_register_url = reverse(
@@ -55,7 +55,9 @@ class LoginLogoutViewTestCase(TestCase):
         self.client = Client()
         self.user = CustomUser.objects.create_user(
             username="testuser",
-            password="testpassword123"
+            password="testpassword123",
+            email="test1@email.com",
+            is_email_confirmed=True
         )
         self.login_url = reverse('users:login')
         self.logout_url = reverse('users:logout')
@@ -81,11 +83,13 @@ class InviteViewTestCase(TestCase):
         self.client = Client()
         self.user = CustomUser.objects.create_user(
             username="testuser",
-            password="testpassword123"
+            password="testpassword123",
+            email="test2@email.com",
+            is_email_confirmed=True
         )
         self.superuser = CustomUser.objects.create_superuser(
             username="superuser",
-            email="superuser@example.com",
+            email="superuser1@example.com",
             password="testpassword123"
         )
         self.generate_invite_url = reverse('users:generate_invite')
@@ -131,11 +135,13 @@ class FollowViewsTestCase(TestCase):
         self.client = Client()
         self.user1 = CustomUser.objects.create_user(
             username="user1",
-            password="testpassword123"
+            password="testpassword123",
+            email="test3@email.com",
         )
         self.user2 = CustomUser.objects.create_user(
             username="user2",
-            password="testpassword123"
+            password="testpassword123",
+            email="test4@email.com",
         )
         self.follow_index_url = reverse('users:follow_index')
         self.follow_url = reverse('users:profile_follow', args=['user2'])
@@ -170,7 +176,9 @@ class UserProfileViewTestCase(TestCase):
         self.user = CustomUser.objects.create_user(
             username="testuser",
             password="testpassword123",
-            referral_code="1-2-3"
+            email="test5@email.com",
+            referral_code="1-2-3",
+            is_email_confirmed=True
         )
         self.client.login(username="testuser", password="testpassword123")
         self.profile_url = reverse('users:user_profile', args=['testuser'])
@@ -228,12 +236,14 @@ class CreateInviteViewTestCase(TestCase):
         self.user = CustomUser.objects.create_user(
             username="testuser",
             password="testpassword123",
-            invites_left=1
+            email="test6@email.com",
+            invites_left=1,
+            is_email_confirmed=True
         )
         self.superuser = CustomUser.objects.create_superuser(
             username="superuser",
             password="testpassword123",
-            email="superuser@example.com"
+            email="superuser2@example.com"
         )
         self.generate_invite_url = reverse('users:generate_invite')
 
@@ -277,7 +287,9 @@ class LoginViewTestCase(TestCase):
         self.client = Client()
         self.user = CustomUser.objects.create_user(
             username="testuser",
-            password="testpassword123"
+            password="testpassword123",
+            email="test7@email.com",
+            is_email_confirmed=True
         )
         self.login_url = reverse('users:login')
 
@@ -293,7 +305,8 @@ class LogoutViewTestCase(TestCase):
         self.client = Client()
         self.user = CustomUser.objects.create_user(
             username="testuser",
-            password="testpassword123"
+            password="testpassword123",
+            is_email_confirmed=True
         )
         self.logout_url = reverse('users:logout')
 

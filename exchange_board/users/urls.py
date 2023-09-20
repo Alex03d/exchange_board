@@ -25,4 +25,5 @@ urlpatterns = [
         name='profile_unfollow'
     ),
     path('profile/<str:username>/', views.user_profile, name='user_profile'),
+    path('confirm-email/<uuid:token>/', views.confirm_email, name='confirm_email'),
 ]

@@ -12,6 +12,9 @@ CURRENCY_CHOICES = [
 
 class CustomUser(AbstractUser):
 
+    email = models.EmailField(unique=True, blank=False)
+    is_email_confirmed = models.BooleanField(default=False)
+
     rub_bank_name = models.CharField(
         max_length=255,
         blank=True,
@@ -138,3 +141,10 @@ class UserFollow(models.Model):
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
         unique_together = ('user', 'author')
+
+
+class EmailConfirmation(models.Model):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
+    confirmation_token = models.UUIDField(default=uuid.uuid4, editable=False)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    confirmed = models.BooleanField(default=False)

@@ -1,4 +1,5 @@
 import os
+from decouple import config
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -28,6 +29,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'anymail',
 ]
 
 MIDDLEWARE = [
@@ -114,6 +116,14 @@ USE_L10N = True
 
 USE_TZ = True
 
+EMAIL_BACKEND = 'anymail.backends.mailjet.EmailBackend'
 
+ANYMAIL = {
+    'MAILJET_API_KEY': config('MAILJET_API_KEY'),
+    'MAILJET_SECRET_KEY': config('MAILJET_SECRET_KEY'),
+    'WEBHOOK_SECRET': config('WEBHOOK_SECRET'),  # если вы используете веб-хуки
+}
+
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL')
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/

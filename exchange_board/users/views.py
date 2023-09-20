@@ -1,11 +1,13 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.conf import settings
+from django.core.mail import send_mail
 from django.db.models import Count
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from .forms import CustomUserCreationForm
-from .models import Invitation, CustomUser, UserFollow
+from .models import Invitation, CustomUser, UserFollow, EmailConfirmation
 
 
 def register(request, invite_code):
@@ -22,6 +24,7 @@ def register(request, invite_code):
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
+            user.email = form.cleaned_data['email']
             user.invited_by = invitation.inviter
             user.invitation_code_used = invite_code
 
@@ -29,8 +32,23 @@ def register(request, invite_code):
                     CustomUser.objects.filter(invited_by=inviter).count() + 1
             )
             user.referral_code = f"{inviter.referral_code}-{next_sub_code}"
-
             user.save()
+
+            email_conf = EmailConfirmation(user=user)
+            email_conf.save()
+
+            # Отправка письма
+            confirm_link = request.build_absolute_uri(
+                reverse('users:confirm_email', kwargs={'token': email_conf.confirmation_token})
+            )
+            send_mail(
+                'Подтвердите ваш email',
+                f'Перейдите по ссылке, чтобы подтвердить ваш email: {confirm_link}',
+                settings.DEFAULT_FROM_EMAIL,
+                [user.email],
+                fail_silently=False,
+            )
+
             invitation.used = True
             invitation.invited_user = user
             invitation.save()
@@ -42,6 +60,18 @@ def register(request, invite_code):
         form = CustomUserCreationForm()
 
     return render(request, 'users/register.html', {'form': form})
+
+
+def confirm_email(request, token):
+    try:
+        conf = EmailConfirmation.objects.get(confirmation_token=token, confirmed=False)
+        conf.confirmed = True
+        conf.user.is_email_confirmed = True
+        conf.user.save()
+        conf.save()
+        return redirect('users:login')
+    except EmailConfirmation.DoesNotExist:
+        return render(request, 'error.html', {'message': 'Неверная или использованная ссылка подтверждения.'})
 
 
 def create_invite_page(request):
@@ -97,8 +127,15 @@ def login_view(request):
         password = request.POST.get('password')
         user = authenticate(request, username=username, password=password)
         if user is not None:
-            login(request, user)
-            return redirect('index')
+            if user.is_email_confirmed or user.is_superuser:
+                login(request, user)
+                return redirect('index')
+            else:
+                return render(
+                    request,
+                    'users/login.html',
+                    {'error': 'Пожалуйста, подтвердите ваш email адрес перед входом.'}
+                )
         else:
             return render(
                 request,
