@@ -37,7 +37,6 @@ def register(request, invite_code):
             email_conf = EmailConfirmation(user=user)
             email_conf.save()
 
-            # Отправка письма
             confirm_link = request.build_absolute_uri(
                 reverse('users:confirm_email', kwargs={'token': email_conf.confirmation_token})
             )
