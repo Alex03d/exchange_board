@@ -35,7 +35,7 @@ class RegistrationViewTestCase(TestCase):
     def test_valid_invitation_registration(self):
         response = self.client.post(self.valid_register_url, {
             'username': 'testuser',
-            'email': 'test01@email.com',
+            'email': 'test@email.com',
             'password1': 'testpassword123',
             'password2': 'testpassword123',
         })
@@ -58,7 +58,7 @@ class LoginLogoutViewTestCase(TestCase):
         self.user = CustomUser.objects.create_user(
             username="testuser",
             password="testpassword123",
-            email="test1@email.com",
+            email="test@email.com",
             is_email_confirmed=True
         )
         self.login_url = reverse('users:login')
@@ -86,12 +86,12 @@ class InviteViewTestCase(TestCase):
         self.user = CustomUser.objects.create_user(
             username="testuser",
             password="testpassword123",
-            email="test2@email.com",
+            email="test@email.com",
             is_email_confirmed=True
         )
         self.superuser = CustomUser.objects.create_superuser(
             username="superuser",
-            email="superuser1@example.com",
+            email="superuser@example.com",
             password="testpassword123"
         )
         self.generate_invite_url = reverse('users:generate_invite')
@@ -138,12 +138,12 @@ class FollowViewsTestCase(TestCase):
         self.user1 = CustomUser.objects.create_user(
             username="user1",
             password="testpassword123",
-            email="test3@email.com",
+            email="test@email.com",
         )
         self.user2 = CustomUser.objects.create_user(
             username="user2",
             password="testpassword123",
-            email="test4@email.com",
+            email="test2@email.com",
         )
         self.follow_index_url = reverse('users:follow_index')
         self.follow_url = reverse('users:profile_follow', args=['user2'])
@@ -178,7 +178,7 @@ class UserProfileViewTestCase(TestCase):
         self.user = CustomUser.objects.create_user(
             username="testuser",
             password="testpassword123",
-            email="test5@email.com",
+            email="test@email.com",
             referral_code="1-2-3",
             is_email_confirmed=True
         )
@@ -209,7 +209,7 @@ class RegisterViewTestCase(TestCase):
     def test_successful_registration(self):
         response = self.client.post(self.register_url, {
             'username': 'testuser',
-            'email': 'test01@email.com',
+            'email': 'test@email.com',
             'password1': 'testpassword123',
             'password2': 'testpassword123',
         })
@@ -240,7 +240,7 @@ class CreateInviteViewTestCase(TestCase):
         self.user = CustomUser.objects.create_user(
             username="testuser",
             password="testpassword123",
-            email="test6@email.com",
+            email="test@email.com",
             invites_left=1,
             is_email_confirmed=True
         )
@@ -292,7 +292,7 @@ class LoginViewTestCase(TestCase):
         self.user = CustomUser.objects.create_user(
             username="testuser",
             password="testpassword123",
-            email="test7@email.com",
+            email="test@email.com",
             is_email_confirmed=True
         )
         self.login_url = reverse('users:login')

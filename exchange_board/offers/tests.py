@@ -10,7 +10,7 @@ class OfferModelTest(TestCase):
     def test_str_representation(self):
         user = CustomUser.objects.create(
             username='testuser',
-            email="test10@email.com",
+            email="test@email.com",
             referral_code='123ABC'
         )
         offer = Offer.objects.create(
@@ -97,7 +97,7 @@ class TransactionModelTest(TestCase):
         user2 = CustomUser.objects.create(
             username='testuser2',
             referral_code='456DEF',
-            email="test10@email.com",
+            email="test@email.com",
         )
         offer = Offer.objects.create(
             author=user1,
@@ -127,7 +127,7 @@ class TransactionViewTests(TestCase):
             username='testuser2',
             password='password2',
             referral_code='456DEF',
-            email="test10@email.com",
+            email="test@email.com",
         )
         self.offer = Offer.objects.create(
             author=self.user1,
