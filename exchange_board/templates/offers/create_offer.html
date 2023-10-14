@@ -24,28 +24,99 @@
             </div>
         {% endif %}
 
-
         {% for field in form %}
-        <div class="form-group">
-            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-            {% if field.field.widget.input_type == 'select' %}
-                <select class="form-control" id="{{ field.id_for_label }}" name="{{ field.name }}">
-                    {% for choice_value, choice_label in field.field.choices %}
-                        <option value="{{ choice_value }}" {% if field.value == choice_value %}selected{% endif %}>{{ choice_label }}</option>
-                    {% endfor %}
-                </select>
-            {% else %}
-                <input type="{{ field.field.widget.input_type }}" class="form-control" id="{{ field.id_for_label }}" name="{{ field.name }}" value="{{ field.value }}">
+            {% if field.name != "bank_name" and field.name != "account_or_phone" and field.name != "recipient_name" %}
+
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {% if field.field.widget.input_type == 'select' %}
+                    <select class="form-control" id="{{ field.id_for_label }}" name="{{ field.name }}">
+                        {% for choice_value, choice_label in field.field.choices %}
+                            <option value="{{ choice_value }}" {% if field.value == choice_value %}selected{% endif %}>{{ choice_label }}</option>
+                        {% endfor %}
+                    </select>
+                {% else %}
+                    <input type="{{ field.field.widget.input_type }}" class="form-control" id="{{ field.id_for_label }}" name="{{ field.name }}" value="{{ field.value }}">
+                {% endif %}
+                {% if field.errors %}
+                    <div class="alert alert-danger mt-2">
+                        {{ field.errors.0 }}
+                    </div>
+                {% endif %}
+            </div>
             {% endif %}
-            {% if field.errors %}
-                <div class="alert alert-danger mt-2">
-                    {{ field.errors.0 }}
-                </div>
-            {% endif %}
-        </div>
         {% endfor %}
+
+
+        <!-- Скрытый блок для банковских реквизитов -->
+        <div id="bank_details" style="display: none;">
+            <div class="form-group">
+                <label for="saved_bank_details">Saved Details</label>
+                <select class="form-control" id="saved_bank_details">
+                    <!-- Значения для этого списка будут динамически добавляться с помощью JavaScript -->
+                    <option value="">-- Select saved details --</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="bank_details">
+            <div class="form-group">
+                <label for="bank_name">Banka Name</label>
+                <input type="text" class="form-control" id="bank_name" name="bank_name">
+            </div>
+            <div class="form-group">
+                <label for="account_or_phone">Account or Phone</label>
+                <input type="text" class="form-control" id="account_or_phone" name="account_or_phone">
+            </div>
+            <div class="form-group">
+                <label for="recipient_name">Recipient Name</label>
+                <input type="text" class="form-control" id="recipient_name" name="recipient_name">
+            </div>
+        </div>
+
+
         <button type="submit" class="btn-minimalist mt-3">Submit</button>
     </div>
 </form>
+
+<!-- JavaScript код -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const currencyNeededSelector = document.querySelector('select[name="currency_needed"]');
+    const savedDetailsSelector = document.getElementById('saved_bank_details');
+    const bankDetails = document.getElementById('bank_details');
+    const bankNameField = document.getElementById('bank_name');
+    const accountField = document.getElementById('account_or_phone');
+    const recipientField = document.getElementById('recipient_name');
+
+    const bankDetailsByCurrency = {{ bank_details_by_currency|safe }};
+
+    currencyNeededSelector.addEventListener('change', function(e) {
+        const selectedCurrency = e.target.value;
+        while (savedDetailsSelector.firstChild) {
+            savedDetailsSelector.removeChild(savedDetailsSelector.firstChild);
+        }
+        savedDetailsSelector.appendChild(new Option("-- Select saved details --", ""));
+
+        if (selectedCurrency && bankDetailsByCurrency[selectedCurrency]) {
+            const detail = bankDetailsByCurrency[selectedCurrency];
+            const option = new Option(detail.bank_name, JSON.stringify(detail));
+            savedDetailsSelector.appendChild(option);
+
+            bankDetails.style.display = 'block';
+        } else {
+            bankDetails.style.display = 'none';
+        }
+    });
+
+    savedDetailsSelector.addEventListener('change', function(e) {
+        const selectedDetail = JSON.parse(e.target.value);
+        bankNameField.value = selectedDetail.bank_name || '';
+        accountField.value = selectedDetail.account_or_phone || '';
+        recipientField.value = selectedDetail.recipient_name || '';
+    });
+});
+
+</script>
 
 {% endblock %}

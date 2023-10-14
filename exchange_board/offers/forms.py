@@ -1,5 +1,6 @@
 from django import forms
 from .models import Transaction, Offer
+from users.models import BankDetail
 from django.core.exceptions import ValidationError
 
 
@@ -11,9 +12,32 @@ class UploadScreenshotForm(forms.ModelForm):
 
 
 class OfferForm(forms.ModelForm):
+    bank_name = forms.CharField(
+        max_length=255,
+        required=True,
+        label='Bank Name'
+    )
+    account_or_phone = forms.CharField(
+        max_length=255,
+        required=True,
+        label='Account/Phone'
+    )
+    recipient_name = forms.CharField(
+        max_length=255,
+        required=True,
+        label='Recipient Name'
+    )
+
+    bank_detail = forms.ModelChoiceField(
+        queryset=BankDetail.objects.all(),
+        required=True,
+        label='Bank Detail'
+    )
+
     class Meta:
         model = Offer
-        fields = ['currency_offered', 'amount_offered', 'currency_needed']
+        fields = ['currency_offered', 'amount_offered', 'currency_needed',
+                  'bank_name', 'account_or_phone', 'recipient_name', 'bank_detail']
 
     def clean(self):
         cleaned_data = super().clean()

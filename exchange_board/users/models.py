@@ -10,67 +10,36 @@ CURRENCY_CHOICES = [
 ]
 
 
+class Currency(models.Model):
+    code = models.CharField(max_length=3, unique=True, choices=CURRENCY_CHOICES)
+    name = models.CharField(max_length=255)
+    help_text_template = models.CharField(
+        max_length=255,
+        help_text="Template for the help text, e.g., 'Bank Name for {currency_name} transfers'"
+    )
+
+    def __str__(self):
+        return self.code
+
+
+class BankDetail(models.Model):
+    user = models.ForeignKey("CustomUser", on_delete=models.CASCADE)
+    currency = models.ForeignKey(Currency, on_delete=models.CASCADE)
+    bank_name = models.CharField(max_length=255, blank=True, null=True)
+    account_or_phone = models.CharField(max_length=255, blank=True, null=True)
+    recipient_name = models.CharField(max_length=255, blank=True, null=True)
+
+    class Meta:
+        unique_together = ('user', 'currency')
+
+    def __str__(self):
+        return f"{self.bank_name} - {self.account_or_phone}"
+
+
 class CustomUser(AbstractUser):
 
     email = models.EmailField(unique=True, blank=False)
     is_email_confirmed = models.BooleanField(default=False)
-
-    rub_bank_name = models.CharField(
-        max_length=255,
-        blank=True,
-        null=True,
-        help_text="Bank Name for Ruble transfers"
-    )
-    rub_account_or_phone = models.CharField(
-        max_length=255,
-        blank=True,
-        null=True,
-        help_text="Account or Phone for Ruble transfers"
-    )
-    rub_recipient_name = models.CharField(
-        max_length=255,
-        blank=True,
-        null=True,
-        help_text="Recipient Name for Ruble transfers"
-    )
-
-    usd_bank_name = models.CharField(
-        max_length=255,
-        blank=True,
-        null=True,
-        help_text="Bank Name for USD transfers"
-    )
-    usd_account_or_phone = models.CharField(
-        max_length=255,
-        blank=True,
-        null=True,
-        help_text="Account or Phone for USD transfers"
-    )
-    usd_recipient_name = models.CharField(
-        max_length=255,
-        blank=True,
-        null=True,
-        help_text="Recipient Name for USD transfers"
-    )
-
-    mnt_bank_name = models.CharField(
-        max_length=255,
-        blank=True,
-        null=True,
-        help_text="Bank Name for Tugrik transfers"
-    )
-    mnt_account_or_phone = models.CharField(
-        max_length=255,
-        blank=True,
-        null=True,
-        help_text="Account or Phone for Tugrik transfers"
-    )
-    mnt_recipient_name = models.CharField(
-        max_length=255,
-        blank=True,
-        null=True,
-        help_text="Recipient Name for Tugrik transfers"
-    )
 
     invited_by = models.ForeignKey(
         'self',
@@ -138,8 +107,8 @@ class UserFollow(models.Model):
     )
 
     class Meta:
-        verbose_name = 'Подписка'
-        verbose_name_plural = 'Подписки'
+        verbose_name = 'Subscription'
+        verbose_name_plural = 'Subscriptions'
         unique_together = ('user', 'author')
 
 
