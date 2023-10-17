@@ -29,8 +29,8 @@ class BankDetail(models.Model):
     account_or_phone = models.CharField(max_length=255, blank=True, null=True)
     recipient_name = models.CharField(max_length=255, blank=True, null=True)
 
-    class Meta:
-        unique_together = ('user', 'currency')
+    # class Meta:
+    #     unique_together = ('user', 'currency')
 
     def __str__(self):
         return f"{self.bank_name} - {self.account_or_phone}"

@@ -1,13 +1,15 @@
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db.models import OuterRef, Exists
 from django.http import HttpResponseForbidden, HttpResponseNotFound
 from django.shortcuts import get_object_or_404, redirect, render
-from .forms import UploadScreenshotForm, OfferForm
+from .forms import UploadScreenshotForm, OfferForm, BankDetailForm
 from .models import (Offer, Transaction, OPEN, IN_PROGRESS,
                      CLOSED, DISPUTE, RequestForTransaction)
 from users.views import handshake_count
 from users.models import BankDetail, Currency
+
 
 
 def index(request):
@@ -43,58 +45,63 @@ def create_offer(request):
     bank_details_by_currency = {}
 
     if request.method == 'POST':
-        form = OfferForm(request.POST)
-        if form.is_valid():
-            currency_code = form.cleaned_data.get('currency_needed')
-            print(currency_code)
-            try:
-                currency_needed = Currency.objects.get(code=currency_code)
-            except Currency.DoesNotExist:
-                # Обработайте ошибку, возможно, добавив сообщение об ошибке или редирект
-                return render(request, 'error_page.html', {'message': 'Currency not found.'})
+        offer_form = OfferForm(request.POST)
+        bank_detail_form = BankDetailForm(request.POST)
 
-            selection = request.POST.get('selection')  # New line
+        if offer_form.is_valid():
+            selection = offer_form.cleaned_data.get('selection')
 
-            if selection == "new":
-                bank_name = request.POST.get('bank_name')
-                account_or_phone = request.POST.get('account_or_phone')
-                recipient_name = request.POST.get('recipient_name')
+            if selection == 'new' and bank_detail_form.is_valid():
+                new_bank_detail = bank_detail_form.save(commit=False)
+                new_bank_detail.user = request.user
+                new_bank_detail.currency = Currency.objects.get(code=offer_form.cleaned_data['currency_needed'])
+                new_bank_detail.save()
+                offer = offer_form.save(commit=False)
+                offer.bank_detail = new_bank_detail
+                offer.author = request.user
+                offer.save()
+                messages.success(request, 'Your offer has been successfully created.')
+                return redirect('offer_detail', offer_id=offer.id)  # assuming you have a view named 'offer_detail'
+
+            elif selection == 'existing':
+                bank_detail_id = offer_form.cleaned_data.get('bank_detail')
+                try:
+                    selected_bank_detail_id = bank_detail_id.id if isinstance(bank_detail_id,                                                                              BankDetail) else bank_detail_id
+                    selected_bank_detail = BankDetail.objects.get(id=selected_bank_detail_id, user=request.user)
+                    offer = offer_form.save(commit=False)
+                    offer.bank_detail = selected_bank_detail
+                    offer.author = request.user
+                    offer.save()
+                    messages.success(request, 'Your offer has been successfully created.')
+                    return redirect('offer_detail',
+                                    offer_id=offer.id)  # using the same redirect as before for simplicity
+                except BankDetail.DoesNotExist:
+                    messages.error(request, 'Selected bank detail not found. Please check and try again.')
+
             else:
-                bank_detail = form.cleaned_data.get('bank_detail')
-                bank_name = bank_detail.bank_name
-                account_or_phone = bank_detail.account_or_phone
-                recipient_name = bank_detail.recipient_name
+                messages.error(request, 'There was an error with the bank details. Please check and try again.')
 
-            # bank_name = request.POST.get('bank_name')
-            # account_or_phone = request.POST.get('account_or_phone')
-            # recipient_name = request.POST.get('recipient_name')
+        else:
+            messages.error(request, 'There was an error with your submission. Please check the details and try again.')
 
-            offer = form.save(commit=False)
-            offer.author = request.user
-            offer.save()
-
-            bank_detail, created = BankDetail.objects.get_or_create(user=request.user, currency=currency_needed)
-            bank_detail.bank_name = bank_name
-            bank_detail.account_or_phone = account_or_phone
-            bank_detail.recipient_name = recipient_name
-            bank_detail.save()
-
-            return redirect('offer_detail', offer_id=offer.id)
     else:
-        form = OfferForm()
+        offer_form = OfferForm()
+        bank_detail_form = BankDetailForm()
 
-        user_bank_details = BankDetail.objects.filter(user=request.user)
-        bank_details_by_currency = {
-            detail.currency.code: {
-                'bank_name': detail.bank_name,
-                'account_or_phone': detail.account_or_phone,
-                'recipient_name': detail.recipient_name,
-            } for detail in user_bank_details
-        }
+    user_bank_details = BankDetail.objects.filter(user=request.user)
+    bank_details_by_currency = {
+        detail.currency.code: {
+            'bank_name': detail.bank_name,
+            'account_or_phone': detail.account_or_phone,
+            'recipient_name': detail.recipient_name,
+        } for detail in user_bank_details
+    }
 
     return render(request, 'offers/create_offer.html', {
-        'form': form,
-        'bank_details_by_currency': bank_details_by_currency
+        'form': offer_form,
+        'bank_detail_form': bank_detail_form,
+        'bank_details_by_currency': bank_details_by_currency,
+        'hidden_fields': [],
     })
 
 
