@@ -26,6 +26,12 @@ class OfferForm(forms.ModelForm):
         model = Offer
         fields = ['currency_offered', 'amount_offered', 'currency_needed', 'selection', 'bank_detail']
 
+    def __init__(self, *args, **kwargs):
+        super(OfferForm, self).__init__(*args, **kwargs)
+        # Если значение selection равно 'new', делаем поле bank_detail неактивным
+        if self.initial.get('selection') == 'new' or (self.data and self.data.get('selection') == 'new'):
+            self.fields['bank_detail'].disabled = True
+
     def clean(self):
         cleaned_data = super().clean()
         currency_offered = cleaned_data.get("currency_offered")
@@ -48,4 +54,3 @@ class BankDetailForm(forms.ModelForm):
     class Meta:
         model = BankDetail
         fields = ['bank_name', 'account_or_phone', 'recipient_name']
-

@@ -90,26 +90,27 @@
 document.addEventListener('DOMContentLoaded', function() {
     const newBankDetails = document.getElementById('new_bank_details');
     const existingBankDetails = document.getElementById('existing_bank_details');
+    const bankDetailSelect = document.querySelector('select[name="bank_detail"]');
 
-    // Функция для обновления видимости блоков на основе выбранной радиокнопки
     function updateDisplay() {
         if (document.querySelector('input[name="selection"][value="existing"]').checked) {
-            newBankDetails.style.display = 'block';
-            existingBankDetails.style.display = 'none';
-        } else if (document.querySelector('input[name="selection"][value="new"]').checked) {
             newBankDetails.style.display = 'none';
+            existingBankDetails.style.display = 'none';
+            bankDetailSelect.disabled = false; // включаем выбор bank_detail
+        } else {
+            newBankDetails.style.display = 'block';
             existingBankDetails.style.display = 'block';
+            bankDetailSelect.disabled = true; // отключаем выбор bank_detail
         }
     }
 
-    // Обновить блоки при изменении радиокнопок
     document.querySelectorAll('input[name="selection"]').forEach(function(radioBtn) {
         radioBtn.addEventListener('change', updateDisplay);
     });
 
-    // Вызвать функцию при загрузке страницы, чтобы блоки отображались правильно
     updateDisplay();
 });
+
 
 </script>
 
