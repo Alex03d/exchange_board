@@ -11,7 +11,6 @@ from users.views import handshake_count
 from users.models import BankDetail, Currency
 
 
-
 def index(request):
     offers_list = Offer.objects.order_by('-publishing_date').annotate(
         has_requests=Exists(RequestForTransaction.objects.filter(offer=OuterRef('pk'))))
@@ -27,19 +26,6 @@ def index(request):
     return render(request, template, context)
 
 
-# @login_required
-# def create_offer(request):
-#     if request.method == 'POST':
-#         form = OfferForm(request.POST)
-#         if form.is_valid():
-#             offer = form.save(commit=False)
-#             offer.author = request.user
-#             offer.save()
-#             return redirect('offer_detail', offer_id=offer.id)
-#     else:
-#         form = OfferForm()
-#
-#     return render(request, 'offers/create_offer.html', {'form': form})
 @login_required
 def create_offer(request):
     bank_details_by_currency = {}
@@ -54,35 +40,55 @@ def create_offer(request):
             if selection == 'new' and bank_detail_form.is_valid():
                 new_bank_detail = bank_detail_form.save(commit=False)
                 new_bank_detail.user = request.user
-                new_bank_detail.currency = Currency.objects.get(code=offer_form.cleaned_data['currency_needed'])
+                new_bank_detail.currency = Currency.objects.get(
+                    code=offer_form.cleaned_data['currency_needed']
+                )
                 new_bank_detail.save()
                 offer = offer_form.save(commit=False)
                 offer.bank_detail = new_bank_detail
                 offer.author = request.user
                 offer.save()
-                messages.success(request, 'Your offer has been successfully created.')
-                return redirect('offer_detail', offer_id=offer.id)  # assuming you have a view named 'offer_detail'
+                messages.success(
+                    request,
+                    'Your offer has been successfully created.'
+                )
+                return redirect('offer_detail', offer_id=offer.id)
 
             elif selection == 'existing':
                 bank_detail_id = offer_form.cleaned_data.get('bank_detail')
                 try:
-                    selected_bank_detail_id = bank_detail_id.id if isinstance(bank_detail_id,                                                                              BankDetail) else bank_detail_id
-                    selected_bank_detail = BankDetail.objects.get(id=selected_bank_detail_id, user=request.user)
+                    selected_bank_detail_id = bank_detail_id.id if isinstance(
+                        bank_detail_id,
+                        BankDetail
+                    ) else bank_detail_id
+                    selected_bank_detail = BankDetail.objects.get(
+                        id=selected_bank_detail_id,
+                        user=request.user
+                    )
                     offer = offer_form.save(commit=False)
                     offer.bank_detail = selected_bank_detail
                     offer.author = request.user
                     offer.save()
                     messages.success(request, 'Your offer has been successfully created.')
                     return redirect('offer_detail',
-                                    offer_id=offer.id)  # using the same redirect as before for simplicity
+                                    offer_id=offer.id)
                 except BankDetail.DoesNotExist:
-                    messages.error(request, 'Selected bank detail not found. Please check and try again.')
+                    messages.error(
+                        request,
+                        'Selected bank detail not found. Please check and try again.'
+                    )
 
             else:
-                messages.error(request, 'There was an error with the bank details. Please check and try again.')
+                messages.error(
+                    request,
+                    'There was an error with the bank details. Please check and try again.'
+                )
 
         else:
-            messages.error(request, 'There was an error with your submission. Please check the details and try again.')
+            messages.error(
+                request,
+                'There was an error with your submission. '
+                'Please check the details and try again.')
 
     else:
         offer_form = OfferForm()
