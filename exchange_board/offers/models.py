@@ -89,6 +89,13 @@ class RequestForTransaction(models.Model):
         ],
         default='PENDING'
     )
+    bank_detail = models.ForeignKey(
+        BankDetail,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='related_requests'
+    )
 
     class Meta:
         unique_together = ('offer', 'applicant')

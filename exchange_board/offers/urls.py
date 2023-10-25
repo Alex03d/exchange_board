@@ -9,6 +9,7 @@ urlpatterns = [
     path('request-transaction/<int:offer_id>/',
              views.create_request_for_transaction,
              name='request_transaction'),
+    path('offer/<int:offer_id>/request_transaction/', views.create_request_for_transaction, name='create_request_for_transaction'),
     path('view-request/<int:request_id>/',
          views.view_requests_for_transaction,
          name='view_requests_for_transaction'),

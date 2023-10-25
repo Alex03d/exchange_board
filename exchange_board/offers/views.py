@@ -4,7 +4,7 @@ from django.core.paginator import Paginator
 from django.db.models import OuterRef, Exists
 from django.http import HttpResponseForbidden, HttpResponseNotFound
 from django.shortcuts import get_object_or_404, redirect, render
-from .forms import UploadScreenshotForm, OfferForm, BankDetailForm
+from .forms import UploadScreenshotForm, OfferForm, BankDetailForm, RequestForm
 from .models import (Offer, Transaction, OPEN, IN_PROGRESS,
                      CLOSED, DISPUTE, RequestForTransaction)
 from users.views import handshake_count
@@ -31,7 +31,8 @@ def create_offer(request):
     bank_details_by_currency = {}
 
     if request.method == 'POST':
-        offer_form = OfferForm(request.POST)
+        # offer_form = OfferForm(request.POST)
+        offer_form = OfferForm(request.POST, user=request.user)
         bank_detail_form = BankDetailForm(request.POST)
 
         if offer_form.is_valid():
@@ -91,7 +92,8 @@ def create_offer(request):
                 'Please check the details and try again.')
 
     else:
-        offer_form = OfferForm()
+        # offer_form = OfferForm()
+        offer_form = OfferForm(user=request.user)
         bank_detail_form = BankDetailForm()
 
     user_bank_details = BankDetail.objects.filter(user=request.user)
@@ -318,14 +320,68 @@ def author_asserts_transfer_done(request, transaction_id):
     return redirect('transaction_detail', transaction_id=transaction.id)
 
 
+# @login_required
+# def create_request_for_transaction(request, offer_id):
+#     offer = get_object_or_404(Offer, id=offer_id)
+#     if offer.author == request.user:
+#         return redirect('index')
+#
+#     RequestForTransaction.objects.create(offer=offer, applicant=request.user)
+#     return redirect('offer_detail', offer_id=offer.id)
 @login_required
 def create_request_for_transaction(request, offer_id):
     offer = get_object_or_404(Offer, id=offer_id)
+
     if offer.author == request.user:
         return redirect('index')
 
-    RequestForTransaction.objects.create(offer=offer, applicant=request.user)
-    return redirect('offer_detail', offer_id=offer.id)
+    bank_detail_to_use = None
+
+    if request.method == "POST":
+        request_form = RequestForm(request.POST, user=request.user)
+        bank_detail_form = BankDetailForm(request.POST)
+
+        if request_form.is_valid():
+            selection = request_form.cleaned_data.get('selection')
+
+            if selection == 'new':
+                if bank_detail_form.is_valid():
+                    new_bank_detail = bank_detail_form.save(commit=False)
+                    new_bank_detail.user = request.user
+                    new_bank_detail.currency = offer.currency_needed
+                    new_bank_detail.save()
+                    bank_detail_to_use = new_bank_detail
+                    print("POST data:", request.POST)
+
+                else:
+                    messages.error(request, 'Invalid bank detail form. Please check the details and try again.')
+
+            elif selection == 'existing':
+                selected_bank_detail = request_form.cleaned_data.get('bank_detail')
+                if selected_bank_detail and selected_bank_detail.user == request.user:
+                    bank_detail_to_use = selected_bank_detail
+                    print("POST data:", request.POST)
+
+                else:
+                    messages.error(request, 'Invalid bank detail selection. Please try again.')
+
+            # If a bank_detail is set (either new or existing), create a RequestForTransaction
+            if bank_detail_to_use:
+                RequestForTransaction.objects.create(offer=offer, applicant=request.user,
+                                                     bank_detail=bank_detail_to_use)
+                return redirect('offer_detail', offer_id=offer.id)
+
+    else:
+        offer_form = OfferForm(user=request.user)
+        bank_detail_form = BankDetailForm()
+
+    context = {
+        'bank_detail_form': bank_detail_form,
+        'offer_form': offer_form,
+        'offer': offer
+    }
+
+    return render(request, 'offers/request_for_transaction.html', context)
 
 
 @login_required

@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>Request Transaction for Offer by {{ offer.author.username|capfirst }}</h2>
+
+    <form method="post" action="{% url 'request_transaction' offer.id %}">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label>Choose Bank Detail</label>
+            <div>
+                <input type="radio" name="selection" value="new" id="new" checked onchange="toggleBankDetailInput();">
+                <label for="new">Enter New Bank Detail</label>
+            </div>
+            <div>
+                <input type="radio" name="selection" value="existing" id="existing" onchange="toggleBankDetailInput();">
+                <label for="existing">Use Existing Bank Detail</label>
+            </div>
+
+            <!-- Existing bank details dropdown -->
+            <div id="existingBankDetails" style="display: none;">
+                {{ offer_form.bank_detail }}
+                {% if offer_form.bank_detail.errors %}
+                    <div class="alert alert-danger mt-2">
+                        {{ offer_form.bank_detail.errors.0 }}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div id="newBankDetails">
+            {% for field in bank_detail_form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                    <div class="alert alert-danger mt-2">
+                        {{ field.errors.0 }}
+                    </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        <button type="submit" class="btn-minimalist mt-3">Submit Request</button>
+    </form>
+
+    <script>
+        function toggleBankDetailInput() {
+            const isNew = document.getElementById('new').checked;
+            document.getElementById('newBankDetails').style.display = isNew ? 'block' : 'none';
+            document.getElementById('existingBankDetails').style.display = isNew ? 'none' : 'block';
+        }
+    </script>
+{% endblock %}

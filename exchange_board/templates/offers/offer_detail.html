@@ -29,7 +29,8 @@
         {% if user_has_sent_request %}
             <p class="text-border">Request Sent</p>
         {% else %}
-            <a href="{% url 'request_transaction' offer.id %}" class="btn-minimalist">Request Transaction</a>
+            <a href="{% url 'create_request_for_transaction' offer.id %}" class="btn-minimalist">Request Transaction</a>
+
         {% endif %}
     {% else %}
         {% if requests_for_transaction %}

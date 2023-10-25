@@ -1,5 +1,5 @@
 from django import forms
-from .models import Transaction, Offer
+from .models import Transaction, Offer, RequestForTransaction
 from users.models import BankDetail
 from django.core.exceptions import ValidationError
 
@@ -26,8 +26,19 @@ class OfferForm(forms.ModelForm):
         model = Offer
         fields = ['currency_offered', 'amount_offered', 'currency_needed', 'selection', 'bank_detail']
 
+    # def __init__(self, *args, **kwargs):
+    #     super(OfferForm, self).__init__(*args, **kwargs)
+    #     # Если значение selection равно 'new', делаем поле bank_detail неактивным
+    #     if self.initial.get('selection') == 'new' or (self.data and self.data.get('selection') == 'new'):
+    #         self.fields['bank_detail'].disabled = True
     def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)  # получаем пользователя из аргументов
         super(OfferForm, self).__init__(*args, **kwargs)
+
+        # Если передан пользователь, ограничиваем банковские реквизиты этим пользователем
+        if user:
+            self.fields['bank_detail'].queryset = BankDetail.objects.filter(user=user)
+
         # Если значение selection равно 'new', делаем поле bank_detail неактивным
         if self.initial.get('selection') == 'new' or (self.data and self.data.get('selection') == 'new'):
             self.fields['bank_detail'].disabled = True
@@ -54,3 +65,30 @@ class BankDetailForm(forms.ModelForm):
     class Meta:
         model = BankDetail
         fields = ['bank_name', 'account_or_phone', 'recipient_name']
+
+
+class RequestForm(forms.ModelForm):
+    selection = forms.ChoiceField(
+        choices=[('new', 'New'), ('existing', 'Existing')],
+        widget=forms.RadioSelect,
+        initial='new'
+    )
+    bank_detail = forms.ModelChoiceField(
+        queryset=BankDetail.objects.all(),
+        required=False
+    )
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super(RequestForm, self).__init__(*args, **kwargs)
+
+        if user:
+            self.fields['bank_detail'].queryset = BankDetail.objects.filter(user=user)
+
+        if self.initial.get('selection') == 'new' or (self.data and self.data.get('selection') == 'new'):
+            self.fields['bank_detail'].disabled = True
+
+    class Meta:
+        model = RequestForTransaction
+        fields = ['selection', 'bank_detail']
+
