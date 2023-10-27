@@ -11,11 +11,14 @@ CURRENCY_CHOICES = [
 
 
 class Currency(models.Model):
-    code = models.CharField(max_length=3, unique=True, choices=CURRENCY_CHOICES)
+    code = models.CharField(max_length=3,
+                            unique=True,
+                            choices=CURRENCY_CHOICES)
     name = models.CharField(max_length=255)
     help_text_template = models.CharField(
         max_length=255,
-        help_text="Template for the help text, e.g., 'Bank Name for {currency_name} transfers'"
+        help_text="Template for the help text, e.g., "
+                  "'Bank Name for {currency_name} transfers'"
     )
 
     def __str__(self):

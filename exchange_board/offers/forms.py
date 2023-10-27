@@ -24,56 +24,45 @@ class OfferForm(forms.ModelForm):
 
     class Meta:
         model = Offer
-        fields = ['currency_offered', 'amount_offered', 'currency_needed', 'selection', 'bank_detail']
+        fields = ['currency_offered', 'amount_offered',
+                  'currency_needed', 'selection', 'bank_detail']
 
-    # def __init__(self, *args, **kwargs):
-    #     super(OfferForm, self).__init__(*args, **kwargs)
-    #     # Если значение selection равно 'new', делаем поле bank_detail неактивным
-    #     if self.initial.get('selection') == 'new' or (self.data and self.data.get('selection') == 'new'):
-    #         self.fields['bank_detail'].disabled = True
     def __init__(self, *args, **kwargs):
-        user = kwargs.pop('user', None)  # получаем пользователя из аргументов
+        user = kwargs.pop('user', None)
         super(OfferForm, self).__init__(*args, **kwargs)
 
-        # Если передан пользователь, ограничиваем банковские реквизиты этим пользователем
         if user:
-            self.fields['bank_detail'].queryset = BankDetail.objects.filter(user=user)
+            self.fields['bank_detail'].queryset = BankDetail.objects.filter(
+                user=user
+            )
 
-        # Если значение selection равно 'new', делаем поле bank_detail неактивным
-        if self.initial.get('selection') == 'new' or (self.data and self.data.get('selection') == 'new'):
+        if self.initial.get('selection') == 'new' or (
+                self.data and self.data.get('selection') == 'new'
+        ):
             self.fields['bank_detail'].disabled = True
 
-    # def clean(self):
-    #     cleaned_data = super().clean()
-    #     currency_offered = cleaned_data.get("currency_offered")
-    #     currency_needed = cleaned_data.get("currency_needed")
-    #
-    #     if currency_offered == currency_needed:
-    #         raise ValidationError("Offered currency and needed currency cannot be the same.")
-    #
-    #     if currency_offered:
-    #         if currency_offered == "RUB" and cleaned_data.get('amount_offered') > 5000:
-    #             raise ValidationError("Limit exceeded for rubles!")
-    #         elif currency_offered == "USD" and cleaned_data.get('amount_offered') > 50:
-    #             raise ValidationError("Limit exceeded for dollars!")
-    #         elif currency_offered == "MNT" and cleaned_data.get('amount_offered') > 150000:
-    #             raise ValidationError("Limit exceeded for tugrugs!")
-    #     return cleaned_data
     def clean(self):
         cleaned_data = super().clean()
         currency_offered = cleaned_data.get("currency_offered")
         currency_needed = cleaned_data.get("currency_needed")
 
         if currency_offered == currency_needed:
-            raise ValidationError("Offered currency and needed currency cannot be the same.")
+            raise ValidationError("Offered currency and needed "
+                                  "currency cannot be the same.")
 
         if currency_offered:
-            offered_code = currency_offered.code  # Получаем код валюты
-            if offered_code == "RUB" and cleaned_data.get('amount_offered') > 5000:
+            offered_code = currency_offered.code
+            if offered_code == "RUB" and cleaned_data.get(
+                    'amount_offered'
+            ) > 5000:
                 raise ValidationError("Limit exceeded for rubles!")
-            elif offered_code == "USD" and cleaned_data.get('amount_offered') > 50:
+            elif offered_code == "USD" and cleaned_data.get(
+                    'amount_offered'
+            ) > 50:
                 raise ValidationError("Limit exceeded for dollars!")
-            elif offered_code == "MNT" and cleaned_data.get('amount_offered') > 150000:
+            elif offered_code == "MNT" and cleaned_data.get(
+                    'amount_offered'
+            ) > 150000:
                 raise ValidationError("Limit exceeded for tugrugs!")
         return cleaned_data
 
@@ -100,12 +89,15 @@ class RequestForm(forms.ModelForm):
         super(RequestForm, self).__init__(*args, **kwargs)
 
         if user:
-            self.fields['bank_detail'].queryset = BankDetail.objects.filter(user=user)
+            self.fields['bank_detail'].queryset = BankDetail.objects.filter(
+                user=user
+            )
 
-        if self.initial.get('selection') == 'new' or (self.data and self.data.get('selection') == 'new'):
+        if self.initial.get('selection') == 'new' or (
+                self.data and self.data.get('selection') == 'new'
+        ):
             self.fields['bank_detail'].disabled = True
 
     class Meta:
         model = RequestForTransaction
         fields = ['selection', 'bank_detail']
-
