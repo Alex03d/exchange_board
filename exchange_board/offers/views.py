@@ -86,10 +86,12 @@ def create_offer(request):
                 )
 
         else:
-            messages.error(
-                request,
-                'There was an error with your submission. '
-                'Please check the details and try again.')
+            for error in offer_form.errors.values():
+                messages.error(request, error)
+            # messages.error(
+            #     request,
+            #     'There was an error with your submission. '
+            #     'Please check the details and try again.')
             bank_detail_form = BankDetailForm(request.POST)
 
     else:

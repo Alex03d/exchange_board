@@ -43,6 +43,22 @@ class OfferForm(forms.ModelForm):
         if self.initial.get('selection') == 'new' or (self.data and self.data.get('selection') == 'new'):
             self.fields['bank_detail'].disabled = True
 
+    # def clean(self):
+    #     cleaned_data = super().clean()
+    #     currency_offered = cleaned_data.get("currency_offered")
+    #     currency_needed = cleaned_data.get("currency_needed")
+    #
+    #     if currency_offered == currency_needed:
+    #         raise ValidationError("Offered currency and needed currency cannot be the same.")
+    #
+    #     if currency_offered:
+    #         if currency_offered == "RUB" and cleaned_data.get('amount_offered') > 5000:
+    #             raise ValidationError("Limit exceeded for rubles!")
+    #         elif currency_offered == "USD" and cleaned_data.get('amount_offered') > 50:
+    #             raise ValidationError("Limit exceeded for dollars!")
+    #         elif currency_offered == "MNT" and cleaned_data.get('amount_offered') > 150000:
+    #             raise ValidationError("Limit exceeded for tugrugs!")
+    #     return cleaned_data
     def clean(self):
         cleaned_data = super().clean()
         currency_offered = cleaned_data.get("currency_offered")
@@ -52,11 +68,12 @@ class OfferForm(forms.ModelForm):
             raise ValidationError("Offered currency and needed currency cannot be the same.")
 
         if currency_offered:
-            if currency_offered == "RUB" and cleaned_data.get('amount_offered') > 5000:
+            offered_code = currency_offered.code  # Получаем код валюты
+            if offered_code == "RUB" and cleaned_data.get('amount_offered') > 5000:
                 raise ValidationError("Limit exceeded for rubles!")
-            elif currency_offered == "USD" and cleaned_data.get('amount_offered') > 50:
+            elif offered_code == "USD" and cleaned_data.get('amount_offered') > 50:
                 raise ValidationError("Limit exceeded for dollars!")
-            elif currency_offered == "MNT" and cleaned_data.get('amount_offered') > 150000:
+            elif offered_code == "MNT" and cleaned_data.get('amount_offered') > 150000:
                 raise ValidationError("Limit exceeded for tugrugs!")
         return cleaned_data
 
