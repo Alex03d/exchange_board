@@ -31,19 +31,19 @@ def create_offer(request):
     bank_details_by_currency = {}
 
     if request.method == 'POST':
-        # offer_form = OfferForm(request.POST)
         offer_form = OfferForm(request.POST, user=request.user)
-        bank_detail_form = BankDetailForm(request.POST)
 
         if offer_form.is_valid():
+            currency_needed_code = offer_form.cleaned_data['currency_needed']
+            currency_needed = Currency.objects.get(code=currency_needed_code)
+            bank_detail_form = BankDetailForm(request.POST, initial={'currency': currency_needed})
+
             selection = offer_form.cleaned_data.get('selection')
 
             if selection == 'new' and bank_detail_form.is_valid():
                 new_bank_detail = bank_detail_form.save(commit=False)
                 new_bank_detail.user = request.user
-                new_bank_detail.currency = Currency.objects.get(
-                    code=offer_form.cleaned_data['currency_needed']
-                )
+                new_bank_detail.currency = currency_needed
                 new_bank_detail.save()
                 offer = offer_form.save(commit=False)
                 offer.bank_detail = new_bank_detail
@@ -90,9 +90,9 @@ def create_offer(request):
                 request,
                 'There was an error with your submission. '
                 'Please check the details and try again.')
+            bank_detail_form = BankDetailForm(request.POST)
 
     else:
-        # offer_form = OfferForm()
         offer_form = OfferForm(user=request.user)
         bank_detail_form = BankDetailForm()
 
@@ -111,6 +111,91 @@ def create_offer(request):
         'bank_details_by_currency': bank_details_by_currency,
         'hidden_fields': [],
     })
+
+# @login_required
+# def create_offer(request):
+#     bank_details_by_currency = {}
+#
+#     if request.method == 'POST':
+#         offer_form = OfferForm(request.POST, user=request.user)
+#         bank_detail_form = BankDetailForm(request.POST)
+#
+#         if offer_form.is_valid():
+#             selection = offer_form.cleaned_data.get('selection')
+#
+#             if selection == 'new' and bank_detail_form.is_valid():
+#                 new_bank_detail = bank_detail_form.save(commit=False)
+#                 new_bank_detail.user = request.user
+#                 new_bank_detail.currency = Currency.objects.get(
+#                     code=offer_form.cleaned_data['currency_needed']
+#                 )
+#                 new_bank_detail.save()
+#                 offer = offer_form.save(commit=False)
+#                 offer.bank_detail = new_bank_detail
+#                 offer.author = request.user
+#                 offer.save()
+#                 messages.success(
+#                     request,
+#                     'Your offer has been successfully created.'
+#                 )
+#                 return redirect('offer_detail', offer_id=offer.id)
+#
+#             elif selection == 'existing':
+#                 bank_detail_id = offer_form.cleaned_data.get('bank_detail')
+#                 try:
+#                     selected_bank_detail_id = bank_detail_id.id if isinstance(
+#                         bank_detail_id,
+#                         BankDetail
+#                     ) else bank_detail_id
+#                     selected_bank_detail = BankDetail.objects.get(
+#                         id=selected_bank_detail_id,
+#                         user=request.user
+#                     )
+#                     offer = offer_form.save(commit=False)
+#                     offer.bank_detail = selected_bank_detail
+#                     offer.author = request.user
+#                     offer.save()
+#                     messages.success(request, 'Your offer has been successfully created.')
+#                     return redirect('offer_detail',
+#                                     offer_id=offer.id)
+#                 except BankDetail.DoesNotExist:
+#                     messages.error(
+#                         request,
+#                         'Selected bank detail not found. Please check and try again.'
+#                     )
+#
+#             else:
+#                 messages.error(
+#                     request,
+#                     'There was an error with the bank details. Please check and try again.'
+#                 )
+#
+#         else:
+#             messages.error(
+#                 request,
+#                 'There was an error with your submission. '
+#                 'Please check the details and try again.')
+#
+#     else:
+#         # offer_form = OfferForm()
+#         offer_form = OfferForm(user=request.user)
+#         bank_detail_form = BankDetailForm()
+#
+#     user_bank_details = BankDetail.objects.filter(user=request.user)
+#     bank_details_by_currency = {
+#         detail.currency.code: {
+#             'bank_name': detail.bank_name,
+#             'account_or_phone': detail.account_or_phone,
+#             'recipient_name': detail.recipient_name,
+#         } for detail in user_bank_details
+#     }
+#
+#     return render(request, 'offers/create_offer.html', {
+#         'form': offer_form,
+#         'bank_detail_form': bank_detail_form,
+#         'bank_details_by_currency': bank_details_by_currency,
+#         'hidden_fields': [],
+#     })
 
 
 @login_required
@@ -139,6 +224,10 @@ def transaction_detail(request, transaction_id):
     offer_user_code = transaction.offer.author.referral_code
     accepting_user_code = transaction.accepting_user.referral_code
     handshakes = handshake_count(offer_user_code, accepting_user_code)
+
+    offer_bank_detail = offer.bank_detail
+    request_for_transaction = RequestForTransaction.objects.filter(offer=offer, applicant=accepting_user).first()
+    accepting_user_bank_detail = request_for_transaction.bank_detail if request_for_transaction else None
 
     author_not_asserts_paid = (
             transaction.author_asserts_transfer_done == 'no'
@@ -194,6 +283,8 @@ def transaction_detail(request, transaction_id):
 
         'current_user_is_author': current_user_is_author,
         'current_user_is_accepting_user': current_user_is_accepting_user,
+        'offer_bank_detail': offer_bank_detail,
+        'accepting_user_bank_detail': accepting_user_bank_detail,
     }
 
     return render(request, 'transaction_detail.html', context)
@@ -320,14 +411,6 @@ def author_asserts_transfer_done(request, transaction_id):
     return redirect('transaction_detail', transaction_id=transaction.id)
 
 
-# @login_required
-# def create_request_for_transaction(request, offer_id):
-#     offer = get_object_or_404(Offer, id=offer_id)
-#     if offer.author == request.user:
-#         return redirect('index')
-#
-#     RequestForTransaction.objects.create(offer=offer, applicant=request.user)
-#     return redirect('offer_detail', offer_id=offer.id)
 @login_required
 def create_request_for_transaction(request, offer_id):
     offer = get_object_or_404(Offer, id=offer_id)
@@ -339,7 +422,7 @@ def create_request_for_transaction(request, offer_id):
 
     if request.method == "POST":
         request_form = RequestForm(request.POST, user=request.user)
-        bank_detail_form = BankDetailForm(request.POST)
+        bank_detail_form = BankDetailForm(request.POST, initial={'currency': offer.currency_offered})
 
         if request_form.is_valid():
             selection = request_form.cleaned_data.get('selection')
@@ -348,7 +431,7 @@ def create_request_for_transaction(request, offer_id):
                 if bank_detail_form.is_valid():
                     new_bank_detail = bank_detail_form.save(commit=False)
                     new_bank_detail.user = request.user
-                    new_bank_detail.currency = offer.currency_needed
+                    new_bank_detail.currency = offer.currency_offered  # ensure the currency from the offer is used
                     new_bank_detail.save()
                     bank_detail_to_use = new_bank_detail
                     print("POST data:", request.POST)
@@ -373,7 +456,7 @@ def create_request_for_transaction(request, offer_id):
 
     else:
         offer_form = OfferForm(user=request.user)
-        bank_detail_form = BankDetailForm()
+        bank_detail_form = BankDetailForm(initial={'currency': offer.currency_offered})
 
     context = {
         'bank_detail_form': bank_detail_form,
@@ -382,6 +465,60 @@ def create_request_for_transaction(request, offer_id):
     }
 
     return render(request, 'offers/request_for_transaction.html', context)
+# @login_required
+# def create_request_for_transaction(request, offer_id):
+#     offer = get_object_or_404(Offer, id=offer_id)
+#
+#     if offer.author == request.user:
+#         return redirect('index')
+#
+#     bank_detail_to_use = None
+#
+#     if request.method == "POST":
+#         request_form = RequestForm(request.POST, user=request.user)
+#         bank_detail_form = BankDetailForm(request.POST)
+#
+#         if request_form.is_valid():
+#             selection = request_form.cleaned_data.get('selection')
+#
+#             if selection == 'new':
+#                 if bank_detail_form.is_valid():
+#                     new_bank_detail = bank_detail_form.save(commit=False)
+#                     new_bank_detail.user = request.user
+#                     new_bank_detail.currency = offer.currency_needed
+#                     new_bank_detail.save()
+#                     bank_detail_to_use = new_bank_detail
+#                     print("POST data:", request.POST)
+#
+#                 else:
+#                     messages.error(request, 'Invalid bank detail form. Please check the details and try again.')
+#
+#             elif selection == 'existing':
+#                 selected_bank_detail = request_form.cleaned_data.get('bank_detail')
+#                 if selected_bank_detail and selected_bank_detail.user == request.user:
+#                     bank_detail_to_use = selected_bank_detail
+#                     print("POST data:", request.POST)
+#
+#                 else:
+#                     messages.error(request, 'Invalid bank detail selection. Please try again.')
+#
+#             # If a bank_detail is set (either new or existing), create a RequestForTransaction
+#             if bank_detail_to_use:
+#                 RequestForTransaction.objects.create(offer=offer, applicant=request.user,
+#                                                      bank_detail=bank_detail_to_use)
+#                 return redirect('offer_detail', offer_id=offer.id)
+#
+#     else:
+#         offer_form = OfferForm(user=request.user)
+#         bank_detail_form = BankDetailForm()
+#
+#     context = {
+#         'bank_detail_form': bank_detail_form,
+#         'offer_form': offer_form,
+#         'offer': offer
+#     }
+#
+#     return render(request, 'offers/request_for_transaction.html', context)
 
 
 @login_required
