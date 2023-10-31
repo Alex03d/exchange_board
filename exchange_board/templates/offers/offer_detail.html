@@ -14,15 +14,29 @@
             {% endfor %}
         </div>
 
+        <br>
+
     <!-- Displaying offer details -->
-    <h3>Details of the Offer</h3>
+    <h5>Details of the Offer</h5>
     <ul>
-        <li>Currency Offered: {{ offer.currency_offered }}</li>
-        <li>Amount Offered: <strong>{{ offer.amount_offered|floatformat:2 }}</strong></li>
-        <li>Currency Needed: {{ offer.currency_needed }}</li>
+        <li>Amount Offered: <strong>{{ offer.amount_offered|floatformat:2 }} {{ offer.currency_offered }}</strong></li>
+        <li>Amount Needed: {{required_amount|floatformat:2}} {{ offer.currency_needed }}</li>
         <li>Publishing Date: {{ offer.publishing_date|date:"d E Y" }}</li>
         <li>Status: {{ offer.get_status_display }}</li>
     </ul>
+
+
+    <div class="text-border-block">
+    Excnahge Rates:
+    <ul>
+        <li>RUB to USD: {{ rub_to_usd }}</li>
+        <li>MNT to RUB: {{ mnt_to_rub }}</li>
+        <li>MNT to USD: {{ mnt_to_usd }}</li>
+    </ul>
+    </div>
+
+    <br>
+
 
     <!-- Request transaction button -->
     {% if not offer.author == request.user %}

@@ -1,18 +1,97 @@
+import requests
+
+from decimal import Decimal
+from decouple import config
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db.models import OuterRef, Exists
 from django.http import HttpResponseForbidden, HttpResponseNotFound
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 from .forms import (UploadScreenshotForm, OfferForm,
                     BankDetailForm, RequestForm)
 from .models import (Offer, Transaction, IN_PROGRESS,
-                     CLOSED, RequestForTransaction)
+                     CLOSED, RequestForTransaction, ExchangeRate)
 from users.views import handshake_count
 from users.models import BankDetail, Currency
 
 
+API_KEY = config('EXCHANGE_API_KEY')
+
+
+def update_exchange_rates():
+    usd_to_rub = get_exchange_rate("USD", "RUB")
+    mnt_to_rub = get_exchange_rate("RUB", "MNT")
+    mnt_to_usd = get_exchange_rate("USD", "MNT")
+
+    if usd_to_rub and mnt_to_rub:
+        ExchangeRate.objects.create(usd_to_rub=usd_to_rub, mnt_to_rub=mnt_to_rub, mnt_to_usd=mnt_to_usd)
+
+
+def get_exchange_rate(base_currency, target_currency):
+    API_URL = "https://api.apilayer.com/exchangerates_data/convert"
+    headers = {
+        "apikey": API_KEY
+    }
+    params = {
+        "from": base_currency,
+        "to": target_currency,
+        "amount": 1
+    }
+
+    response = requests.get(API_URL, headers=headers, params=params)
+    response_data = response.json()
+    if response.status_code != 200:
+        print("Error with status code:", response.status_code)
+        print(response.text)
+        return None
+
+    return response_data.get("result", None)
+
+
+def get_required_amount_to_be_exchanged(offer):
+    latest_rate = ExchangeRate.latest()
+    rub_to_usd = latest_rate.usd_to_rub
+    mnt_to_rub = latest_rate.mnt_to_rub
+    mnt_to_usd = latest_rate.mnt_to_usd
+
+    required_amount = None
+    if offer.currency_offered.name == 'RUR':
+        if offer.currency_needed.name == 'USD':
+            required_amount = offer.amount_offered / Decimal(rub_to_usd)
+        elif offer.currency_needed.name == 'MNT':
+            required_amount = offer.amount_offered * Decimal(mnt_to_rub)
+    elif offer.currency_offered.name == 'MNT':
+        if offer.currency_needed.name == 'RUR':
+            required_amount = offer.amount_offered / Decimal(mnt_to_rub)
+        elif offer.currency_needed.name == 'USD':
+            required_amount = offer.amount_offered / Decimal(mnt_to_usd)
+    elif offer.currency_offered.name == 'USD':
+        if offer.currency_needed.name == 'RUR':
+            required_amount = offer.amount_offered * Decimal(rub_to_usd)
+        elif offer.currency_needed.name == 'MNT':
+            required_amount = offer.amount_offered * Decimal(mnt_to_usd)
+
+    return {
+        'rub_to_usd': rub_to_usd,
+        'mnt_to_rub': mnt_to_rub,
+        'mnt_to_usd': mnt_to_usd,
+        'required_amount': required_amount
+    }
+
+
 def index(request):
+    # Обновляем курсы валют при необходимости
+    if ExchangeRate.needs_update():
+        update_exchange_rates()
+
+    # Получаем последние сохраненные курсы валют из базы данных
+    latest_rate = ExchangeRate.latest()
+    rub_to_usd = latest_rate.usd_to_rub
+    mnt_to_rub = latest_rate.mnt_to_rub
+    mnt_to_usd = latest_rate.mnt_to_usd
+
     offers_list = Offer.objects.order_by('-publishing_date').annotate(
         has_requests=Exists(RequestForTransaction.objects.filter(
             offer=OuterRef('pk')
@@ -20,14 +99,21 @@ def index(request):
         )
     )
     paginator = Paginator(offers_list, 10)
-
     page = request.GET.get('page')
     offers = paginator.get_page(page)
 
+    if not rub_to_usd or not mnt_to_rub:
+        messages.error(request, "Couldn't fetch the exchange rates. "
+                                "Some values might be missing.")
+
     context = {
         'offers': offers,
+        'rub_to_usd': rub_to_usd,
+        'mnt_to_rub': mnt_to_rub,
+        'mnt_to_usd': mnt_to_usd,
     }
     template = 'offers/index.html'
+
     return render(request, template, context)
 
 
@@ -191,6 +277,12 @@ def transaction_detail(request, transaction_id):
             request.user == transaction.accepting_user
     )
 
+    exchange_data = get_required_amount_to_be_exchanged(offer)
+    # rub_to_usd = exchange_data['rub_to_usd']
+    # mnt_to_rub = exchange_data['mnt_to_rub']
+    # mnt_to_usd = exchange_data['mnt_to_usd']
+    required_amount = exchange_data['required_amount']
+
     context = {
         'transaction': transaction,
         'offer': offer,
@@ -213,6 +305,7 @@ def transaction_detail(request, transaction_id):
         'current_user_is_accepting_user': current_user_is_accepting_user,
         'offer_bank_detail': offer_bank_detail,
         'accepting_user_bank_detail': accepting_user_bank_detail,
+        'required_amount': required_amount
     }
 
     return render(request, 'transaction_detail.html', context)
@@ -231,12 +324,23 @@ def offer_detail(request, offer_id):
     requests_for_transaction = RequestForTransaction.objects.filter(
         offer__id=offer_id
     )
+
+    exchange_data = get_required_amount_to_be_exchanged(offer)
+    rub_to_usd = exchange_data['rub_to_usd']
+    mnt_to_rub = exchange_data['mnt_to_rub']
+    mnt_to_usd = exchange_data['mnt_to_usd']
+    required_amount = exchange_data['required_amount']
+
     context = {
         'offer': offer,
         'handshakes': handshakes,
         'handshake_range': range(handshakes),
         'user_has_sent_request': user_has_sent_request,
-        'requests_for_transaction': requests_for_transaction
+        'requests_for_transaction': requests_for_transaction,
+        'rub_to_usd': rub_to_usd,
+        'mnt_to_rub': mnt_to_rub,
+        'mnt_to_usd': mnt_to_usd,
+        'required_amount': required_amount
     }
     return render(request, 'offers/offer_detail.html', context)
 
@@ -415,6 +519,7 @@ def view_requests_for_transaction(request, request_id):
     requests_for_transaction = RequestForTransaction.objects.filter(
         offer__id=request_id
     ).exclude(status='REJECTED')
+    offer = get_object_or_404(Offer, id=request_id)
     if not requests_for_transaction.exists():
         return HttpResponseNotFound(
             'No requests found for this offer. '
@@ -431,16 +536,30 @@ def view_requests_for_transaction(request, request_id):
         applicant_code = request_for_transaction.applicant.referral_code
         current_user_code = request.user.referral_code
         handshakes = handshake_count(applicant_code, current_user_code)
+        bank_details = request_for_transaction.bank_detail
         applicants_data.append({
             'applicant': request_for_transaction.applicant,
             'referral_code': applicant_code,
             'handshakes': handshakes,
             'handshake_range': range(handshakes),
-            'request_for_transaction': request_for_transaction
+            'request_for_transaction': request_for_transaction,
+            'bank_details': request_for_transaction.bank_detail.bank_name if request_for_transaction.bank_detail else None
         })
+
+    exchange_data = get_required_amount_to_be_exchanged(offer)
+    rub_to_usd = exchange_data['rub_to_usd']
+    mnt_to_rub = exchange_data['mnt_to_rub']
+    mnt_to_usd = exchange_data['mnt_to_usd']
+    required_amount = exchange_data['required_amount']
+
     context = {
         'requests_for_transaction': requests_for_transaction,
         'applicants_data': applicants_data,
+        'rub_to_usd': rub_to_usd,
+        'mnt_to_rub': mnt_to_rub,
+        'mnt_to_usd': mnt_to_usd,
+        'offer': offer,
+        'required_amount': required_amount
     }
     return render(
         request,

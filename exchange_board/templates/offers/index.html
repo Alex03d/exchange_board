@@ -6,6 +6,17 @@
 <div class="container mt-5">
     <h1 class="display-6 text-left mb-5">Hi, {{request.user|capfirst }}!</h1>
 
+    <div class="mb-4">
+        <strong>Current Exchange Rates (as of today's start):</strong>
+        <ul>
+            <li>RUB to USD: {{ rub_to_usd }}</li>
+            <li>MNT to RUB: {{ mnt_to_rub }}</li>
+            <li>MNT to USD: {{ mnt_to_usd }}</li>
+        </ul>
+        <small>Note: During a transaction, the exchange rate will be updated based on data from the Exchange Rates Data API.</small>
+    </div>
+
+
     {% for offer in offers %}
     <div class="card mb-4">
         <div class="card-body">

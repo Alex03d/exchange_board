@@ -20,15 +20,16 @@
     {% if author_not_asserts_paid %}
         {% if current_user_is_author %}
             <div class="alert alert-warning" role="alert">
-                Переведите деньги на счет контрагента {{ transaction.accepting_user.username }}
+                Переведите деньги на счет контрагента {{ transaction.accepting_user.username|capfirst }} <strong>{{ offer.amount_offered|floatformat:2 }} {{ offer.currency_offered }}</strong>
                 <br>
-                <strong>Валюта:</strong> {{ accepting_user_bank_detail.currency }}
+                <strong>Название банка получателя:</strong> {{ accepting_user_bank_detail.bank_name }}
                 <br>
-                <strong>Название банка:</strong> {{ accepting_user_bank_detail.bank_name }}
-                <br>
-                <strong>Счет или телефон:</strong> {{ accepting_user_bank_detail.account_or_phone }}
+                <strong>Счет или телефон получателя:</strong> {{ accepting_user_bank_detail.account_or_phone }}
                 <br>
                 <strong>Имя получателя:</strong> {{ accepting_user_bank_detail.recipient_name }}
+                <br>
+                <strong>{{ transaction.accepting_user.username|capfirst }} переведет вам в ответ:</strong> {{ required_amount|floatformat:2 }} {{ offer.currency_needed }}
+
             </div>
 
 
@@ -60,6 +61,18 @@
             <div class="alert alert-info" role="alert">
                 Stage 2. Автор заявки утверждает, что сделал перевод.
             </div>
+
+
+                <div class="alert alert-warning" role="alert">
+                Переведите деньги на счет контрагента {{ offer.author|capfirst }} <strong>{{ required_amount|floatformat:2 }} {{ offer.currency_needed }}</strong>
+                <br>
+                <strong>Название банка получателя:</strong> {{ offer.bank_detail.bank_name }}
+                <br>
+                <strong>Cчет или телефон:</strong> {{ offer.bank_detail.account_or_phone }}
+                <br>
+                <strong>Имя получателя:</strong> {{ offer.bank_detail.recipient_name }}
+                <br>
+                </div>
 
             <a href="{% url 'accepting_user_confirms_money_received' transaction.id %}" class="btn btn-minimalist">Stage 2. подтвердить получение перевода</a>
             <br>

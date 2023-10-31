@@ -1,6 +1,6 @@
 from django.test import TestCase
 from django.urls import reverse
-from .models import Offer, Transaction
+from .models import Offer, Transaction, ExchangeRate
 from users.models import CustomUser, Currency, BankDetail
 
 
@@ -31,6 +31,13 @@ class OfferModelTest(TestCase):
 
 class OfferViewTests(TestCase):
 
+    def setUp(self):
+        self.exchange_rate = ExchangeRate.objects.create(
+            usd_to_rub=70.00,
+            mnt_to_rub=250.00,
+            mnt_to_usd=0.035
+        )
+
     def test_index_view_displays_offers(self):
 
         user = CustomUser.objects.create(
@@ -52,8 +59,7 @@ class OfferViewTests(TestCase):
         )
 
         response = self.client.get(reverse('offer_detail', args=[offer.id]))
-        self.assertContains(response, 'Amount Offered: <strong>50.00</strong>')
-        self.assertContains(response, 'Currency Needed: RUB')
+        self.assertContains(response, 'Amount Offered: <strong>50.00 USD</strong>')
 
     def test_offer_creation(self):
         user = CustomUser.objects.create_user(
@@ -189,6 +195,12 @@ class TransactionViewTests(TestCase):
             currency_needed=rub
         )
 
+        self.exchange_rate = ExchangeRate.objects.create(
+            usd_to_rub=70.00,
+            mnt_to_rub=250.00,
+            mnt_to_usd=0.035
+        )
+
     def test_start_transaction(self):
         self.client.login(username='testuser2', password='password2')
 
@@ -259,9 +271,7 @@ class TransactionViewTests(TestCase):
             reverse('offer_detail', args=[self.offer.id])
         )
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Currency Offered: USD')
-        self.assertContains(response, 'Amount Offered: <strong>50.00</strong>')
-        self.assertContains(response, 'Currency Needed: RUB')
+        self.assertContains(response, 'Amount Offered: <strong>50.00 USD</strong>')
 
     def test_author_upload_screenshot_post(self):
         transaction = Transaction.objects.create(

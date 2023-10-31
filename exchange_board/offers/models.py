@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.utils import timezone
 from users.models import CustomUser, BankDetail, Currency, CURRENCY_CHOICES
 
 OPEN = 'open'
@@ -28,6 +29,25 @@ CONFIRMATION_CHOICES = [
     (YES, 'Yes'),
     (NO, 'No')
 ]
+
+
+class ExchangeRate(models.Model):
+    usd_to_rub = models.FloatField("USD to RUB")
+    mnt_to_rub = models.FloatField("MNT to RUB")
+    mnt_to_usd = models.FloatField("MNT to USD")
+    date_updated = models.DateTimeField(auto_now=True)
+
+    @classmethod
+    def latest(cls):
+        return cls.objects.latest('date_updated')
+
+    @staticmethod
+    def needs_update():
+        try:
+            latest = ExchangeRate.latest()
+            return latest.date_updated.date() < timezone.now().date()
+        except ExchangeRate.DoesNotExist:
+            return True
 
 
 class Offer(models.Model):
