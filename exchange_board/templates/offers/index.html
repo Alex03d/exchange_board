@@ -6,6 +6,8 @@
 <div class="container mt-5">
     <h1 class="display-6 text-left mb-5">Hi, {{request.user|capfirst }}!</h1>
 
+
+    <div class="text-border-block">
     <div class="mb-4">
         <strong>Current Exchange Rates (as of today's start):</strong>
         <ul>
@@ -13,8 +15,10 @@
             <li>MNT to RUB: {{ mnt_to_rub }}</li>
             <li>MNT to USD: {{ mnt_to_usd }}</li>
         </ul>
-        <small>Note: During a transaction, the exchange rate will be updated based on data from the Exchange Rates Data API.</small>
+        <small>Note: During the transaction, the exchange rate may be updated based on data from the Exchange Rates Data API.</small>
     </div>
+    </div>
+    <br>
 
 
     {% for offer in offers %}

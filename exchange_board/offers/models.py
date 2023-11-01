@@ -1,3 +1,4 @@
+from datetime import timedelta
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
@@ -45,7 +46,8 @@ class ExchangeRate(models.Model):
     def needs_update():
         try:
             latest = ExchangeRate.latest()
-            return latest.date_updated.date() < timezone.now().date()
+            time_since_last_update = timezone.now() - latest.date_updated
+            return time_since_last_update > timedelta(hours=1)
         except ExchangeRate.DoesNotExist:
             return True
 
