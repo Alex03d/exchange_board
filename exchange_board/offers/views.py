@@ -2,8 +2,10 @@ import requests
 
 from decimal import Decimal
 from decouple import config
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.mail import send_mail
 from django.core.paginator import Paginator
 from django.db.models import OuterRef, Exists
 from django.http import HttpResponseForbidden, HttpResponseNotFound
@@ -405,6 +407,14 @@ def accepting_user_confirms_money_received(request, transaction_id):
 
     transaction.accepting_user_confirms_money_received = 'YES'
     transaction.save()
+    author_email = transaction.offer.author.email
+    send_mail(
+        'Утверждение об оплате',
+        'Контрагент подтверждает, что перевод был выполнен.',
+        settings.DEFAULT_FROM_EMAIL,
+        [author_email],
+        fail_silently=False,
+    )
     return redirect('transaction_detail', transaction_id=transaction.id)
 
 
@@ -419,6 +429,15 @@ def author_confirms_money_received(request, transaction_id):
     offer.status = CLOSED
     offer.save()
 
+    accepting_user_email = transaction.accepting_user.email
+    send_mail(
+        'Подтверждение об оплате',
+        'Автор транзакции подтверждает, что перевод был выполнен.',
+        settings.DEFAULT_FROM_EMAIL,
+        [accepting_user_email],
+        fail_silently=False,
+    )
+
     return redirect('transaction_detail', transaction_id=transaction.id)
 
 
@@ -429,9 +448,17 @@ def accepting_user_asserts_transfer_done(request, transaction_id):
         return HttpResponseForbidden(
             "You don't have permission to perform this action."
         )
-
     transaction.accepting_user_asserts_transfer_done = 'YES'
     transaction.save()
+
+    author_email = transaction.offer.author.email
+    send_mail(
+        'Утверждение об оплате',
+        'Контрагент утверждает, что перевод был выполнен. Пожалуйста, проверьте и подтвердите получение средств.',
+        settings.DEFAULT_FROM_EMAIL,
+        [author_email],
+        fail_silently=False,
+    )
     return redirect('transaction_detail', transaction_id=transaction.id)
 
 
@@ -442,6 +469,15 @@ def author_asserts_transfer_done(request, transaction_id):
         transaction.author_asserts_transfer_done = 'YES'
         transaction.status = 'IN_PROGRESS'
         transaction.save()
+
+        accepting_user_email = transaction.accepting_user.email
+        send_mail(
+            'Утверждение об оплате',
+            'Автор транзакции утверждает, что перевод был выполнен. Пожалуйста, проверьте и подтвердите получение средств.',
+            settings.DEFAULT_FROM_EMAIL,
+            [accepting_user_email],
+            fail_silently=False,
+        )
     return redirect('transaction_detail', transaction_id=transaction.id)
 
 
@@ -505,6 +541,15 @@ def create_request_for_transaction(request, offer_id):
                     applicant=request.user,
                     bank_detail=bank_detail_to_use
                 )
+                author_email = offer.author.email
+                send_mail(
+                    'Новая заявка на ваше предложение',  # Тема письма
+                    f'Пользователь {request.user.username} отправил заявку на ваше предложение. Пожалуйста, проверьте ваш аккаунт для деталей.',
+                    # Содержание письма
+                    settings.DEFAULT_FROM_EMAIL,  # Email отправителя
+                    [author_email],  # Список получателей
+                )
+
                 return redirect('offer_detail', offer_id=offer.id)
 
     else:
@@ -599,6 +644,14 @@ def accept_request(request, request_id):
         offer=offer,
         accepting_user=request_for_transaction.applicant
     )
+    applicant_email = request_for_transaction.applicant.email
+    send_mail(
+        'Ваша заявка была принята',
+        'Ваша заявка на транзакцию была принята. Пожалуйста, проверьте детали транзакции на сайте.',
+        settings.DEFAULT_FROM_EMAIL,
+        [applicant_email],
+        fail_silently=False,
+    )
 
     return redirect('transaction_detail', transaction_id=transaction.id)
 
@@ -618,5 +671,17 @@ def reject_request(request, request_id):
 
     request_for_transaction.status = 'REJECTED'
     request_for_transaction.save()
+    applicant_email = request_for_transaction.applicant.email
+    send_mail(
+        'Ваша заявка была отклонена',
+        'К сожалению, автор офера отклонил Вашу заявку на транзакцию. '
+        'Возможно, он нашел более подходящего ему контрагента '
+        'из близкого круга своих контактов. Однако вы можете создать свой '
+        'офер на продажу валюты, и контрагент для Вашей сделки обязательно '
+        'найдется!.',
+        settings.DEFAULT_FROM_EMAIL,
+        [applicant_email],
+        fail_silently=False,
+    )
 
     return redirect('view_requests_for_transaction', request_id=offer.id)
