@@ -143,6 +143,11 @@
         <div class="alert alert-success" role="alert">
             Stage 5. Сделка успешно завершена.
         </div>
+        {% if existing_rating %}
+            <a href="{% url 'rate_after_transaction' transaction.id %}" class="btn btn-primary">Изменить оценку</a>
+        {% else %}
+            <a href="{% url 'rate_after_transaction' transaction.id %}" class="btn btn-primary">Оставить оценку</a>
+        {% endif %}
     {% endif %}
 
 <script>

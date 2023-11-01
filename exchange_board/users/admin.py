@@ -1,5 +1,7 @@
 from django.contrib import admin
-from .models import CustomUser, Invitation, Currency, BankDetail, UserFollow, EmailConfirmation
+from .models import (CustomUser, Invitation, Currency, BankDetail,
+                     UserFollow, EmailConfirmation, Rating)
+
 
 class CustomUserAdmin(admin.ModelAdmin):
     list_display = ('username', 'email', 'invites_left', 'date_joined')
@@ -35,9 +37,16 @@ class EmailConfirmationAdmin(admin.ModelAdmin):
     list_filter = ('confirmed',)
 
 
+class RatingAdmin(admin.ModelAdmin):
+    list_display = ('transaction', 'author', 'recipient', 'score', 'created_at')
+    search_fields = ('author__username', 'recipient__username', 'transaction__id')
+    list_filter = ('score', 'created_at')
+
+
 admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(Invitation, InvitationAdmin)
 admin.site.register(Currency, CurrencyAdmin)
 admin.site.register(BankDetail, BankDetailAdmin)
 admin.site.register(UserFollow, UserFollowAdmin)
 admin.site.register(EmailConfirmation, EmailConfirmationAdmin)
+admin.site.register(Rating, RatingAdmin)

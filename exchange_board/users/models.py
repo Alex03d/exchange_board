@@ -58,6 +58,7 @@ class CustomUser(AbstractUser):
                                                 "code for the user."))
 
     invitation_code_used = models.UUIDField(null=True, blank=True)
+    aggregated_rating = models.FloatField(default=0.0)
 
     def save(self, *args, **kwargs):
         if self.is_superuser:
@@ -117,3 +118,24 @@ class EmailConfirmation(models.Model):
     confirmation_token = models.UUIDField(default=uuid.uuid4, editable=False)
     timestamp = models.DateTimeField(auto_now_add=True)
     confirmed = models.BooleanField(default=False)
+
+
+class Rating(models.Model):
+    transaction = models.ForeignKey('offers.Transaction', on_delete=models.CASCADE, related_name='ratings')
+    author = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='given_ratings')
+    recipient = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='received_ratings')
+    score = models.PositiveSmallIntegerField(choices=[(i, i) for i in range(1, 6)])
+    comment = models.TextField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        from offers.models import Transaction
+        super(Rating, self).save(*args, **kwargs)
+        self.update_user_rating(self.recipient)
+
+    @staticmethod
+    def update_user_rating(user):
+        ratings = Rating.objects.filter(recipient=user)
+        total_score = sum(rating.score for rating in ratings)
+        user.aggregated_rating = total_score / ratings.count()
+        user.save()

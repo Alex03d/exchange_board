@@ -15,8 +15,9 @@ from .forms import (UploadScreenshotForm, OfferForm,
                     BankDetailForm, RequestForm)
 from .models import (Offer, Transaction, IN_PROGRESS,
                      CLOSED, RequestForTransaction, ExchangeRate)
+from users.forms import RatingForm
+from users.models import BankDetail, Currency, Rating
 from users.views import handshake_count
-from users.models import BankDetail, Currency
 
 
 API_KEY = config('EXCHANGE_API_KEY')
@@ -284,6 +285,10 @@ def transaction_detail(request, transaction_id):
     # mnt_to_rub = exchange_data['mnt_to_rub']
     # mnt_to_usd = exchange_data['mnt_to_usd']
     required_amount = exchange_data['required_amount']
+    existing_rating = Rating.objects.filter(
+        transaction=transaction,
+        author=request.user
+    ).first()
 
     context = {
         'transaction': transaction,
@@ -307,7 +312,8 @@ def transaction_detail(request, transaction_id):
         'current_user_is_accepting_user': current_user_is_accepting_user,
         'offer_bank_detail': offer_bank_detail,
         'accepting_user_bank_detail': accepting_user_bank_detail,
-        'required_amount': required_amount
+        'required_amount': required_amount,
+        'existing_rating': existing_rating,
     }
 
     return render(request, 'transaction_detail.html', context)
@@ -685,3 +691,59 @@ def reject_request(request, request_id):
     )
 
     return redirect('view_requests_for_transaction', request_id=offer.id)
+
+
+def rate_after_transaction(request, transaction_id):
+    transaction = get_object_or_404(Transaction, id=transaction_id)
+
+    if request.user == transaction.offer.author:
+        author = transaction.offer.author
+        recipient = transaction.accepting_user
+    else:
+        author = transaction.accepting_user
+        recipient = transaction.offer.author
+
+    # Проверяем, есть ли уже оценка от этого пользователя для данной транзакции и получателя
+    existing_rating = Rating.objects.filter(transaction=transaction, author=author, recipient=recipient).first()
+
+    if request.method == 'POST':
+        if existing_rating:
+            form = RatingForm(request.POST, instance=existing_rating)  # Обновляем существующую запись
+        else:
+            form = RatingForm(request.POST)  # Создаем новую запись
+
+        if form.is_valid():
+            if not existing_rating:  # Только если это новая оценка, определим автора и получателя
+                form.instance.author = author
+                form.instance.recipient = recipient
+
+            form.instance.transaction = transaction
+            form.save()
+            return redirect('transaction_detail', transaction_id=transaction.id)
+
+    else:
+        form = RatingForm(instance=existing_rating) if existing_rating else RatingForm()
+
+    return render(request, 'rate_after_transaction.html', {'form': form})
+
+# def rate_after_transaction(request, transaction_id):
+#     transaction = get_object_or_404(Transaction, id=transaction_id)
+#
+#     if request.method == 'POST':
+#         form = RatingForm(request.POST)
+#         if form.is_valid():
+#             if request.user == transaction.offer.author:
+#                 form.instance.author = transaction.offer.author
+#                 form.instance.recipient = transaction.accepting_user
+#             else:
+#                 form.instance.author = transaction.accepting_user
+#                 form.instance.recipient = transaction.offer.author
+#
+#             form.instance.transaction = transaction
+#             form.save()
+#             return redirect('transaction_detail', transaction_id=transaction.id)
+#
+#     else:
+#         form = RatingForm()
+#
+#     return render(request, 'rate_after_transaction.html', {'form': form})
