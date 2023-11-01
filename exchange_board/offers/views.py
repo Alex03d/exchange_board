@@ -461,6 +461,14 @@ def create_request_for_transaction(request, offer_id):
             initial={'currency': offer.currency_offered}
         )
 
+        existing_request = RequestForTransaction.objects.filter(
+            offer=offer,
+            applicant=request.user
+        ).first()
+        if existing_request:
+            messages.error(request, 'You have already responded to this offer.')
+            return redirect('offer_detail', offer_id=offer.id)
+
         if request_form.is_valid():
             selection = request_form.cleaned_data.get('selection')
 
