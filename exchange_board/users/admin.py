@@ -15,17 +15,6 @@ class InvitationAdmin(admin.ModelAdmin):
     list_filter = ('used',)
 
 
-# class CurrencyAdmin(admin.ModelAdmin):
-#     list_display = ('code', 'name')
-#     search_fields = ('code', 'name')
-#
-#
-# class BankDetailAdmin(admin.ModelAdmin):
-#     list_display = ('user', 'currency', 'bank_name', 'account_or_phone', 'recipient_name')
-#     search_fields = ('user__username', 'currency__code')
-#     list_filter = ('currency',)
-
-
 class UserFollowAdmin(admin.ModelAdmin):
     list_display = ('user', 'author')
     search_fields = ('user__username', 'author__username')
@@ -37,16 +26,7 @@ class EmailConfirmationAdmin(admin.ModelAdmin):
     list_filter = ('confirmed',)
 
 
-# class RatingAdmin(admin.ModelAdmin):
-#     list_display = ('transaction', 'author', 'recipient', 'score', 'created_at')
-#     search_fields = ('author__username', 'recipient__username', 'transaction__id')
-#     list_filter = ('score', 'created_at')
-
-
 admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(Invitation, InvitationAdmin)
-# admin.site.register(Currency, CurrencyAdmin)
-# admin.site.register(BankDetail, BankDetailAdmin)
 admin.site.register(UserFollow, UserFollowAdmin)
 admin.site.register(EmailConfirmation, EmailConfirmationAdmin)
-# admin.site.register(Rating, RatingAdmin)

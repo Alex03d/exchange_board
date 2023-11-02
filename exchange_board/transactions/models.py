@@ -1,23 +1,12 @@
-# from datetime import timedelta
 from django.db import models
 from django.conf import settings
-# from django.utils import timezone
 from offers.models import Offer
-# from bank_details.models import (BankDetail, Currency,
-#                                  CURRENCY_CHOICES)
 
 
 OPEN = 'open'
 IN_PROGRESS = 'in progress'
 CLOSED = 'closed'
 DISPUTE = 'dispute'
-
-# STATUS_CHOICES_OFFER = [
-#     (OPEN, 'Open'),
-#     ('PENDING', 'Pending'),
-#     (IN_PROGRESS, 'In Progress'),
-#     (CLOSED, 'Closed'),
-# ]
 
 STATUS_CHOICES_TRANSACTION = [
     (OPEN, 'Transaction Opened'),

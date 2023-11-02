@@ -103,7 +103,7 @@
                     <li>Банк: {{ transaction.offer.bank_detail.bank_name }}</li>
                     <li>Номер счета или телефон: {{ transaction.offer.bank_detail.account_or_phone }}</li>
                     <li>Имя получателя: {{ transaction.offer.bank_detail.recipient_name }}</li>
-                    <li>Валюта: {{ transaction.offer.bank_detail.currency }}</li>
+                    <li>Валюта: {{ required_amount|floatformat:2 }} {{ transaction.offer.bank_detail.currency }}</li>
                 </ul>
             </div>
 

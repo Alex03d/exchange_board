@@ -1,8 +1,13 @@
 import requests
 
+from loguru import logger
+
 from decimal import Decimal
 from decouple import config
 from .models import ExchangeRate
+
+
+logger.add("my_log.log", rotation="1 day")
 
 
 API_KEY = config('EXCHANGE_API_KEY')
@@ -18,6 +23,7 @@ def update_exchange_rates():
 
 
 def get_exchange_rate(base_currency, target_currency):
+    logger.info(f"Sending request to API for {base_currency} to {target_currency}")
     API_URL = "https://api.apilayer.com/exchangerates_data/convert"
     headers = {
         "apikey": API_KEY
@@ -45,7 +51,7 @@ def get_required_amount_to_be_exchanged(offer):
     mnt_to_usd = latest_rate.mnt_to_usd
 
     required_amount = None
-    if offer.currency_offered.name == 'RUR':
+    if offer.currency_offered.name == 'RUB':
         if offer.currency_needed.name == 'USD':
             required_amount = offer.amount_offered / Decimal(rub_to_usd)
         elif offer.currency_needed.name == 'MNT':

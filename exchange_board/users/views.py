@@ -31,6 +31,7 @@ def register(request, invite_code):
             next_sub_code = (
                     CustomUser.objects.filter(invited_by=inviter).count() + 1
             )
+            print(f"Лог Inviter's referral code: {inviter.referral_code}")
             user.referral_code = f"{inviter.referral_code}-{next_sub_code}"
             user.save()
 
@@ -211,6 +212,8 @@ def user_profile(request, username):
     handshakes = handshake_count(user_profile_code, current_user_code)
 
     inviter = user_profile.invited_by
+    print(current_user_code)
+    print(current_user_code)
     context = {
         'user_profile': user_profile,
         'is_following': is_following,

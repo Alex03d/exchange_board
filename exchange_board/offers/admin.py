@@ -2,17 +2,6 @@ from django.contrib import admin
 from .models import Offer, RequestForTransaction
 
 
-# class ExchangeRateAdmin(admin.ModelAdmin):
-#     list_display = (
-#         'usd_to_rub',
-#         'mnt_to_rub',
-#         'mnt_to_usd',
-#         'date_updated'
-#     )
-#     list_filter = ('date_updated',)
-#     search_fields = ('date_updated',)
-
-
 class OfferAdmin(admin.ModelAdmin):
     list_display = (
         'author', 'amount_offered', 'currency_offered',
@@ -44,21 +33,6 @@ class RequestForTransactionAdmin(admin.ModelAdmin):
         'applicant__username'
     )
 
-#
-# class TransactionAdmin(admin.ModelAdmin):
-#     list_display = (
-#         'offer', 'accepting_user', 'status'
-#     )
-#     list_filter = (
-#         'status',
-#     )
-#     search_fields = (
-#         'offer__author__username',
-#         'accepting_user__username'
-#     )
-
 
 admin.site.register(Offer, OfferAdmin)
 admin.site.register(RequestForTransaction, RequestForTransactionAdmin)
-# admin.site.register(Transaction, TransactionAdmin)
-# admin.site.register(ExchangeRate, ExchangeRateAdmin)

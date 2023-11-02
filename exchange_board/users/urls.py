@@ -8,7 +8,6 @@ urlpatterns = [
         'register/<uuid:invite_code>/',
         views.register,
         name='register_with_invite'),
-    # path('invite/', views.create_invite, name='create_invite'),
     path('generate-invite-link/', views.generate_invite_link, name='generate_invite'),
     path('invite-page/', views.create_invite_page, name='create_invite_page'),
     path('login/', views.login_view, name='login'),

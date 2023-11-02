@@ -1,14 +1,7 @@
 from django import forms
 from .models import Offer, RequestForTransaction
-from bank_details.models import BankDetail
+from bank_details.models import BankDetail, Currency
 from django.core.exceptions import ValidationError
-
-
-# class UploadScreenshotForm(forms.ModelForm):
-#     class Meta:
-#         model = Transaction
-#         fields = ['author_uploads_transfer_screenshot',
-#                   'accepting_user_uploads_transfer_screenshot']
 
 
 class OfferForm(forms.ModelForm):
@@ -20,6 +13,12 @@ class OfferForm(forms.ModelForm):
     bank_detail = forms.ModelChoiceField(
         queryset=BankDetail.objects.all(),
         required=False
+    )
+    currency_offered = forms.ModelChoiceField(
+        queryset=Currency.objects.all()
+    )
+    currency_needed = forms.ModelChoiceField(
+        queryset=Currency.objects.all()
     )
 
     class Meta:
@@ -65,12 +64,6 @@ class OfferForm(forms.ModelForm):
             ) > 150000:
                 raise ValidationError("Limit exceeded for tugrugs!")
         return cleaned_data
-#
-#
-# class BankDetailForm(forms.ModelForm):
-#     class Meta:
-#         model = BankDetail
-#         fields = ['bank_name', 'account_or_phone', 'recipient_name']
 
 
 class RequestForm(forms.ModelForm):
