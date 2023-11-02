@@ -703,17 +703,16 @@ def rate_after_transaction(request, transaction_id):
         author = transaction.accepting_user
         recipient = transaction.offer.author
 
-    # Проверяем, есть ли уже оценка от этого пользователя для данной транзакции и получателя
     existing_rating = Rating.objects.filter(transaction=transaction, author=author, recipient=recipient).first()
 
     if request.method == 'POST':
         if existing_rating:
-            form = RatingForm(request.POST, instance=existing_rating)  # Обновляем существующую запись
+            form = RatingForm(request.POST, instance=existing_rating)
         else:
-            form = RatingForm(request.POST)  # Создаем новую запись
+            form = RatingForm(request.POST)
 
         if form.is_valid():
-            if not existing_rating:  # Только если это новая оценка, определим автора и получателя
+            if not existing_rating:
                 form.instance.author = author
                 form.instance.recipient = recipient
 
@@ -725,25 +724,3 @@ def rate_after_transaction(request, transaction_id):
         form = RatingForm(instance=existing_rating) if existing_rating else RatingForm()
 
     return render(request, 'rate_after_transaction.html', {'form': form})
-
-# def rate_after_transaction(request, transaction_id):
-#     transaction = get_object_or_404(Transaction, id=transaction_id)
-#
-#     if request.method == 'POST':
-#         form = RatingForm(request.POST)
-#         if form.is_valid():
-#             if request.user == transaction.offer.author:
-#                 form.instance.author = transaction.offer.author
-#                 form.instance.recipient = transaction.accepting_user
-#             else:
-#                 form.instance.author = transaction.accepting_user
-#                 form.instance.recipient = transaction.offer.author
-#
-#             form.instance.transaction = transaction
-#             form.save()
-#             return redirect('transaction_detail', transaction_id=transaction.id)
-#
-#     else:
-#         form = RatingForm()
-#
-#     return render(request, 'rate_after_transaction.html', {'form': form})
