@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import (CustomUser, Invitation, Currency, BankDetail,
+from .models import (CustomUser, Invitation,
                      UserFollow, EmailConfirmation)
 
 
@@ -15,15 +15,15 @@ class InvitationAdmin(admin.ModelAdmin):
     list_filter = ('used',)
 
 
-class CurrencyAdmin(admin.ModelAdmin):
-    list_display = ('code', 'name')
-    search_fields = ('code', 'name')
-
-
-class BankDetailAdmin(admin.ModelAdmin):
-    list_display = ('user', 'currency', 'bank_name', 'account_or_phone', 'recipient_name')
-    search_fields = ('user__username', 'currency__code')
-    list_filter = ('currency',)
+# class CurrencyAdmin(admin.ModelAdmin):
+#     list_display = ('code', 'name')
+#     search_fields = ('code', 'name')
+#
+#
+# class BankDetailAdmin(admin.ModelAdmin):
+#     list_display = ('user', 'currency', 'bank_name', 'account_or_phone', 'recipient_name')
+#     search_fields = ('user__username', 'currency__code')
+#     list_filter = ('currency',)
 
 
 class UserFollowAdmin(admin.ModelAdmin):
@@ -45,8 +45,8 @@ class EmailConfirmationAdmin(admin.ModelAdmin):
 
 admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(Invitation, InvitationAdmin)
-admin.site.register(Currency, CurrencyAdmin)
-admin.site.register(BankDetail, BankDetailAdmin)
+# admin.site.register(Currency, CurrencyAdmin)
+# admin.site.register(BankDetail, BankDetailAdmin)
 admin.site.register(UserFollow, UserFollowAdmin)
 admin.site.register(EmailConfirmation, EmailConfirmationAdmin)
 # admin.site.register(Rating, RatingAdmin)

@@ -12,11 +12,12 @@ from django.http import HttpResponseForbidden, HttpResponseNotFound
 from django.shortcuts import get_object_or_404, redirect, render
 # from django.utils import timezone
 from .forms import (UploadScreenshotForm, OfferForm,
-                    BankDetailForm, RequestForm)
+                    RequestForm)
 from .models import (Offer, Transaction, IN_PROGRESS,
                      CLOSED, RequestForTransaction)
 # from users.forms import RatingForm
-from users.models import BankDetail, Currency
+from bank_details.models import BankDetail, Currency
+from bank_details.forms import BankDetailForm
 from users.views import handshake_count
 from rating.models import Rating
 from exchange_rates.models import ExchangeRate

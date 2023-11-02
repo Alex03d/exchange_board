@@ -2,7 +2,10 @@
 from django.db import models
 from django.conf import settings
 # from django.utils import timezone
-from users.models import CustomUser, BankDetail, Currency, CURRENCY_CHOICES
+from users.models import CustomUser
+from bank_details.models import (BankDetail, Currency,
+                                 CURRENCY_CHOICES)
+
 
 OPEN = 'open'
 IN_PROGRESS = 'in progress'

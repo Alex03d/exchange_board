@@ -1,6 +1,6 @@
 from django import forms
 from .models import Transaction, Offer, RequestForTransaction
-from users.models import BankDetail
+from bank_details.models import BankDetail
 from django.core.exceptions import ValidationError
 
 
@@ -65,12 +65,12 @@ class OfferForm(forms.ModelForm):
             ) > 150000:
                 raise ValidationError("Limit exceeded for tugrugs!")
         return cleaned_data
-
-
-class BankDetailForm(forms.ModelForm):
-    class Meta:
-        model = BankDetail
-        fields = ['bank_name', 'account_or_phone', 'recipient_name']
+#
+#
+# class BankDetailForm(forms.ModelForm):
+#     class Meta:
+#         model = BankDetail
+#         fields = ['bank_name', 'account_or_phone', 'recipient_name']
 
 
 class RequestForm(forms.ModelForm):

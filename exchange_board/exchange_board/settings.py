@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     'offers.apps.OffersConfig',
     'rating.apps.RatingConfig',
     'exchange_rates.apps.ExchangeRatesConfig',
+    'bank_details.apps.BankDetailsConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

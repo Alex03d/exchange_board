@@ -1,7 +1,9 @@
 from django.test import TestCase
 from django.urls import reverse
-from .models import Offer, Transaction, ExchangeRate
-from users.models import CustomUser, Currency, BankDetail
+from .models import Offer, Transaction
+from bank_details.models import Currency, BankDetail
+from users.models import CustomUser
+from exchange_rates.models import ExchangeRate
 
 
 class OfferModelTest(TestCase):
