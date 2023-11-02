@@ -10,14 +10,15 @@ from django.core.paginator import Paginator
 from django.db.models import OuterRef, Exists
 from django.http import HttpResponseForbidden, HttpResponseNotFound
 from django.shortcuts import get_object_or_404, redirect, render
-from django.utils import timezone
+# from django.utils import timezone
 from .forms import (UploadScreenshotForm, OfferForm,
                     BankDetailForm, RequestForm)
 from .models import (Offer, Transaction, IN_PROGRESS,
                      CLOSED, RequestForTransaction, ExchangeRate)
-from users.forms import RatingForm
-from users.models import BankDetail, Currency, Rating
+# from users.forms import RatingForm
+from users.models import BankDetail, Currency
 from users.views import handshake_count
+from rating.models import Rating
 
 
 API_KEY = config('EXCHANGE_API_KEY')
@@ -693,34 +694,34 @@ def reject_request(request, request_id):
     return redirect('view_requests_for_transaction', request_id=offer.id)
 
 
-def rate_after_transaction(request, transaction_id):
-    transaction = get_object_or_404(Transaction, id=transaction_id)
-
-    if request.user == transaction.offer.author:
-        author = transaction.offer.author
-        recipient = transaction.accepting_user
-    else:
-        author = transaction.accepting_user
-        recipient = transaction.offer.author
-
-    existing_rating = Rating.objects.filter(transaction=transaction, author=author, recipient=recipient).first()
-
-    if request.method == 'POST':
-        if existing_rating:
-            form = RatingForm(request.POST, instance=existing_rating)
-        else:
-            form = RatingForm(request.POST)
-
-        if form.is_valid():
-            if not existing_rating:
-                form.instance.author = author
-                form.instance.recipient = recipient
-
-            form.instance.transaction = transaction
-            form.save()
-            return redirect('transaction_detail', transaction_id=transaction.id)
-
-    else:
-        form = RatingForm(instance=existing_rating) if existing_rating else RatingForm()
-
-    return render(request, 'rate_after_transaction.html', {'form': form})
+# def rate_after_transaction(request, transaction_id):
+#     transaction = get_object_or_404(Transaction, id=transaction_id)
+#
+#     if request.user == transaction.offer.author:
+#         author = transaction.offer.author
+#         recipient = transaction.accepting_user
+#     else:
+#         author = transaction.accepting_user
+#         recipient = transaction.offer.author
+#
+#     existing_rating = Rating.objects.filter(transaction=transaction, author=author, recipient=recipient).first()
+#
+#     if request.method == 'POST':
+#         if existing_rating:
+#             form = RatingForm(request.POST, instance=existing_rating)
+#         else:
+#             form = RatingForm(request.POST)
+#
+#         if form.is_valid():
+#             if not existing_rating:
+#                 form.instance.author = author
+#                 form.instance.recipient = recipient
+#
+#             form.instance.transaction = transaction
+#             form.save()
+#             return redirect('transaction_detail', transaction_id=transaction.id)
+#
+#     else:
+#         form = RatingForm(instance=existing_rating) if existing_rating else RatingForm()
+#
+#     return render(request, 'rate_after_transaction.html', {'form': form})

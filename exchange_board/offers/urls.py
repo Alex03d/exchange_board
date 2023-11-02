@@ -23,7 +23,7 @@ urlpatterns = [
          views.transaction_detail,
          name='transaction_detail'
          ),
-    path('rate_after_transaction/<int:transaction_id>/', views.rate_after_transaction, name='rate_after_transaction'),
+    # path('rate_after_transaction/<int:transaction_id>/', views.rate_after_transaction, name='rate_after_transaction'),
     path('offer/<int:offer_id>/',
          views.offer_detail,
          name='offer_detail'
