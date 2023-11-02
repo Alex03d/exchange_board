@@ -25,6 +25,7 @@ def index(request):
     rub_to_usd = latest_rate.usd_to_rub
     mnt_to_rub = latest_rate.mnt_to_rub
     mnt_to_usd = latest_rate.mnt_to_usd
+    usd_to_rub_alternative = latest_rate.usd_to_rub_alternative
 
     offers_list = Offer.objects.order_by('-publishing_date').annotate(
         has_requests=Exists(RequestForTransaction.objects.filter(
@@ -45,6 +46,7 @@ def index(request):
         'rub_to_usd': rub_to_usd,
         'mnt_to_rub': mnt_to_rub,
         'mnt_to_usd': mnt_to_usd,
+        'usd_to_rub_alternative': usd_to_rub_alternative,
     }
     template = 'offers/index.html'
 

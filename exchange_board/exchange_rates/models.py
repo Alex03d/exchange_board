@@ -8,6 +8,7 @@ class ExchangeRate(models.Model):
     mnt_to_rub = models.FloatField("MNT to RUB")
     mnt_to_usd = models.FloatField("MNT to USD")
     date_updated = models.DateTimeField(auto_now=True)
+    usd_to_rub_alternative = models.FloatField("USD to RUB (alternative)")
 
     @classmethod
     def latest(cls):
@@ -18,6 +19,6 @@ class ExchangeRate(models.Model):
         try:
             latest = ExchangeRate.latest()
             time_since_last_update = timezone.now() - latest.date_updated
-            return time_since_last_update > timedelta(hours=12)
+            return time_since_last_update > timedelta(hours=0.01)
         except ExchangeRate.DoesNotExist:
             return True

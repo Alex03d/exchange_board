@@ -11,15 +11,22 @@ logger.add("my_log.log", rotation="1 day")
 
 
 API_KEY = config('EXCHANGE_API_KEY')
+ALTERNATIVE_API_KEY = config('CURRENCY_LAYER_API_KEY')
 
 
 def update_exchange_rates():
     usd_to_rub = get_exchange_rate("USD", "RUB")
     mnt_to_rub = get_exchange_rate("RUB", "MNT")
     mnt_to_usd = get_exchange_rate("USD", "MNT")
+    usd_to_rub_alternative = get_exchange_rate_from_alternative_api("usd", "rub")
 
     if usd_to_rub and mnt_to_rub:
-        ExchangeRate.objects.create(usd_to_rub=usd_to_rub, mnt_to_rub=mnt_to_rub, mnt_to_usd=mnt_to_usd)
+        ExchangeRate.objects.create(
+            usd_to_rub=usd_to_rub,
+            mnt_to_rub=mnt_to_rub,
+            mnt_to_usd=mnt_to_usd,
+            usd_to_rub_alternative=usd_to_rub_alternative
+        )
 
 
 def get_exchange_rate(base_currency, target_currency):
@@ -42,6 +49,37 @@ def get_exchange_rate(base_currency, target_currency):
         return None
 
     return response_data.get("result", None)
+
+
+def get_exchange_rate_from_alternative_api(base_currency, target_currency):
+    logger.info(
+        f"Sending request to alternative API "
+        f"for {base_currency} to {target_currency}"
+    )
+
+    API_URL = (f"https://cdn.jsdelivr.net/gh/fawazahmed0/"
+               f"currency-api@1/latest/currencies/{base_currency}/"
+               f"{target_currency}.json")
+
+    response = requests.get(API_URL)
+    print(response.text)
+    try:
+        response_data = response.json()
+    except requests.exceptions.JSONDecodeError:
+        logger.error(
+            f"Failed to decode JSON from response "
+            f"for {base_currency} to {target_currency}"
+        )
+        return None
+
+    if response.status_code != 200 or 'error' in response_data:
+        logger.error(f"Error with status code: {response.status_code}")
+        logger.error(response.text)
+        return None
+
+    rate = response_data['rub']
+
+    return rate
 
 
 def get_required_amount_to_be_exchanged(offer):
