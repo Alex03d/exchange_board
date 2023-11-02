@@ -1,16 +1,16 @@
 from django.contrib import admin
-from .models import Offer, RequestForTransaction, Transaction, ExchangeRate
+from .models import Offer, RequestForTransaction, Transaction
 
 
-class ExchangeRateAdmin(admin.ModelAdmin):
-    list_display = (
-        'usd_to_rub',
-        'mnt_to_rub',
-        'mnt_to_usd',
-        'date_updated'
-    )
-    list_filter = ('date_updated',)
-    search_fields = ('date_updated',)
+# class ExchangeRateAdmin(admin.ModelAdmin):
+#     list_display = (
+#         'usd_to_rub',
+#         'mnt_to_rub',
+#         'mnt_to_usd',
+#         'date_updated'
+#     )
+#     list_filter = ('date_updated',)
+#     search_fields = ('date_updated',)
 
 
 class OfferAdmin(admin.ModelAdmin):
@@ -61,4 +61,4 @@ class TransactionAdmin(admin.ModelAdmin):
 admin.site.register(Offer, OfferAdmin)
 admin.site.register(RequestForTransaction, RequestForTransactionAdmin)
 admin.site.register(Transaction, TransactionAdmin)
-admin.site.register(ExchangeRate, ExchangeRateAdmin)
+# admin.site.register(ExchangeRate, ExchangeRateAdmin)

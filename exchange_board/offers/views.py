@@ -14,75 +14,79 @@ from django.shortcuts import get_object_or_404, redirect, render
 from .forms import (UploadScreenshotForm, OfferForm,
                     BankDetailForm, RequestForm)
 from .models import (Offer, Transaction, IN_PROGRESS,
-                     CLOSED, RequestForTransaction, ExchangeRate)
+                     CLOSED, RequestForTransaction)
 # from users.forms import RatingForm
 from users.models import BankDetail, Currency
 from users.views import handshake_count
 from rating.models import Rating
+from exchange_rates.models import ExchangeRate
+from exchange_rates.views import (update_exchange_rates, get_exchange_rate,
+                                  get_required_amount_to_be_exchanged)
 
 
-API_KEY = config('EXCHANGE_API_KEY')
 
-
-def update_exchange_rates():
-    usd_to_rub = get_exchange_rate("USD", "RUB")
-    mnt_to_rub = get_exchange_rate("RUB", "MNT")
-    mnt_to_usd = get_exchange_rate("USD", "MNT")
-
-    if usd_to_rub and mnt_to_rub:
-        ExchangeRate.objects.create(usd_to_rub=usd_to_rub, mnt_to_rub=mnt_to_rub, mnt_to_usd=mnt_to_usd)
-
-
-def get_exchange_rate(base_currency, target_currency):
-    API_URL = "https://api.apilayer.com/exchangerates_data/convert"
-    headers = {
-        "apikey": API_KEY
-    }
-    params = {
-        "from": base_currency,
-        "to": target_currency,
-        "amount": 1
-    }
-
-    response = requests.get(API_URL, headers=headers, params=params)
-    response_data = response.json()
-    if response.status_code != 200:
-        print("Error with status code:", response.status_code)
-        print(response.text)
-        return None
-
-    return response_data.get("result", None)
-
-
-def get_required_amount_to_be_exchanged(offer):
-    latest_rate = ExchangeRate.latest()
-    rub_to_usd = latest_rate.usd_to_rub
-    mnt_to_rub = latest_rate.mnt_to_rub
-    mnt_to_usd = latest_rate.mnt_to_usd
-
-    required_amount = None
-    if offer.currency_offered.name == 'RUR':
-        if offer.currency_needed.name == 'USD':
-            required_amount = offer.amount_offered / Decimal(rub_to_usd)
-        elif offer.currency_needed.name == 'MNT':
-            required_amount = offer.amount_offered * Decimal(mnt_to_rub)
-    elif offer.currency_offered.name == 'MNT':
-        if offer.currency_needed.name == 'RUR':
-            required_amount = offer.amount_offered / Decimal(mnt_to_rub)
-        elif offer.currency_needed.name == 'USD':
-            required_amount = offer.amount_offered / Decimal(mnt_to_usd)
-    elif offer.currency_offered.name == 'USD':
-        if offer.currency_needed.name == 'RUR':
-            required_amount = offer.amount_offered * Decimal(rub_to_usd)
-        elif offer.currency_needed.name == 'MNT':
-            required_amount = offer.amount_offered * Decimal(mnt_to_usd)
-
-    return {
-        'rub_to_usd': rub_to_usd,
-        'mnt_to_rub': mnt_to_rub,
-        'mnt_to_usd': mnt_to_usd,
-        'required_amount': required_amount
-    }
+# API_KEY = config('EXCHANGE_API_KEY')
+#
+#
+# def update_exchange_rates():
+#     usd_to_rub = get_exchange_rate("USD", "RUB")
+#     mnt_to_rub = get_exchange_rate("RUB", "MNT")
+#     mnt_to_usd = get_exchange_rate("USD", "MNT")
+#
+#     if usd_to_rub and mnt_to_rub:
+#         ExchangeRate.objects.create(usd_to_rub=usd_to_rub, mnt_to_rub=mnt_to_rub, mnt_to_usd=mnt_to_usd)
+#
+#
+# def get_exchange_rate(base_currency, target_currency):
+#     API_URL = "https://api.apilayer.com/exchangerates_data/convert"
+#     headers = {
+#         "apikey": API_KEY
+#     }
+#     params = {
+#         "from": base_currency,
+#         "to": target_currency,
+#         "amount": 1
+#     }
+#
+#     response = requests.get(API_URL, headers=headers, params=params)
+#     response_data = response.json()
+#     if response.status_code != 200:
+#         print("Error with status code:", response.status_code)
+#         print(response.text)
+#         return None
+#
+#     return response_data.get("result", None)
+#
+#
+# def get_required_amount_to_be_exchanged(offer):
+#     latest_rate = ExchangeRate.latest()
+#     rub_to_usd = latest_rate.usd_to_rub
+#     mnt_to_rub = latest_rate.mnt_to_rub
+#     mnt_to_usd = latest_rate.mnt_to_usd
+#
+#     required_amount = None
+#     if offer.currency_offered.name == 'RUR':
+#         if offer.currency_needed.name == 'USD':
+#             required_amount = offer.amount_offered / Decimal(rub_to_usd)
+#         elif offer.currency_needed.name == 'MNT':
+#             required_amount = offer.amount_offered * Decimal(mnt_to_rub)
+#     elif offer.currency_offered.name == 'MNT':
+#         if offer.currency_needed.name == 'RUR':
+#             required_amount = offer.amount_offered / Decimal(mnt_to_rub)
+#         elif offer.currency_needed.name == 'USD':
+#             required_amount = offer.amount_offered / Decimal(mnt_to_usd)
+#     elif offer.currency_offered.name == 'USD':
+#         if offer.currency_needed.name == 'RUR':
+#             required_amount = offer.amount_offered * Decimal(rub_to_usd)
+#         elif offer.currency_needed.name == 'MNT':
+#             required_amount = offer.amount_offered * Decimal(mnt_to_usd)
+#
+#     return {
+#         'rub_to_usd': rub_to_usd,
+#         'mnt_to_rub': mnt_to_rub,
+#         'mnt_to_usd': mnt_to_usd,
+#         'required_amount': required_amount
+#     }
 
 
 def index(request):
