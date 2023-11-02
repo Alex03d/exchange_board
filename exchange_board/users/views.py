@@ -1,13 +1,14 @@
+from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.conf import settings
 from django.core.mail import send_mail
 from django.db.models import Count
 from django.http import JsonResponse
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+
 from .forms import CustomUserCreationForm
-from .models import Invitation, CustomUser, UserFollow, EmailConfirmation
+from .models import CustomUser, EmailConfirmation, Invitation, UserFollow
 
 
 def register(request, invite_code):

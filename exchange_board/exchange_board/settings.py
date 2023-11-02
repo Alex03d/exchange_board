@@ -1,4 +1,5 @@
 import os
+
 from decouple import config
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -25,6 +26,7 @@ INSTALLED_APPS = [
     'rating.apps.RatingConfig',
     'transactions.apps.TransactionsConfig',
     'exchange_rates.apps.ExchangeRatesConfig',
+    'requests_for_transaction.apps.RequestsForTransactionConfig',
     'bank_details.apps.BankDetailsConfig',
     'django.contrib.admin',
     'django.contrib.auth',

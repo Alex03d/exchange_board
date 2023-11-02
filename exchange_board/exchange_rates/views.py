@@ -1,11 +1,10 @@
-import requests
+from decimal import Decimal
 
+import requests
+from decouple import config
 from loguru import logger
 
-from decimal import Decimal
-from decouple import config
 from .models import ExchangeRate
-
 
 logger.add("my_log.log", rotation="1 day")
 
@@ -100,7 +99,7 @@ def get_required_amount_to_be_exchanged(offer):
         elif offer.currency_needed.name == 'USD':
             required_amount = offer.amount_offered / Decimal(mnt_to_usd)
     elif offer.currency_offered.name == 'USD':
-        if offer.currency_needed.name == 'RUR':
+        if offer.currency_needed.name == 'RUB':
             required_amount = offer.amount_offered * Decimal(rub_to_usd)
         elif offer.currency_needed.name == 'MNT':
             required_amount = offer.amount_offered * Decimal(mnt_to_usd)

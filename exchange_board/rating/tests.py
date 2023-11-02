@@ -1,12 +1,12 @@
-from django.test import TestCase, RequestFactory
+from bank_details.models import Currency
+from django.test import RequestFactory, TestCase
 from django.urls import reverse
+from offers.models import Offer
+from transactions.models import NO, OPEN, Transaction
 from users.models import CustomUser
 
 from .models import Rating
 from .views import rate_after_transaction
-from offers.models import Offer
-from transactions.models import Transaction, NO, OPEN
-from bank_details.models import Currency
 
 
 class RateAfterTransactionViewTest(TestCase):

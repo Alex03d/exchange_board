@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import Currency, BankDetail
+
+from .models import BankDetail, Currency
 
 
 class CurrencyAdmin(admin.ModelAdmin):

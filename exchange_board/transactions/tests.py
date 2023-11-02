@@ -1,10 +1,11 @@
+from bank_details.models import BankDetail, Currency
 from django.test import TestCase
 from django.urls import reverse
-from .models import Offer
-from bank_details.models import Currency, BankDetail
+from exchange_rates.models import ExchangeRate
 from transactions.models import Transaction
 from users.models import CustomUser
-from exchange_rates.models import ExchangeRate
+
+from .models import Offer
 
 
 class TransactionViewTests(TestCase):
@@ -35,7 +36,8 @@ class TransactionViewTests(TestCase):
         self.exchange_rate = ExchangeRate.objects.create(
             usd_to_rub=70.00,
             mnt_to_rub=250.00,
-            mnt_to_usd=0.035
+            mnt_to_usd=0.035,
+            usd_to_rub_alternative=74.5,
         )
 
     def test_start_transaction(self):

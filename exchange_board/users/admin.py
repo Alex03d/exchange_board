@@ -1,6 +1,6 @@
 from django.contrib import admin
-from .models import (CustomUser, Invitation,
-                     UserFollow, EmailConfirmation)
+
+from .models import CustomUser, EmailConfirmation, Invitation, UserFollow
 
 
 class CustomUserAdmin(admin.ModelAdmin):

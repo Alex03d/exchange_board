@@ -3,12 +3,13 @@ from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
-from .forms import UploadScreenshotForm
-from .models import Transaction, CLOSED
-from users.views import handshake_count
-from offers.models import RequestForTransaction
-from rating.models import Rating
 from exchange_rates.views import get_required_amount_to_be_exchanged
+from rating.models import Rating
+from requests_for_transaction.models import RequestForTransaction
+from users.views import handshake_count
+
+from .forms import UploadScreenshotForm
+from .models import CLOSED, Transaction
 
 
 @login_required

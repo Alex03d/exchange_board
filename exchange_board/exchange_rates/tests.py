@@ -1,8 +1,10 @@
-from django.test import TestCase
 from unittest.mock import patch
+
+from django.test import TestCase
+
 from .models import ExchangeRate
-from .views import (update_exchange_rates,
-                    get_exchange_rate, get_required_amount_to_be_exchanged)
+from .views import (get_exchange_rate, get_required_amount_to_be_exchanged,
+                    update_exchange_rates)
 
 
 class ExchangeRateTests(TestCase):
