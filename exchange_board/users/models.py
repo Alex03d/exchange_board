@@ -73,6 +73,24 @@ class CustomUser(AbstractUser):
         super(CustomUser, self).save(*args, **kwargs)
 
 
+class UserFollow(models.Model):
+    user = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name='follower',
+    )
+    author = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name='following',
+    )
+
+    class Meta:
+        verbose_name = 'Subscription'
+        verbose_name_plural = 'Subscriptions'
+        unique_together = ('user', 'author')
+
+
 class Invitation(models.Model):
     code = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     inviter = models.ForeignKey(
@@ -93,24 +111,6 @@ class Invitation(models.Model):
     def __str__(self):
         return (f"{self.inviter.username}'s invitation - "
                 f"{'Used' if self.used else 'Unused'}")
-
-
-class UserFollow(models.Model):
-    user = models.ForeignKey(
-        CustomUser,
-        on_delete=models.CASCADE,
-        related_name='follower',
-    )
-    author = models.ForeignKey(
-        CustomUser,
-        on_delete=models.CASCADE,
-        related_name='following',
-    )
-
-    class Meta:
-        verbose_name = 'Subscription'
-        verbose_name_plural = 'Subscriptions'
-        unique_together = ('user', 'author')
 
 
 class EmailConfirmation(models.Model):

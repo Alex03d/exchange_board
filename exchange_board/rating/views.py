@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404, redirect, render
 from .forms import RatingForm
 from .models import Rating
-from offers.models import Transaction
+from transactions.models import Transaction
 
 
 def rate_after_transaction(request, transaction_id):

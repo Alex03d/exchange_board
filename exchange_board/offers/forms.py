@@ -1,14 +1,14 @@
 from django import forms
-from .models import Transaction, Offer, RequestForTransaction
+from .models import Offer, RequestForTransaction
 from bank_details.models import BankDetail
 from django.core.exceptions import ValidationError
 
 
-class UploadScreenshotForm(forms.ModelForm):
-    class Meta:
-        model = Transaction
-        fields = ['author_uploads_transfer_screenshot',
-                  'accepting_user_uploads_transfer_screenshot']
+# class UploadScreenshotForm(forms.ModelForm):
+#     class Meta:
+#         model = Transaction
+#         fields = ['author_uploads_transfer_screenshot',
+#                   'accepting_user_uploads_transfer_screenshot']
 
 
 class OfferForm(forms.ModelForm):

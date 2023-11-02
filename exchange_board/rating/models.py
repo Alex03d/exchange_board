@@ -3,7 +3,7 @@ from users.models import CustomUser
 
 
 class Rating(models.Model):
-    transaction = models.ForeignKey('offers.Transaction', on_delete=models.CASCADE, related_name='ratings')
+    transaction = models.ForeignKey('transactions.Transaction', on_delete=models.CASCADE, related_name='ratings')
     author = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='given_ratings')
     recipient = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='received_ratings')
     score = models.PositiveSmallIntegerField(choices=[(i, i) for i in range(1, 6)])
@@ -11,7 +11,7 @@ class Rating(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
-        from offers.models import Transaction
+        from transactions.models import Transaction
         super(Rating, self).save(*args, **kwargs)
         self.update_user_rating(self.recipient)
 
