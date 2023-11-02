@@ -39,10 +39,10 @@ class TransactionRequestTestCase(TestCase):
         self.client = Client()
 
         self.exchange_rate = ExchangeRate.objects.create(
-            usd_to_rub=74.50,  # Пример значения курса USD к RUB
-            mnt_to_rub=0.025,  # Пример значения курса MNT к RUB
-            mnt_to_usd=0.00034,  # Пример значения курса MNT к USD
-            usd_to_rub_alternative=74.45  # Пример альтернативного значения курса USD к RUB
+            usd_to_rub=74.50,
+            mnt_to_rub=0.025,
+            mnt_to_usd=0.00034,
+            usd_to_rub_alternative=74.45
         )
 
     def test_create_request_for_transaction(self):
@@ -59,7 +59,13 @@ class TransactionRequestTestCase(TestCase):
             post_data,
             follow=True
         )
-        self.assertRedirects(response, expected_url=reverse('offer_detail', kwargs={'offer_id': self.offer.id}))
+        self.assertRedirects(
+            response,
+            expected_url=reverse(
+                'offer_detail',
+                kwargs={'offer_id': self.offer.id}
+            )
+        )
         self.assertTrue(RequestForTransaction.objects.filter(
             offer=self.offer,
             applicant=self.other_user,
