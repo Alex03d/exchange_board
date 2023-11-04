@@ -17,7 +17,7 @@ def register(request, invite_code):
     except Invitation.DoesNotExist:
         return render(
             request,
-            'error.html', {'message': 'Invalid or used invitation code.'}
+            'users/error.html', {'message': 'Invalid or used invitation code.'}
         )
 
     inviter = invitation.inviter
@@ -71,7 +71,7 @@ def confirm_email(request, token):
         conf.save()
         return redirect('users:login')
     except EmailConfirmation.DoesNotExist:
-        return render(request, 'error.html', {'message': 'Неверная или использованная ссылка подтверждения.'})
+        return render(request, 'users/error.html', {'message': 'Неверная или использованная ссылка подтверждения.'})
 
 
 def create_invite_page(request):
@@ -91,7 +91,7 @@ def create_invite_page(request):
 
     has_invites = user.is_superuser or (Invitation.objects.filter(inviter=user).count() < 3 and user.invites_left > 0)
 
-    return render(request, 'invite_link.html', {
+    return render(request, 'users/invite_link.html', {
         'previous_invitations_data': previous_invitations_data,
         'has_invites': has_invites
     })

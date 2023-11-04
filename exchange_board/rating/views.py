@@ -35,4 +35,4 @@ def rate_after_transaction(request, transaction_id):
     else:
         form = RatingForm(instance=existing_rating) if existing_rating else RatingForm()
 
-    return render(request, 'rate_after_transaction.html', {'form': form})
+    return render(request, 'rating/rate_after_transaction.html', {'form': form})

@@ -101,7 +101,7 @@ def transaction_detail(request, transaction_id):
         'existing_rating': existing_rating,
     }
 
-    return render(request, 'transaction_detail.html', context)
+    return render(request, 'transactions/transaction_detail.html', context)
 
 
 @login_required
@@ -136,9 +136,9 @@ def upload_screenshot(request, transaction_id, user_role):
     else:
         form = UploadScreenshotForm(instance=transaction)
 
-    template_name = ('offers/author_upload_screenshot.html'
+    template_name = ('transactions/author_upload_screenshot.html'
                      if user_role == "author"
-                     else 'offers/accepting_upload_screenshot.html')
+                     else 'transactions/accepting_upload_screenshot.html')
     return render(
         request,
         template_name,

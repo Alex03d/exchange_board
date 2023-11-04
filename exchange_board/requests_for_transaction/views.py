@@ -104,7 +104,7 @@ def create_request_for_transaction(request, offer_id):
         'offer': offer
     }
 
-    return render(request, 'offers/request_for_transaction.html', context)
+    return render(request, 'request_for_transaction/request_for_transaction.html', context)
 
 
 @login_required
@@ -157,7 +157,7 @@ def view_requests_for_transaction(request, request_id):
     }
     return render(
         request,
-        'offers/request_for_transaction_detail.html',
+        'request_for_transaction/request_for_transaction_detail.html',
         context
     )
 
@@ -242,4 +242,4 @@ def start_transaction(request, offer_id):
         offer=offer,
         accepting_user=request.user
     )
-    return redirect('transaction_detail', transaction_id=transaction.id)
+    return redirect('transactions/transaction_detail', transaction_id=transaction.id)
