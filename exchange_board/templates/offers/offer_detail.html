@@ -25,7 +25,6 @@
         <li>Status: {{ offer.get_status_display }}</li>
     </ul>
 
-
     <div class="text-border-block">
     Excnahge Rates:
     <ul>
@@ -37,6 +36,12 @@
 
     <br>
 
+    {% if transaction %}
+        <!-- Если транзакция существует, отображаем ссылку на её детали -->
+        <a href="{% url 'transaction_detail' transaction.id %}" class="btn-minimalist">The transaction is open!</a>
+    {% endif %}
+
+    <br>
 
     <!-- Request transaction button -->
     {% if not offer.author == request.user %}

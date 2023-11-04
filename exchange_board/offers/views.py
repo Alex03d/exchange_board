@@ -14,6 +14,7 @@ from users.views import handshake_count
 
 from .forms import OfferForm
 from .models import IN_PROGRESS, Offer
+from transactions.models import Transaction
 
 
 def index(request):
@@ -163,6 +164,12 @@ def offer_detail(request, offer_id):
     mnt_to_usd = exchange_data['mnt_to_usd']
     required_amount = exchange_data['required_amount']
 
+    transaction = None
+    try:
+        transaction = offer.transaction
+    except Transaction.DoesNotExist:
+        pass
+
     context = {
         'offer': offer,
         'handshakes': handshakes,
@@ -172,6 +179,7 @@ def offer_detail(request, offer_id):
         'rub_to_usd': rub_to_usd,
         'mnt_to_rub': mnt_to_rub,
         'mnt_to_usd': mnt_to_usd,
-        'required_amount': required_amount
+        'required_amount': required_amount,
+        'transaction': transaction,
     }
     return render(request, 'offers/offer_detail.html', context)

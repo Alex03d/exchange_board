@@ -94,7 +94,7 @@ def get_required_amount_to_be_exchanged(offer):
         elif offer.currency_needed.name == 'MNT':
             required_amount = offer.amount_offered * Decimal(mnt_to_rub)
     elif offer.currency_offered.name == 'MNT':
-        if offer.currency_needed.name == 'RUR':
+        if offer.currency_needed.name == 'RUB':
             required_amount = offer.amount_offered / Decimal(mnt_to_rub)
         elif offer.currency_needed.name == 'USD':
             required_amount = offer.amount_offered / Decimal(mnt_to_usd)

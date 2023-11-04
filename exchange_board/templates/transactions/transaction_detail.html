@@ -19,7 +19,8 @@
 
     {% if author_not_asserts_paid %}
         {% if current_user_is_author %}
-            <div class="alert alert-warning" role="alert">
+
+            <div class="text-border-block">
                 Переведите деньги на счет контрагента {{ transaction.accepting_user.username|capfirst }} <strong>{{ offer.amount_offered|floatformat:2 }} {{ offer.currency_offered }}</strong>
                 <br>
                 <strong>Название банка получателя:</strong> {{ accepting_user_bank_detail.bank_name }}
@@ -32,6 +33,11 @@
 
             </div>
 
+            {% if transaction.author_uploads_transfer_screenshot %}
+                <a href="{% url 'author_asserts_transfer_done' transaction.id %}" class="btn btn-minimalist">Stage 1. Нажмите на эту ссылку, если вы утверждаете что сделали перевод</a>
+            {% else %}
+                <div class="text-border-block" style="background-color: #555A64; color: white;">Загрузите скриншот, чтобы подтвердить перевод ⬇</div>
+            {% endif %}
 
             <form action="{% url 'author_uploads_screenshot' transaction.id %}" method="post" enctype="multipart/form-data" class="mb-3">
                 {% csrf_token %}
@@ -44,22 +50,21 @@
 
             </form>
 
-            <a href="{% url 'author_asserts_transfer_done' transaction.id %}" class="btn btn-info">Stage 1. Нажмите на эту ссылку, если вы утверждаете что сделали перевод</a>
-
         {% elif current_user_is_accepting_user %}
-            <div class="alert alert-info" role="alert">
+            <div class="text-border-block" style="background-color: #555A64; color: white;">
                 Stage 1. Пожалуйста дождитесь отправки денег от автора заявки.
             </div>
         {% endif %}
 
     {% elif author_asserts_paid and accepting_user_not_confirmed %}
         {% if current_user_is_author %}
-            <div class="alert alert-info" role="alert">
+            <div class="text-border-block" >
                 Stage 2. Дождитесь подтверждения от контрагента.
             </div>
         {% elif current_user_is_accepting_user %}
-            <div class="alert alert-info" role="alert">
-                Stage 2. Автор заявки утверждает, что сделал перевод.
+            <div class="text-border-block" >
+                Stage 2. Автор заявки утверждает, что <br>
+                сделал перевод на сумму: {{ offer.amount_offered|floatformat:2 }} {{ offer.currency_offered }}.
             </div>
 
 
@@ -86,18 +91,18 @@
 
     {% elif accepting_user_confirmed_but_not_paid_back %}
         {% if current_user_is_author %}
-            <div class="alert alert-info" role="alert">
+            <div class="text-border-block">
                 Stage 3. Контрагент подтвердил получение перевода.
             </div>
             <p>Дождитесь ответного перевода от контрагента.</p>
             <a href="{% url 'author_confirms_money_received' transaction.id %}" class="btn btn-info">подтвердите получение ответного перевода</a>
 
         {% elif current_user_is_accepting_user %}
-            <div class="alert alert-warning" role="alert">
+            <div class="text-border-block">
                 Stage 3. Сделайте ответный перевод на счет автора заявки {{ transaction.offer.author.username }}.
             </div>
 
-            <div class="alert alert-info">
+            <div class="alert alert-warning" role="alert">
                 <strong>Банковские реквизиты автора заявки:</strong>
                 <ul>
                     <li>Банк: {{ transaction.offer.bank_detail.bank_name }}</li>
@@ -106,6 +111,12 @@
                     <li>Валюта: {{ required_amount|floatformat:2 }} {{ transaction.offer.bank_detail.currency }}</li>
                 </ul>
             </div>
+
+            {% if transaction.accepting_user_uploads_transfer_screenshot %}
+                <a href="{% url 'accepting_user_asserts_transfer_done' transaction.id %}" class="btn btn-info" style="background-color: #555A64; color: white;">Stage 3. Нажмите на эту ссылку, если вы утверждаете что сделали перевод</a>
+            {% else %}
+                <div class="text-border-block">Загрузите скриншот, чтобы подтвердить перевод ⬇</div>
+            {% endif %}
 
             <form action="{% url 'accepting_user_uploads_screenshot' transaction.id %}" method="post" enctype="multipart/form-data" class="mb-3">
                 {% csrf_token %}
@@ -117,21 +128,20 @@
                 <img id="acceptingUserUploadedScreenshot" src="" alt="Uploaded Screenshot" style="display: none; width: 300px;">
             </form>
 
-            <a href="{% url 'accepting_user_asserts_transfer_done' transaction.id %}" class="btn btn-info">Нажмите на эту ссылку, если вы утверждаете что сделали перевод</a>
+<!--            <a href="{% url 'accepting_user_asserts_transfer_done' transaction.id %}" class="btn btn-info">Нажмите на эту ссылку, если вы утверждаете что сделали перевод</a>-->
         {% endif %}
 
     {% elif accepting_user_paid_back_author_not_confirmed %}
         {% if current_user_is_author %}
+            <a href="{% url 'author_confirms_money_received' transaction.id %}" class="btn btn-info">Stage 4  подтвердите получение ответного перевода</a>
             <div class="alert alert-info" role="alert">
-                Stage 4 Контрагент утверждает о совершении ответного перевода.
+                Stage 4 Контрагент утверждает о совершении ответного перевода: {{ required_amount|floatformat:2 }} {{ offer.currency_needed }}.
             </div>
             {% if transaction.accepting_user_uploads_transfer_screenshot %}
                 <img src="{{ transaction.accepting_user_uploads_transfer_screenshot.url }}" alt="Screenshot from accepting user" width="300" class="img-thumbnail mb-3">
             {% else %}
                 <p>No screenshot uploaded by the accepting user yet.</p>
             {% endif %}
-
-            <a href="{% url 'author_confirms_money_received' transaction.id %}" class="btn btn-info">Stage 4  подтвердите получение ответного перевода</a>
 
         {% elif current_user_is_accepting_user %}
             <div class="alert alert-info" role="alert">
