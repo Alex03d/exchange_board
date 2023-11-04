@@ -5,6 +5,7 @@ from bank_details.models import BankDetail
 from users.models import CustomUser
 from exchange_rates.models import ExchangeRate
 from .models import RequestForTransaction
+from transactions.models import Transaction
 
 
 class TransactionRequestTestCase(TestCase):
@@ -102,16 +103,42 @@ class TransactionRequestTestCase(TestCase):
 
     def test_accept_request(self):
         self.client.login(username='testuser', password='12345')
-        response = self.client.post(reverse('accept_request', kwargs={'request_id': 1}))
+        request_for_transaction = RequestForTransaction.objects.create(
+            offer=self.offer,
+            applicant=self.other_user,
+            bank_detail=self.bank_detail
+        )
+        response = self.client.post(
+            reverse(
+                'accept_request',
+                kwargs={'request_id': request_for_transaction.id}
+            )
+        )
+        self.assertEqual(response.status_code, 302)
+        request_for_transaction.refresh_from_db()
+        self.assertEqual(request_for_transaction.status, 'ACCEPTED')
+        transaction_exists = Transaction.objects.filter(
+            offer=self.offer,
+            accepting_user=self.other_user
+        ).exists()
+        self.assertTrue(transaction_exists)
 
     def test_reject_request(self):
         self.client.login(username='testuser', password='12345')
+        request_for_transaction = RequestForTransaction.objects.create(
+            offer=self.offer,
+            applicant=self.other_user,
+            bank_detail=self.bank_detail
+        )
         response = self.client.post(
             reverse(
                 'reject_request',
-                kwargs={'request_id': 1}
+                kwargs={'request_id': request_for_transaction.id}
             )
         )
+        self.assertEqual(response.status_code, 302)
+        request_for_transaction.refresh_from_db()
+        self.assertEqual(request_for_transaction.status, 'REJECTED')
 
     def test_start_transaction(self):
         self.client.login(username='otheruser', password='12345')
@@ -121,3 +148,9 @@ class TransactionRequestTestCase(TestCase):
                 kwargs={'offer_id': self.offer.id}
             )
         )
+        self.assertEqual(response.status_code, 302)
+        transaction_exists = Transaction.objects.filter(
+            offer=self.offer,
+            accepting_user=self.other_user
+        ).exists()
+        self.assertTrue(transaction_exists)
