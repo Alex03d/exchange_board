@@ -164,14 +164,14 @@ def accepting_user_confirms_money_received(request, transaction_id):
 
     transaction.accepting_user_confirms_money_received = 'YES'
     transaction.save()
-    author_email = transaction.offer.author.email
-    send_mail(
-        'Утверждение об оплате',
-        'Контрагент подтверждает, что перевод был выполнен.',
-        settings.DEFAULT_FROM_EMAIL,
-        [author_email],
-        fail_silently=False,
-    )
+    # author_email = transaction.offer.author.email
+    # send_mail(
+    #     'Утверждение об оплате',
+    #     'Контрагент подтверждает, что перевод был выполнен.',
+    #     settings.DEFAULT_FROM_EMAIL,
+    #     [author_email],
+    #     fail_silently=False,
+    # )
     return redirect('transaction_detail', transaction_id=transaction.id)
 
 
@@ -186,14 +186,14 @@ def author_confirms_money_received(request, transaction_id):
     offer.status = CLOSED
     offer.save()
 
-    accepting_user_email = transaction.accepting_user.email
-    send_mail(
-        'Подтверждение об оплате',
-        'Автор транзакции подтверждает, что перевод был выполнен.',
-        settings.DEFAULT_FROM_EMAIL,
-        [accepting_user_email],
-        fail_silently=False,
-    )
+    # accepting_user_email = transaction.accepting_user.email
+    # send_mail(
+    #     'Подтверждение об оплате',
+    #     'Автор транзакции подтверждает, что перевод был выполнен.',
+    #     settings.DEFAULT_FROM_EMAIL,
+    #     [accepting_user_email],
+    #     fail_silently=False,
+    # )
 
     return redirect('transaction_detail', transaction_id=transaction.id)
 
@@ -208,14 +208,14 @@ def accepting_user_asserts_transfer_done(request, transaction_id):
     transaction.accepting_user_asserts_transfer_done = 'YES'
     transaction.save()
 
-    author_email = transaction.offer.author.email
-    send_mail(
-        'Утверждение об оплате',
-        'Контрагент утверждает, что перевод был выполнен. Пожалуйста, проверьте и подтвердите получение средств.',
-        settings.DEFAULT_FROM_EMAIL,
-        [author_email],
-        fail_silently=False,
-    )
+    # author_email = transaction.offer.author.email
+    # send_mail(
+    #     'Утверждение об оплате',
+    #     'Контрагент утверждает, что перевод был выполнен. Пожалуйста, проверьте и подтвердите получение средств.',
+    #     settings.DEFAULT_FROM_EMAIL,
+    #     [author_email],
+    #     fail_silently=False,
+    # )
     return redirect('transaction_detail', transaction_id=transaction.id)
 
 
@@ -227,12 +227,12 @@ def author_asserts_transfer_done(request, transaction_id):
         transaction.status = 'IN_PROGRESS'
         transaction.save()
 
-        accepting_user_email = transaction.accepting_user.email
-        send_mail(
-            'Утверждение об оплате',
-            'Автор транзакции утверждает, что перевод был выполнен. Пожалуйста, проверьте и подтвердите получение средств.',
-            settings.DEFAULT_FROM_EMAIL,
-            [accepting_user_email],
-            fail_silently=False,
-        )
+        # accepting_user_email = transaction.accepting_user.email
+        # send_mail(
+        #     'Утверждение об оплате',
+        #     'Автор транзакции утверждает, что перевод был выполнен. Пожалуйста, проверьте и подтвердите получение средств.',
+        #     settings.DEFAULT_FROM_EMAIL,
+        #     [accepting_user_email],
+        #     fail_silently=False,
+        # )
     return redirect('transaction_detail', transaction_id=transaction.id)

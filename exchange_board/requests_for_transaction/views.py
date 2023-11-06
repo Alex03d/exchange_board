@@ -79,16 +79,16 @@ def create_request_for_transaction(request, offer_id):
                     applicant=request.user,
                     bank_detail=bank_detail_to_use
                 )
-                author_email = offer.author.email
-                send_mail(
-                    'Новая заявка на ваше предложение',
-                    f'Пользователь {request.user.username} отправил '
-                    f'заявку на ваше предложение. Пожалуйста, проверьте '
-                    f'ваш аккаунт для деталей.',
-
-                    settings.DEFAULT_FROM_EMAIL,
-                    [author_email],
-                )
+                # author_email = offer.author.email
+                # send_mail(
+                #     'Новая заявка на ваше предложение',
+                #     f'Пользователь {request.user.username} отправил '
+                #     f'заявку на ваше предложение. Пожалуйста, проверьте '
+                #     f'ваш аккаунт для деталей.',
+                #
+                #     settings.DEFAULT_FROM_EMAIL,
+                #     [author_email],
+                # )
 
                 return redirect('offer_detail', offer_id=offer.id)
 
@@ -185,15 +185,15 @@ def accept_request(request, request_id):
         offer=offer,
         accepting_user=request_for_transaction.applicant
     )
-    applicant_email = request_for_transaction.applicant.email
-    send_mail(
-        'Ваша заявка была принята',
-        'Ваша заявка на транзакцию была принята. Пожалуйста, проверьте '
-        'детали транзакции на сайте.',
-        settings.DEFAULT_FROM_EMAIL,
-        [applicant_email],
-        fail_silently=False,
-    )
+    # applicant_email = request_for_transaction.applicant.email
+    # send_mail(
+    #     'Ваша заявка была принята',
+    #     'Ваша заявка на транзакцию была принята. Пожалуйста, проверьте '
+    #     'детали транзакции на сайте.',
+    #     settings.DEFAULT_FROM_EMAIL,
+    #     [applicant_email],
+    #     fail_silently=False,
+    # )
 
     return redirect('transaction_detail', transaction_id=transaction.id)
 
@@ -213,18 +213,18 @@ def reject_request(request, request_id):
 
     request_for_transaction.status = 'REJECTED'
     request_for_transaction.save()
-    applicant_email = request_for_transaction.applicant.email
-    send_mail(
-        'Ваша заявка была отклонена',
-        'К сожалению, автор офера отклонил Вашу заявку на транзакцию. '
-        'Возможно, он нашел более подходящего ему контрагента '
-        'из близкого круга своих контактов. Однако вы можете создать свой '
-        'офер на продажу валюты, и контрагент для Вашей сделки обязательно '
-        'найдется!.',
-        settings.DEFAULT_FROM_EMAIL,
-        [applicant_email],
-        fail_silently=False,
-    )
+    # applicant_email = request_for_transaction.applicant.email
+    # send_mail(
+    #     'Ваша заявка была отклонена',
+    #     'К сожалению, автор офера отклонил Вашу заявку на транзакцию. '
+    #     'Возможно, он нашел более подходящего ему контрагента '
+    #     'из близкого круга своих контактов. Однако вы можете создать свой '
+    #     'офер на продажу валюты, и контрагент для Вашей сделки обязательно '
+    #     'найдется!.',
+    #     settings.DEFAULT_FROM_EMAIL,
+    #     [applicant_email],
+    #     fail_silently=False,
+    # )
 
     return redirect('view_requests_for_transaction', request_id=offer.id)
 

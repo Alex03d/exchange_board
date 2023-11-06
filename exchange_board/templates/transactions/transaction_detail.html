@@ -2,13 +2,10 @@
 
 {% block content %}
 
-    <h1>Transaction Detail</h1>
+    <h4>Transaction Detail</h4>
 
     <div class="container mt-4 mb-4">
-        <h2>Offer by: {{ offer.author.username }}</h2>
-        <h2>Accepted by: {{ accepting_user.username }}</h2>
-        <p class="lead">Тебя зовут: {{ request.user.username }}</p>
-        <p class="lead">Количество рукопожатий между сторонами: {{ handshakes }}</p>
+        <p class="lead">Handshakes between {{ offer.author.username }} and {{ accepting_user.username }}: {{ handshakes }}</p>
         <div class="handshake-chain">
             <span class="emoji">👤</span> <!-- начальный пользователь -->
             {% for i in handshake_range %}
@@ -21,107 +18,119 @@
         {% if current_user_is_author %}
 
             <div class="text-border-block">
-                Переведите деньги на счет контрагента {{ transaction.accepting_user.username|capfirst }} <strong>{{ offer.amount_offered|floatformat:2 }} {{ offer.currency_offered }}</strong>
+                <strong>Transfer {{ offer.amount_offered|floatformat:2 }} {{ offer.currency_offered }} to {{ transaction.accepting_user.username|capfirst }}</strong>
                 <br>
-                <strong>Название банка получателя:</strong> {{ accepting_user_bank_detail.bank_name }}
+                <strong>Recipient bank name:</strong> {{ accepting_user_bank_detail.bank_name }}
                 <br>
-                <strong>Счет или телефон получателя:</strong> {{ accepting_user_bank_detail.account_or_phone }}
+                <strong>Recipient's account or phone number:</strong> {{ accepting_user_bank_detail.account_or_phone }}
                 <br>
-                <strong>Имя получателя:</strong> {{ accepting_user_bank_detail.recipient_name }}
+                <strong>Recipient's name:</strong> {{ accepting_user_bank_detail.recipient_name }}
                 <br>
-                <strong>{{ transaction.accepting_user.username|capfirst }} переведет вам в ответ:</strong> {{ required_amount|floatformat:2 }} {{ offer.currency_needed }}
+                <strong>{{ transaction.accepting_user.username|capfirst }} will transfer to you in return:</strong> {{ required_amount|floatformat:2 }} {{ offer.currency_needed }}
 
             </div>
 
             {% if transaction.author_uploads_transfer_screenshot %}
-                <a href="{% url 'author_asserts_transfer_done' transaction.id %}" class="btn btn-minimalist">Stage 1. Нажмите на эту ссылку, если вы утверждаете что сделали перевод</a>
+                <a href="{% url 'author_asserts_transfer_done' transaction.id %}" class="btn btn-minimalist" class="btn btn-info" style="background-color: #555A64; color: white;">Step 3 of 5: click here to inform that you have made the transfer.</a>
             {% else %}
-                <div class="text-border-block" style="background-color: #555A64; color: white;">Загрузите скриншот, чтобы подтвердить перевод ⬇</div>
+                <div class="text-border-block" style="background-color: #555A64; color: white;">Step 1 of 5: send the money <br>
+                    Step 2 of 5: upload your screenshot to confirm the transfer ⬇</div>
             {% endif %}
 
             <form action="{% url 'author_uploads_screenshot' transaction.id %}" method="post" enctype="multipart/form-data" class="mb-3">
                 {% csrf_token %}
                 <div class="form-group">
-                    <label>После отправки загрузите скриншот об отправке</label>
+                    <label>After sending the money, upload a screenshot of the dispatch</label>
                     <input type="file" name="author_uploads_transfer_screenshot" class="form-control-file" onchange="displayImage(this, 'authorUploadedScreenshot')">
                 </div>
-                <button type="submit" class="btn btn-minimalist">Upload Screenshot</button>
+                <button type="submit" class="btn btn-minimalist">Press here to upload !</button>
                 <img id="authorUploadedScreenshot" src="" alt="Uploaded Screenshot" style="display: none; width: 300px;">
 
             </form>
 
         {% elif current_user_is_accepting_user %}
-            <div class="text-border-block" style="background-color: #555A64; color: white;">
-                Stage 1. Пожалуйста дождитесь отправки денег от автора заявки.
+            <div class="text-border-block">
+                <strong>Please wait:</strong> <br>
+                The offer's author should <br>
+                transfer you <strong> {{ offer.amount_offered|floatformat:2 }} {{ offer.currency_offered }} </strong>
+                <br>
+                <strong>Your bank name:</strong> {{ accepting_user_bank_detail.bank_name }}
+                <br>
+                <strong>Account/phone:</strong> {{ accepting_user_bank_detail.account_or_phone }}
+                <br>
+                <strong>Recipient's name:</strong> {{ accepting_user_bank_detail.recipient_name }}
+                <br>
             </div>
         {% endif %}
 
     {% elif author_asserts_paid and accepting_user_not_confirmed %}
         {% if current_user_is_author %}
             <div class="text-border-block" >
-                Stage 2. Дождитесь подтверждения от контрагента.
+                Step 4 of 5: your counterparty should confirm acceptance of the money.
             </div>
         {% elif current_user_is_accepting_user %}
             <div class="text-border-block" >
-                Stage 2. Автор заявки утверждает, что <br>
-                сделал перевод на сумму: {{ offer.amount_offered|floatformat:2 }} {{ offer.currency_offered }}.
+                The author alleges that he has made <br>
+                the money transfer: {{ offer.amount_offered|floatformat:2 }} {{ offer.currency_offered }}.<br>
+                Here is the screenshot:<br>
             </div>
 
-
-                <div class="alert alert-warning" role="alert">
-                Переведите деньги на счет контрагента {{ offer.author|capfirst }} <strong>{{ required_amount|floatformat:2 }} {{ offer.currency_needed }}</strong>
-                <br>
-                <strong>Название банка получателя:</strong> {{ offer.bank_detail.bank_name }}
-                <br>
-                <strong>Cчет или телефон:</strong> {{ offer.bank_detail.account_or_phone }}
-                <br>
-                <strong>Имя получателя:</strong> {{ offer.bank_detail.recipient_name }}
-                <br>
-                </div>
-
-            <a href="{% url 'accepting_user_confirms_money_received' transaction.id %}" class="btn btn-minimalist">Stage 2. подтвердить получение перевода</a>
-            <br>
             {% if transaction.author_uploads_transfer_screenshot %}
                 <img src="{{ transaction.author_uploads_transfer_screenshot.url }}" alt="Screenshot from author" width="300" class="img-thumbnail mb-3">
             {% else %}
                 <p>No screenshot uploaded by the author yet.</p>
             {% endif %}
+            <br>
+
+            <a href="{% url 'accepting_user_confirms_money_received' transaction.id %}" class="btn btn-minimalist" style="background-color: #555A64; color: white;">Step 1 of 5: press here if you received the money</a>
+            <br>
+
+                <div class="text-border-block">
+                You will have to transfer in return <strong>{{ required_amount|floatformat:2 }} {{ offer.currency_needed }} </strong> to <strong>{{ offer.author|capfirst }}</strong>
+                <br>
+                <strong>Bank:</strong> {{ offer.bank_detail.bank_name }}
+                <br>
+                <strong>Account of phone:</strong> {{ offer.bank_detail.account_or_phone }}
+                <br>
+                <strong>Name of the recepient:</strong> {{ offer.bank_detail.recipient_name }}
+                <br>
+                </div>
 
         {% endif %}
 
     {% elif accepting_user_confirmed_but_not_paid_back %}
         {% if current_user_is_author %}
             <div class="text-border-block">
-                Stage 3. Контрагент подтвердил получение перевода.
+                Stage 3. The counterparty has confirmed receipt of the transfer..
             </div>
-            <p>Дождитесь ответного перевода от контрагента.</p>
-            <a href="{% url 'author_confirms_money_received' transaction.id %}" class="btn btn-info">подтвердите получение ответного перевода</a>
+            <p>Wait for the counterparty to make the return transfer.</p>
+            <a href="{% url 'author_confirms_money_received' transaction.id %}" class="btn btn-minimalist" class="btn btn-info" style="background-color: #555A64; color: white;">Press here if you have received the transfer</a>
 
         {% elif current_user_is_accepting_user %}
             <div class="text-border-block">
-                Stage 3. Сделайте ответный перевод на счет автора заявки {{ transaction.offer.author.username }}.
+                Step 2 of 5. Please make a return transfer to the account of the applicant {{ transaction.offer.author.username }}.
             </div>
 
-            <div class="alert alert-warning" role="alert">
-                <strong>Банковские реквизиты автора заявки:</strong>
+            <div class="text-border-block">
+                <strong>The banking details of the offer's author:</strong>
                 <ul>
-                    <li>Банк: {{ transaction.offer.bank_detail.bank_name }}</li>
-                    <li>Номер счета или телефон: {{ transaction.offer.bank_detail.account_or_phone }}</li>
-                    <li>Имя получателя: {{ transaction.offer.bank_detail.recipient_name }}</li>
-                    <li>Валюта: {{ required_amount|floatformat:2 }} {{ transaction.offer.bank_detail.currency }}</li>
+                    <li>Bank: {{ transaction.offer.bank_detail.bank_name }}</li>
+                    <li>Account of phone number: {{ transaction.offer.bank_detail.account_or_phone }}</li>
+                    <li>Name of the recepient: {{ transaction.offer.bank_detail.recipient_name }}</li>
+                    <li>Currency: {{ required_amount|floatformat:2 }} {{ transaction.offer.bank_detail.currency }}</li>
                 </ul>
             </div>
 
             {% if transaction.accepting_user_uploads_transfer_screenshot %}
-                <a href="{% url 'accepting_user_asserts_transfer_done' transaction.id %}" class="btn btn-info" style="background-color: #555A64; color: white;">Stage 3. Нажмите на эту ссылку, если вы утверждаете что сделали перевод</a>
+                <a href="{% url 'accepting_user_asserts_transfer_done' transaction.id %}" class="btn btn-minimalist" class="btn btn-info" style="background-color: #555A64; color: white;">Step 4 of 5: click here to inform that you have made the transfer.</a>
             {% else %}
-                <div class="text-border-block">Загрузите скриншот, чтобы подтвердить перевод ⬇</div>
+                <div class="text-border-block" style="background-color: #555A64; color: white;">Step 3 of 5: upload your screenshot to confirm the transfer ⬇</div>
             {% endif %}
 
             <form action="{% url 'accepting_user_uploads_screenshot' transaction.id %}" method="post" enctype="multipart/form-data" class="mb-3">
                 {% csrf_token %}
                 <div class="form-group">
-                    <label>После отправки загрузите скриншот об отправке</label>
+                    <label>After sending the money, upload a screenshot of the dispatch</label>
                     <input type="file" name="accepting_user_uploads_transfer_screenshot" class="form-control-file" onchange="displayImage(this, 'acceptingUserUploadedScreenshot')">
                 </div>
                 <button type="submit" class="btn btn-minimalist">Upload Screenshot</button>
@@ -133,9 +142,10 @@
 
     {% elif accepting_user_paid_back_author_not_confirmed %}
         {% if current_user_is_author %}
-            <a href="{% url 'author_confirms_money_received' transaction.id %}" class="btn btn-info">Stage 4  подтвердите получение ответного перевода</a>
-            <div class="alert alert-info" role="alert">
-                Stage 4 Контрагент утверждает о совершении ответного перевода: {{ required_amount|floatformat:2 }} {{ offer.currency_needed }}.
+            <a href="{% url 'author_confirms_money_received' transaction.id %}" class="btn btn-minimalist" class="btn btn-info" style="background-color: #555A64; color: white;">Step 5 of 5: press here if you have received the transfer</a>
+            <div class="text-border-block">
+                The counterparty asserts that a return transfer has been made: {{ required_amount|floatformat:2 }} {{ offer.currency_needed }} <br>
+                Here is the screenshot:
             </div>
             {% if transaction.accepting_user_uploads_transfer_screenshot %}
                 <img src="{{ transaction.accepting_user_uploads_transfer_screenshot.url }}" alt="Screenshot from accepting user" width="300" class="img-thumbnail mb-3">
@@ -144,19 +154,19 @@
             {% endif %}
 
         {% elif current_user_is_accepting_user %}
-            <div class="alert alert-info" role="alert">
-                Stage 4 Дождитесь подтверждения от контрагента.
+            <div class="text-border-block">
+                Step 5 of 5: your counterparty should confirm acceptance of the money.
             </div>
         {% endif %}
 
     {% elif accepting_user_author_both_confirmed %}
-        <div class="alert alert-success" role="alert">
-            Stage 5. Сделка успешно завершена.
+        <div class="text-border-block">
+            Thank you! Final step: please rate the counterparty.
         </div>
         {% if existing_rating %}
-            <a href="{% url 'rate_after_transaction' transaction.id %}" class="btn btn-primary">Изменить оценку</a>
+            <a href="{% url 'rate_after_transaction' transaction.id %}" class="btn btn-minimalist">Edit</a>
         {% else %}
-            <a href="{% url 'rate_after_transaction' transaction.id %}" class="btn btn-primary">Оставить оценку</a>
+            <a href="{% url 'rate_after_transaction' transaction.id %}" class="btn btn-minimalist">Rate</a>
         {% endif %}
     {% endif %}
 

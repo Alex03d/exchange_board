@@ -122,12 +122,19 @@ USE_L10N = True
 USE_TZ = True
 
 EMAIL_BACKEND = 'anymail.backends.mailjet.EmailBackend'
+# EMAIL_BACKEND = 'anymail.backends.brevo.EmailBackend'
 
 ANYMAIL = {
     'MAILJET_API_KEY': config('MAILJET_API_KEY'),
     'MAILJET_SECRET_KEY': config('MAILJET_SECRET_KEY'),
     'WEBHOOK_SECRET': config('WEBHOOK_SECRET'),  # если вы используете веб-хуки
 }
+
+# ANYMAIL = {
+#     'BREVO_API_KEY': config('BREVO_API_KEY'),
+#     'BREVO_SECRET_KEY': config('BREVO_SECRET_KEY'),
+#     'WEBHOOK_SECRET': config('WEBHOOK_SECRET'),  # если вы используете веб-хуки
+# }
 
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL')
 # Static files (CSS, JavaScript, Images)

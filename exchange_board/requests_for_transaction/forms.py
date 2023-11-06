@@ -18,6 +18,7 @@ class RequestForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
         super(RequestForm, self).__init__(*args, **kwargs)
+        self.fields['bank_detail'].widget.attrs.update({'class': 'custom-select'})
 
         if user:
             self.fields['bank_detail'].queryset = BankDetail.objects.filter(

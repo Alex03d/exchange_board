@@ -39,10 +39,8 @@
     {% if transaction %}
         <!-- Если транзакция существует, отображаем ссылку на её детали -->
         <a href="{% url 'transaction_detail' transaction.id %}" class="btn-minimalist">The transaction is open!</a>
+        <br>
     {% endif %}
-
-    <br>
-
     <!-- Request transaction button -->
     {% if not offer.author == request.user %}
         {% if user_has_sent_request %}
