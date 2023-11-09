@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Повторная отправка письма для подтверждения email</h2>
+<p>Если вы не получили письмо с подтверждением, введите ваш email ниже, чтобы отправить его снова.</p>
+<form method="post">
+    {% csrf_token %}
+    <div>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+    </div>
+    <div>
+        <button type="submit">Отправить письмо снова</button>
+    </div>
+</form>
+{% endblock %}

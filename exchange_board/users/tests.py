@@ -41,7 +41,7 @@ class RegistrationViewTestCase(TestCase):
             'password2': 'testpassword123',
         })
         # self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse('users:login'))
+        self.assertRedirects(response, reverse('users:instructions'))
 
     def test_invalid_invitation_registration(self):
         response = self.client.post(self.invalid_register_url, {
@@ -215,7 +215,7 @@ class RegisterViewTestCase(TestCase):
             'password2': 'testpassword123',
         })
         # self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse('users:login'))
+        self.assertRedirects(response, reverse('users:instructions'))
         self.assertTrue(
             CustomUser.objects.filter(username='testuser').exists()
         )

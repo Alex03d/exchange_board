@@ -1,11 +1,13 @@
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail
 from django.db.models import Count
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils import timezone
 
 from .forms import CustomUserCreationForm
 from .models import CustomUser, EmailConfirmation, Invitation, UserFollow
@@ -55,7 +57,8 @@ def register(request, invite_code):
             if not inviter.is_superuser and inviter.invites_left > 0:
                 inviter.invites_left -= 1
                 inviter.save()
-            return redirect('users:login')
+            # return redirect('users:login')
+            return redirect('users:instructions')
     else:
         form = CustomUserCreationForm()
 
@@ -220,3 +223,67 @@ def user_profile(request, username):
         'handshake_range': range(handshakes),
     }
     return render(request, 'users/profile.html', context)
+
+
+def instructions_view(request):
+    return render(request, 'users/instructions.html')
+
+
+def resend_confirmation(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+
+        try:
+            user = CustomUser.objects.get(
+                email=email,
+                is_email_confirmed=False
+            )
+
+            email_confirmation = EmailConfirmation.objects.get(user=user)
+            time_diff = timezone.now() - email_confirmation.timestamp
+            if time_diff > timezone.timedelta(minutes=0.5):
+                confirm_link = request.build_absolute_uri(
+                    reverse(
+                        'users:confirm_email',
+                        kwargs={'token': email_confirmation.confirmation_token}
+                    )
+                )
+
+                send_mail(
+                    'Подтвердите ваш email',
+                    f'Перейдите по ссылке для '
+                    f'подтверждения вашего email: {confirm_link}',
+                    settings.DEFAULT_FROM_EMAIL,
+                    [user.email],
+                    fail_silently=False,
+                )
+                return render(
+                    request,
+                    'users/resend_confirmation_done.html',
+                    {'message': 'Ссылка для подтверждения '
+                                'была отправлена на ваш email.'}
+                )
+            else:
+                return render(
+                    request,
+                    'users/resend_confirmation_wait.html',
+                    {'message': 'Вы должны подождать, '
+                                'прежде чем запросить ссылку '
+                                'для подтверждения снова.'}
+                )
+
+        except CustomUser.DoesNotExist:
+            return render(
+                request,
+                'users/resend_confirmation_no_exist_or_sent.html',
+                {'message': 'Не удалось найти пользователя с таким '
+                            'email или email уже подтвержден.'}
+            )
+        except EmailConfirmation.DoesNotExist:
+            return render(
+                request,
+                'users/confirmation_email_sent.html',
+                {'message': 'Запрос на подтверждение '
+                            'для данного email не найден.'})
+    else:
+        return render(request, 'users/resend_confirmation.html')
