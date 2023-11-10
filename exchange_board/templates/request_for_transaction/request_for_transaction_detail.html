@@ -17,6 +17,7 @@
                     {{ data.applicant.username|capfirst }}
                 </a></h5>
         <h5>The User's Bank: {{ data.bank_details }}</h5>
+        <h5>Rating: <strong>{{ data.aggregated_rating|floatformat:2 }}</strong></h5>
 
         <p class="lead">You have {{ data.handshakes }} handshake(s) between you:</p>
         <div class="handshake-chain">

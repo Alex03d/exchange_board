@@ -35,7 +35,6 @@ def register(request, invite_code):
             )
             user.referral_code = f"{inviter.referral_code}-{next_sub_code}"
             user.save()
-            print('Перед отправкой')
             email_conf = EmailConfirmation(user=user)
             email_conf.save()
             email_subject = "Complete Your Registration with Handshakes"
@@ -61,7 +60,6 @@ def register(request, invite_code):
             Welcome aboard,
             The Handshakes Team
             """
-            print('Создал контент для имейла')
             send_mail(
                 email_subject,
                 email_body,
@@ -69,7 +67,6 @@ def register(request, invite_code):
                 [user.email],
                 fail_silently=False,
             )
-            print('Отправил')
 
             invitation.used = True
             invitation.invited_user = user
@@ -261,6 +258,7 @@ def user_profile(request, username):
         'inviter': inviter,
         'handshakes': handshakes,
         'handshake_range': range(handshakes),
+        'aggregated_rating': user_profile.aggregated_rating,
     }
     return render(request, 'users/profile.html', context)
 

@@ -13,6 +13,7 @@ ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'users.apps.UsersConfig',
+    'comments.apps.CommentsConfig',
     'offers.apps.OffersConfig',
     'rating.apps.RatingConfig',
     'transactions.apps.TransactionsConfig',
@@ -91,7 +92,8 @@ LANGUAGE_CODE = 'en-us'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
-TIME_ZONE = 'UTC'
+# TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Ulaanbaatar'
 
 USE_I18N = True
 

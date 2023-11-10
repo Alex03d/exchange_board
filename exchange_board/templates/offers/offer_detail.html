@@ -5,6 +5,7 @@
 
     <div class="mb-4">
     <h2>Offer by: {{ offer.author.username|capfirst }}</h2>
+        <h5>Author's Average Rating: <strong>{{ offer.author.aggregated_rating|floatformat:2 }}</strong></h5>
     <p class="lead">You have {{ handshakes }} handshake(s) between you:</p>
         <div class="handshake-chain">
             <span class="emoji">👤</span> <!-- начальный пользователь -->

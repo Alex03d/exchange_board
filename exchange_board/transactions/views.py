@@ -1,8 +1,11 @@
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
-from django.http import HttpResponseForbidden
+from django.core.paginator import Paginator
+from django.http import HttpResponseForbidden, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
+from comments.forms import TransactionCommentForm
+from comments.models import TransactionComment
 from exchange_rates.views import get_required_amount_to_be_exchanged
 from rating.models import Rating
 from requests_for_transaction.models import RequestForTransaction
@@ -66,14 +69,29 @@ def transaction_detail(request, transaction_id):
     )
 
     exchange_data = get_required_amount_to_be_exchanged(offer)
-    # rub_to_usd = exchange_data['rub_to_usd']
-    # mnt_to_rub = exchange_data['mnt_to_rub']
-    # mnt_to_usd = exchange_data['mnt_to_usd']
     required_amount = exchange_data['required_amount']
     existing_rating = Rating.objects.filter(
         transaction=transaction,
         author=request.user
     ).first()
+
+    comments_list = TransactionComment.objects.filter(
+        transaction=transaction
+    ).order_by('-created_at')
+    paginator = Paginator(comments_list, 10)
+    page_number = request.GET.get('page')
+    comments = paginator.get_page(page_number)
+
+    comment_form = TransactionCommentForm(request.POST or None)
+    if request.method == 'POST' and comment_form.is_valid():
+        new_comment = comment_form.save(commit=False)
+        new_comment.transaction = transaction
+        new_comment.author = request.user
+        new_comment.save()
+        return redirect(
+            'transaction_detail',
+            transaction_id=transaction_id
+        )
 
     context = {
         'transaction': transaction,
@@ -99,9 +117,16 @@ def transaction_detail(request, transaction_id):
         'accepting_user_bank_detail': accepting_user_bank_detail,
         'required_amount': required_amount,
         'existing_rating': existing_rating,
-    }
 
-    return render(request, 'transactions/transaction_detail.html', context)
+        'comments': comments,
+        'comment_form': comment_form,
+    }
+    if (request.user.is_superuser
+            or request.user == transaction.offer.author
+            or request.user == transaction.accepting_user):
+        return render(request, 'transactions/transaction_detail.html', context)
+    else:
+        return HttpResponseForbidden("You are not allowed to view this transaction.")
 
 
 @login_required

@@ -79,16 +79,16 @@ def create_request_for_transaction(request, offer_id):
                     applicant=request.user,
                     bank_detail=bank_detail_to_use
                 )
-                # author_email = offer.author.email
-                # send_mail(
-                #     'Новая заявка на ваше предложение',
-                #     f'Пользователь {request.user.username} отправил '
-                #     f'заявку на ваше предложение. Пожалуйста, проверьте '
-                #     f'ваш аккаунт для деталей.',
-                #
-                #     settings.DEFAULT_FROM_EMAIL,
-                #     [author_email],
-                # )
+                author_email = offer.author.email
+                send_mail(
+                    'Новая заявка на ваше предложение',
+                    f'Пользователь {request.user.username} отправил '
+                    f'заявку на ваше предложение. Пожалуйста, проверьте '
+                    f'ваш аккаунт для деталей.',
+
+                    settings.DEFAULT_FROM_EMAIL,
+                    [author_email],
+                )
 
                 return redirect('offer_detail', offer_id=offer.id)
 
@@ -126,16 +126,19 @@ def view_requests_for_transaction(request, request_id):
 
     applicants_data = []
     for request_for_transaction in requests_for_transaction:
+        applicant = request_for_transaction.applicant
         applicant_code = request_for_transaction.applicant.referral_code
         current_user_code = request.user.referral_code
         handshakes = handshake_count(applicant_code, current_user_code)
         bank_details = request_for_transaction.bank_detail
+        aggregated_rating = applicant.aggregated_rating
         applicants_data.append({
             'applicant': request_for_transaction.applicant,
             'referral_code': applicant_code,
             'handshakes': handshakes,
             'handshake_range': range(handshakes),
             'request_for_transaction': request_for_transaction,
+            'aggregated_rating': aggregated_rating,
             'bank_details': (request_for_transaction.bank_detail.bank_name
                              if request_for_transaction.bank_detail else None)
         })

@@ -2,9 +2,45 @@
 
 {% block content %}
 
-    <h4>Transaction Detail</h4>
+
+    <style>
+        .comment-label {
+            display: block; /* Makes the label a block-level element */
+            margin-bottom: .5em; /* Adds some space below the label */
+        }
+        .comment-form textarea, .comment-form input[type='text'] {
+            width: 100%; /* Makes the input take up 100% of the container width */
+            box-sizing: border-box; /* Ensures padding doesn't affect overall width */
+        }
+        .comment-submit {
+            margin-top: .5em; /* Adds some space above the button */
+        }
+
+        .comment-block {
+            margin-bottom: 30px; /* Увеличивает отступ между блоками комментариев */
+        }
+        .comment-author {
+            font-weight: bold;
+            margin-bottom: 4px; /* Отступ между именем автора и текстом комментария */
+        }
+        .comment-content {
+            margin-bottom: 2px; /* Меньший отступ между текстом комментария и временем */
+        }
+        .comment-time {
+            margin-bottom: 10px; /* Больший отступ между временем комментария и следующим комментарием */
+            font-size: 0.9em;
+            color: #777; /* Цвет и размер шрифта для времени */
+        }
+            .comment-time {
+                font-size: 0.8em; /* Уменьшает размер шрифта для времени комментария */
+                color: #666; /* Цвет текста для времени комментария */
+            }
+
+    </style>
+
 
     <div class="container mt-4 mb-4">
+    <h5>Transaction ID: {{ transaction.id }}</h5>
         <p class="lead">Handshakes between {{ offer.author.username }} and {{ accepting_user.username }}: {{ handshakes }}</p>
         <div class="handshake-chain">
             <span class="emoji">👤</span> <!-- начальный пользователь -->
@@ -170,22 +206,101 @@
         {% endif %}
     {% endif %}
 
-<script>
-function displayImage(fileInput, imgElementId) {
-    var file = fileInput.files[0];
-    var reader = new FileReader();
 
-    reader.onloadend = function() {
-        document.getElementById(imgElementId).style.display = "block";
-        document.getElementById(imgElementId).src = reader.result;
+
+
+<div class="comments-section">
+    <h5>Comments</h5>
+    {% for comment in comments %}
+        <div class="comment-block">
+            <div class="comment-author">{{ comment.author.username }}</div>
+            <div class="comment-content">{{ comment.content }}</div>
+            <div class="comment-time">{{ comment.created_at }}</div>
+        </div>
+    {% empty %}
+        <p>No comments yet.</p>
+    {% endfor %}
+
+    <!-- Пагинация -->
+    <div class="pagination-wrapper mt-4">
+        <ul class="pagination">
+            {% if comments.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1" aria-label="First">&laquo;&laquo;</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ comments.previous_page_number }}" aria-label="Previous">&laquo;</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">&laquo;&laquo;</span>
+                </li>
+                <li class="page-item disabled">
+                    <span class="page-link">&laquo;</span>
+                </li>
+            {% endif %}
+
+            <!-- Dynamically create page number links -->
+            {% for num in comments.paginator.page_range %}
+                {% if comments.number == num %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                {% else %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if comments.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ comments.next_page_number }}" aria-label="Next">&raquo;</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ comments.paginator.num_pages }}" aria-label="Last">&raquo;&raquo;</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">&raquo;</span>
+                </li>
+                <li class="page-item disabled">
+                    <span class="page-link">&raquo;&raquo;</span>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+</div>
+
+<div class="comment-form">
+    <form method="post">
+        {% csrf_token %}
+        <label for="id_content" class="comment-label">Your Comment:</label>
+        {{ comment_form.content }}
+        <button type="submit" class="btn btn-minimalist comment-submit">Post Comment</button>
+    </form>
+</div>
+
+
+
+
+    <script>
+    function displayImage(fileInput, imgElementId) {
+        var file = fileInput.files[0];
+        var reader = new FileReader();
+
+        reader.onloadend = function() {
+            document.getElementById(imgElementId).style.display = "block";
+            document.getElementById(imgElementId).src = reader.result;
+        }
+
+        if (file) {
+            reader.readAsDataURL(file);
+        } else {
+            document.getElementById(imgElementId).style.display = "none";
+        }
     }
 
-    if (file) {
-        reader.readAsDataURL(file);
-    } else {
-        document.getElementById(imgElementId).style.display = "none";
-    }
-}
-</script>
+    </script>
 {% endblock %}
         
