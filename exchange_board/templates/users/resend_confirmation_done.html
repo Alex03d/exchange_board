@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>Письмо отправлено</h2>
-<p>Письмо для подтверждения было отправлено заново. Пожалуйста, проверьте вашу почту, включая папку со спамом.</p>
+<h2>Email Sent</h2>
+<p>The confirmation email has been resent. Please check your inbox, including the spam folder.</p>
+<p>If you received the email, please enter the code here <a href="{% url 'users:confirm_email_code' %}">here</a>.</p>
 {% endblock %}

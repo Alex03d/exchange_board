@@ -1,0 +1,8 @@
+<!-- templates/users/email_confirmed.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Email Confirmed</h2>
+<p>You can now <a href="{% url 'users:login' %}">log in</a> to your account.</p>
+</form>
+{% endblock %}

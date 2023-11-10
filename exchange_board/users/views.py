@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail
 from django.db.models import Count
 from django.http import JsonResponse
@@ -36,20 +35,41 @@ def register(request, invite_code):
             )
             user.referral_code = f"{inviter.referral_code}-{next_sub_code}"
             user.save()
-
+            print('Перед отправкой')
             email_conf = EmailConfirmation(user=user)
             email_conf.save()
+            email_subject = "Complete Your Registration with Handshakes"
+            email_body = f"""
+            Hello {user.username},
+            
+            Thank you for signing up with Handshakes! We're excited to have 
+            you join our community where you can connect, share, and engage 
+            with others.
 
-            confirm_link = request.build_absolute_uri(
-                reverse('users:confirm_email', kwargs={'token': email_conf.confirmation_token})
-            )
+            To complete your registration and verify your email address, 
+            please use the following confirmation code: 
+            
+            {email_conf.confirmation_code}
+
+            Enter this code on the confirmation page to activate your account. 
+            This verification helps to keep your account secure and ensures 
+            that you can recover your account if you ever lose access.
+
+            If you didn't sign up for Handshakes, you can safely ignore 
+            this email.
+
+            Welcome aboard,
+            The Handshakes Team
+            """
+            print('Создал контент для имейла')
             send_mail(
-                'Подтвердите ваш email',
-                f'Перейдите по ссылке, чтобы подтвердить ваш email: {confirm_link}',
+                email_subject,
+                email_body,
                 settings.DEFAULT_FROM_EMAIL,
                 [user.email],
                 fail_silently=False,
             )
+            print('Отправил')
 
             invitation.used = True
             invitation.invited_user = user
@@ -57,7 +77,6 @@ def register(request, invite_code):
             if not inviter.is_superuser and inviter.invites_left > 0:
                 inviter.invites_left -= 1
                 inviter.save()
-            # return redirect('users:login')
             return redirect('users:instructions')
     else:
         form = CustomUserCreationForm()
@@ -67,14 +86,21 @@ def register(request, invite_code):
 
 def confirm_email(request, token):
     try:
-        conf = EmailConfirmation.objects.get(confirmation_token=token, confirmed=False)
+        conf = EmailConfirmation.objects.get(
+            confirmation_token=token,
+            confirmed=False
+        )
         conf.confirmed = True
         conf.user.is_email_confirmed = True
         conf.user.save()
         conf.save()
         return redirect('users:login')
     except EmailConfirmation.DoesNotExist:
-        return render(request, 'users/error.html', {'message': 'Неверная или использованная ссылка подтверждения.'})
+        return render(
+            request,
+            'users/error.html',
+            {'message': 'Неверная или использованная ссылка подтверждения.'}
+        )
 
 
 def create_invite_page(request):
@@ -92,7 +118,9 @@ def create_invite_page(request):
         ) for invite in previous_invitations
     ]
 
-    has_invites = user.is_superuser or (Invitation.objects.filter(inviter=user).count() < 3 and user.invites_left > 0)
+    has_invites = user.is_superuser or (
+            Invitation.objects.filter(inviter=user).count() < 3
+            and user.invites_left > 0)
 
     return render(request, 'users/invite_link.html', {
         'previous_invitations_data': previous_invitations_data,
@@ -134,10 +162,16 @@ def login_view(request):
                 login(request, user)
                 return redirect('index')
             else:
+                confirm_email_code_url = reverse('users:confirm_email_code')
                 return render(
                     request,
                     'users/login.html',
-                    {'error': 'Пожалуйста, подтвердите ваш email адрес перед входом.'}
+                    {
+                        'error': 'Please confirm your email '
+                                 'address before entering',
+                                 'confirm_email_code_url':
+                                     confirm_email_code_url
+                    }
                 )
         else:
             return render(
@@ -169,7 +203,10 @@ def handshake_count(code1, code2):
 
 @login_required
 def follow_index(request):
-    following_users = request.user.follower.all().values_list('author', flat=True)
+    following_users = request.user.follower.all().values_list(
+        'author',
+        flat=True
+    )
     authors = CustomUser.objects.filter(id__in=following_users).annotate(
         offers_count=Count('offers'),
         transactions_count=Count('accepted_transactions')
@@ -205,7 +242,10 @@ def user_profile(request, username):
     is_following = False
 
     if request.user.is_authenticated:
-        is_following = UserFollow.objects.filter(author=user_profile, user=request.user).exists()
+        is_following = UserFollow.objects.filter(
+            author=user_profile,
+            user=request.user
+        ).exists()
 
     user_profile_code = user_profile.referral_code
     if request.user.is_authenticated:
@@ -238,52 +278,78 @@ def resend_confirmation(request):
                 email=email,
                 is_email_confirmed=False
             )
-
             email_confirmation = EmailConfirmation.objects.get(user=user)
             time_diff = timezone.now() - email_confirmation.timestamp
-            if time_diff > timezone.timedelta(minutes=0.5):
-                confirm_link = request.build_absolute_uri(
-                    reverse(
-                        'users:confirm_email',
-                        kwargs={'token': email_confirmation.confirmation_token}
-                    )
-                )
+
+            if time_diff > timezone.timedelta(minutes=2):
+                email_confirmation.timestamp = timezone.now()
+                email_confirmation.save()
 
                 send_mail(
-                    'Подтвердите ваш email',
-                    f'Перейдите по ссылке для '
-                    f'подтверждения вашего email: {confirm_link}',
+                    f'Welcome to Handshakes. Confirm Your Email '
+                    f'to Get Started. Your confirmation code: '
+                    f'{email_confirmation.confirmation_code}',
                     settings.DEFAULT_FROM_EMAIL,
                     [user.email],
                     fail_silently=False,
                 )
+
                 return render(
                     request,
                     'users/resend_confirmation_done.html',
-                    {'message': 'Ссылка для подтверждения '
-                                'была отправлена на ваш email.'}
+                    {'message': 'A confirmation code has '
+                                'been sent to your email.'}
                 )
             else:
                 return render(
                     request,
                     'users/resend_confirmation_wait.html',
-                    {'message': 'Вы должны подождать, '
-                                'прежде чем запросить ссылку '
-                                'для подтверждения снова.'}
+                    {'message': 'You must wait at least 2 '
+                                'minutes before requesting '
+                                'a confirmation code again.'}
                 )
 
         except CustomUser.DoesNotExist:
             return render(
                 request,
                 'users/resend_confirmation_no_exist_or_sent.html',
-                {'message': 'Не удалось найти пользователя с таким '
-                            'email или email уже подтвержден.'}
+                {'message': 'Unable to find a user with that email '
+                            'or the email has already been confirmed.'}
             )
         except EmailConfirmation.DoesNotExist:
             return render(
                 request,
                 'users/confirmation_email_sent.html',
-                {'message': 'Запрос на подтверждение '
-                            'для данного email не найден.'})
+                {'message': 'No confirmation request '
+                            'was found for this email.'}
+            )
     else:
         return render(request, 'users/resend_confirmation.html')
+
+
+def confirm_email_code(request):
+    if request.method == 'POST':
+        code = request.POST.get('code')
+        try:
+            email_conf = EmailConfirmation.objects.get(
+                confirmation_code=code,
+                confirmed=False
+            )
+            email_conf.confirmed = True
+            email_conf.user.is_email_confirmed = True
+            email_conf.user.save()
+            email_conf.save()
+            return redirect('users:email_confirmed')
+        except EmailConfirmation.DoesNotExist:
+            return render(
+                request,
+                'users/error.html',
+                {'message': 'Неверный или уже '
+                            'использованный код подтверждения.'}
+            )
+    else:
+        return render(request, 'users/confirm_email_code.html')
+
+
+def email_confirmed(request):
+    return render(request, 'users/email_confirmed.html')

@@ -25,7 +25,9 @@ urlpatterns = [
         name='profile_unfollow'
     ),
     path('profile/<str:username>/', views.user_profile, name='user_profile'),
-    path('confirm-email/<uuid:token>/', views.confirm_email, name='confirm_email'),
+    # path('confirm-email/<uuid:token>/', views.confirm_email, name='confirm_email'),
+    path('confirm-email-code/', views.confirm_email_code, name='confirm_email_code'),
     path('instructions/', views.instructions_view, name='instructions'),
     path('resend-confirmation/', views.resend_confirmation, name='resend_confirmation'),
+    path('email-confirmed/', views.email_confirmed, name='email_confirmed'),
 ]

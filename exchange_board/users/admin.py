@@ -21,7 +21,8 @@ class UserFollowAdmin(admin.ModelAdmin):
 
 
 class EmailConfirmationAdmin(admin.ModelAdmin):
-    list_display = ('user', 'confirmation_token', 'timestamp', 'confirmed')
+    # list_display = ('user', 'confirmation_token', 'timestamp', 'confirmed')
+    list_display = ('user', 'confirmation_code', 'timestamp', 'confirmed')
     search_fields = ('user__username', 'confirmation_token')
     list_filter = ('confirmed',)
 

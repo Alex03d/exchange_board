@@ -2,6 +2,7 @@
 
 {% block content %}
 <h2>Registration Successful</h2>
-<p>Please check your email (including the spam folder) for a confirmation link to complete your registration.</p>
-<p>If you do not receive the email within a few minutes, you can request a new link by clicking <a href="{% url 'users:resend_confirmation' %}">here</a>.</p>
+<p>Please check your email (including the spam folder) for a confirmation code to complete your registration.</p>
+<p>If you do not receive the email within 2 minutes, you can request the code by clicking <a href="{% url 'users:resend_confirmation' %}">here</a>.</p>
+<p>If you received the email, please enter the code here <a href="{% url 'users:confirm_email_code' %}">here</a>.</p>
 {% endblock %}

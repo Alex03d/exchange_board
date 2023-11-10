@@ -1,4 +1,13 @@
+certifi==2023.7.22
+charset-normalizer==3.2.0
 Django==2.2.19
+django-anymail==10.1
+idna==3.4
+loguru==0.7.2
 Pillow==9.5.0
+python-decouple==3.8
 pytz==2023.3
+requests==2.31.0
 sqlparse==0.4.4
+urllib3==2.0.4
+isort

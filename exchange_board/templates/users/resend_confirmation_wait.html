@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>Подождите, пожалуйста</h2>
-<p>Пожалуйста, подождите 2 минуты перед следующей попыткой отправить письмо.</p>
+<h2>Please Wait</h2>
+<p>Please wait 2 minutes before trying to resend the email.</p>
+<p>If you received the email, please enter the code <a href="{% url 'users:confirm_email_code' %}">here</a>.</p>
 {% endblock %}

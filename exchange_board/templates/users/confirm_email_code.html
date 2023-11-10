@@ -1,0 +1,19 @@
+<!-- users/confirm_email_code.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<head>
+    <meta charset="UTF-8">
+    <title>Email Confirmation</title>
+</head>
+<body>
+    <h1>Confirm your Email</h1>
+    <form method="post" action="{% url 'users:confirm_email_code' %}">
+        {% csrf_token %}
+        <label for="code">Confirmation code:</label>
+        <input type="text" id="code" name="code" required>
+        <button type="submit">Confirm</button>
+    </form>
+</body>
+</html>
+{% endblock %}

@@ -1,4 +1,6 @@
 import uuid
+import random
+import string
 
 from django.contrib.auth.models import AbstractUser
 from django.db import models
@@ -83,6 +85,12 @@ class Invitation(models.Model):
 
 class EmailConfirmation(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
-    confirmation_token = models.UUIDField(default=uuid.uuid4, editable=False)
+    # confirmation_token = models.UUIDField(default=uuid.uuid4, editable=False)
+    confirmation_code = models.CharField(max_length=6, editable=False)
     timestamp = models.DateTimeField(auto_now_add=True)
     confirmed = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        if not self.confirmation_code:
+            self.confirmation_code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
+        super().save(*args, **kwargs)

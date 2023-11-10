@@ -2,23 +2,14 @@ import os
 
 from decouple import config
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+# SECRET_KEY = 'gbtpb5p_hg&sazjr+eo=+n7z5swi0sdau%g9@jn_op(*lu+m#b'
+SECRET_KEY = config('SECRET_KEY')
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'gbtpb5p_hg&sazjr+eo=+n7z5swi0sdau%g9@jn_op(*lu+m#b'
-
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
-
-
-# Application definition
 
 INSTALLED_APPS = [
     'users.apps.UsersConfig',
@@ -71,20 +62,12 @@ STATIC_URL = '/static/'
 
 WSGI_APPLICATION = 'exchange_board.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/2.2/ref/settings/#databases
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
-
-
-# Password validation
-# https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -101,12 +84,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 AUTH_USER_MODEL = 'users.CustomUser'
-
-
-# Internationalization
-# https://docs.djangoproject.com/en/2.2/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
 
@@ -122,20 +100,11 @@ USE_L10N = True
 USE_TZ = True
 
 EMAIL_BACKEND = 'anymail.backends.mailjet.EmailBackend'
-# EMAIL_BACKEND = 'anymail.backends.brevo.EmailBackend'
 
 ANYMAIL = {
     'MAILJET_API_KEY': config('MAILJET_API_KEY'),
     'MAILJET_SECRET_KEY': config('MAILJET_SECRET_KEY'),
-    'WEBHOOK_SECRET': config('WEBHOOK_SECRET'),  # если вы используете веб-хуки
+    'WEBHOOK_SECRET': config('WEBHOOK_SECRET'),
 }
 
-# ANYMAIL = {
-#     'BREVO_API_KEY': config('BREVO_API_KEY'),
-#     'BREVO_SECRET_KEY': config('BREVO_SECRET_KEY'),
-#     'WEBHOOK_SECRET': config('WEBHOOK_SECRET'),  # если вы используете веб-хуки
-# }
-
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL')
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/2.2/howto/static-files/

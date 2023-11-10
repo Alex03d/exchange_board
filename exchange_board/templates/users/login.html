@@ -11,7 +11,9 @@
     <br>
     <input type="submit" value="Login">
     {% if error %}
-    <p><strong>{{ error }}</strong></p>
+    <p><strong>{{ error }} <a href="{{ confirm_email_code_url }}">here</a></strong></p>
+
     {% endif %}
+
 </form>
 {% endblock %}
