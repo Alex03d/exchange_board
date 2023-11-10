@@ -185,15 +185,15 @@ def accept_request(request, request_id):
         offer=offer,
         accepting_user=request_for_transaction.applicant
     )
-    # applicant_email = request_for_transaction.applicant.email
-    # send_mail(
-    #     'Ваша заявка была принята',
-    #     'Ваша заявка на транзакцию была принята. Пожалуйста, проверьте '
-    #     'детали транзакции на сайте.',
-    #     settings.DEFAULT_FROM_EMAIL,
-    #     [applicant_email],
-    #     fail_silently=False,
-    # )
+    applicant_email = request_for_transaction.applicant.email
+    send_mail(
+        'Ваша заявка была принята',
+        'Ваша заявка на транзакцию была принята. Пожалуйста, проверьте '
+        'детали транзакции на сайте.',
+        settings.DEFAULT_FROM_EMAIL,
+        [applicant_email],
+        fail_silently=False,
+    )
 
     return redirect('transaction_detail', transaction_id=transaction.id)
 

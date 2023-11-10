@@ -99,12 +99,20 @@ USE_L10N = True
 
 USE_TZ = True
 
-EMAIL_BACKEND = 'anymail.backends.mailjet.EmailBackend'
+EMAIL_BACKEND = 'anymail.backends.mailgun.EmailBackend'
 
 ANYMAIL = {
-    'MAILJET_API_KEY': config('MAILJET_API_KEY'),
-    'MAILJET_SECRET_KEY': config('MAILJET_SECRET_KEY'),
-    'WEBHOOK_SECRET': config('WEBHOOK_SECRET'),
+    "MAILGUN_API_KEY": config('MAILGUN_API_KEY'),
+    "MAILGUN_SENDER_DOMAIN": "sharga42.info"
 }
 
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL')
+
+# EMAIL_BACKEND = 'anymail.backends.mailjet.EmailBackend'
+
+# ANYMAIL = {
+#     'MAILJET_API_KEY': config('MAILJET_API_KEY'),
+#     'MAILJET_SECRET_KEY': config('MAILJET_SECRET_KEY'),
+#     'WEBHOOK_SECRET': config('WEBHOOK_SECRET'),
+# }
+

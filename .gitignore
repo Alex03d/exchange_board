@@ -162,3 +162,5 @@ cython_debug/
 .DS_Store
 
 exchange_board/media/screenshots/
+
+sendgrid.env

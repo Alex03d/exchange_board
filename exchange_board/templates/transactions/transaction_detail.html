@@ -17,6 +17,13 @@
     {% if author_not_asserts_paid %}
         {% if current_user_is_author %}
 
+            {% if transaction.author_uploads_transfer_screenshot %}
+                <a href="{% url 'author_asserts_transfer_done' transaction.id %}" class="btn btn-minimalist" class="btn btn-info" style="background-color: #e63946; color: white;">Step 3 of 5: click here to inform that you have made the transfer.</a>
+            {% else %}
+                <div class="text-border-block" style="background-color: #555A64; color: white;">Step 1 of 5: send the money <br>
+                    Step 2 of 5: upload your screenshot to confirm the transfer ⬇</div>
+            {% endif %}
+
             <div class="text-border-block">
                 <strong>Transfer {{ offer.amount_offered|floatformat:2 }} {{ offer.currency_offered }} to {{ transaction.accepting_user.username|capfirst }}</strong>
                 <br>
@@ -29,13 +36,6 @@
                 <strong>{{ transaction.accepting_user.username|capfirst }} will transfer to you in return:</strong> {{ required_amount|floatformat:2 }} {{ offer.currency_needed }}
 
             </div>
-
-            {% if transaction.author_uploads_transfer_screenshot %}
-                <a href="{% url 'author_asserts_transfer_done' transaction.id %}" class="btn btn-minimalist" class="btn btn-info" style="background-color: #555A64; color: white;">Step 3 of 5: click here to inform that you have made the transfer.</a>
-            {% else %}
-                <div class="text-border-block" style="background-color: #555A64; color: white;">Step 1 of 5: send the money <br>
-                    Step 2 of 5: upload your screenshot to confirm the transfer ⬇</div>
-            {% endif %}
 
             <form action="{% url 'author_uploads_screenshot' transaction.id %}" method="post" enctype="multipart/form-data" class="mb-3">
                 {% csrf_token %}
@@ -107,7 +107,7 @@
             <a href="{% url 'author_confirms_money_received' transaction.id %}" class="btn btn-minimalist" class="btn btn-info" style="background-color: #555A64; color: white;">Press here if you have received the transfer</a>
 
         {% elif current_user_is_accepting_user %}
-            <div class="text-border-block">
+            <div class="text-border-block" style="background-color: #555A64; color: white;">
                 Step 2 of 5. Please make a return transfer to the account of the applicant {{ transaction.offer.author.username }}.
             </div>
 
@@ -122,7 +122,7 @@
             </div>
 
             {% if transaction.accepting_user_uploads_transfer_screenshot %}
-                <a href="{% url 'accepting_user_asserts_transfer_done' transaction.id %}" class="btn btn-minimalist" class="btn btn-info" style="background-color: #555A64; color: white;">Step 4 of 5: click here to inform that you have made the transfer.</a>
+                <a href="{% url 'accepting_user_asserts_transfer_done' transaction.id %}" class="btn btn-minimalist" class="btn btn-info" style="background-color: #e63946; color: white;">Step 4 of 5: click here to inform that you have made the transfer.</a>
             {% else %}
                 <div class="text-border-block" style="background-color: #555A64; color: white;">Step 3 of 5: upload your screenshot to confirm the transfer ⬇</div>
             {% endif %}

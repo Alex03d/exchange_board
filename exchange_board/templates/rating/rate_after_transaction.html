@@ -1,35 +1,43 @@
 {% extends "base.html" %}
 
-{% block title %} Оцените транзакцию {% endblock %}
+{% block title %}Оцените транзакцию{% endblock %}
 
 {% block content %}
 <div class="container">
-    <h2 class="mt-4">Оцените транзакцию</h2>
+    <h2 class="mt-4">Rate your counterparty</h2>
 
-    <form method="post" class="mt-4">
+    <form method="post" class="row justify-content-left">
         {% csrf_token %}
+        <div class="col-lg-4 col-12">
 
-        <div class="mb-3">
-            {{ form.score.label_tag }} <br>
-            {{ form.score }}
-            {% if form.score.errors %}
-                <div class="text-danger">
-                    {{ form.score.errors|join:", " }}
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger mt-2">
+                    {{ form.non_field_errors }}
                 </div>
             {% endif %}
-        </div>
 
-        <div class="mb-3">
-            {{ form.comment.label_tag }} <br>
-            {{ form.comment }}
-            {% if form.comment.errors %}
-                <div class="text-danger">
-                    {{ form.comment.errors|join:", " }}
+            {% for field in form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {% if field.field.widget.input_type == 'select' %}
+                        <select class="form-control" id="{{ field.id_for_label }}" name="{{ field.name }}">
+                            {% for choice_value, choice_label in field.field.choices %}
+                                <option value="{{ choice_value }}" {% if field.value == choice_value %}selected{% endif %}>{{ choice_label }}</option>
+                            {% endfor %}
+                        </select>
+                    {% else %}
+                        {{ field }}
+                    {% endif %}
+                    {% if field.errors %}
+                        <div class="alert alert-danger mt-2">
+                            {{ field.errors.0 }}
+                        </div>
+                    {% endif %}
                 </div>
-            {% endif %}
-        </div>
+            {% endfor %}
 
-        <button type="submit" class="btn btn-primary">Оценить</button>
+            <button type="submit" class="btn-minimalist mt-3">Rate</button>
+        </div>
     </form>
 </div>
 {% endblock %}
