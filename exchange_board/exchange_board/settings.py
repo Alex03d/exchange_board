@@ -20,6 +20,7 @@ INSTALLED_APPS = [
     'exchange_rates.apps.ExchangeRatesConfig',
     'requests_for_transaction.apps.RequestsForTransactionConfig',
     'bank_details.apps.BankDetailsConfig',
+    'notifications.apps.NotificationsConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -100,6 +101,9 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
+
+TELEGRAM_BOT_TOKEN = '6719045930:AAEAxBrXQKOusd0WEHcA2RJ-0T5YsliuTYY'
+TELEGRAM_CHANNEL_ID = '-1002057536019'
 
 EMAIL_BACKEND = 'anymail.backends.mailgun.EmailBackend'
 

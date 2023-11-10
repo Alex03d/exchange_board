@@ -10,11 +10,13 @@ from exchange_rates.views import (get_exchange_rate,
                                   get_required_amount_to_be_exchanged,
                                   update_exchange_rates)
 from requests_for_transaction.models import RequestForTransaction
+from notifications.views import notify_new_offer
 from users.views import handshake_count
 
 from .forms import OfferForm
 from .models import IN_PROGRESS, Offer
 from transactions.models import Transaction
+
 
 
 def index(request):
@@ -102,6 +104,7 @@ def create_offer(request):
                     offer.save()
                     messages.success(request, 'Your offer has been '
                                               'successfully created.')
+                    notify_new_offer(request, offer.id)
                     return redirect('offer_detail',
                                     offer_id=offer.id)
                 except BankDetail.DoesNotExist:
