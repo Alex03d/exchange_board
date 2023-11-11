@@ -18,7 +18,6 @@ from .models import IN_PROGRESS, Offer
 from transactions.models import Transaction
 
 
-
 def index(request):
     if ExchangeRate.needs_update():
         update_exchange_rates()

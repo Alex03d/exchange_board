@@ -20,6 +20,12 @@ from .models import RequestForTransaction
 @login_required
 def create_request_for_transaction(request, offer_id):
     offer = get_object_or_404(Offer, id=offer_id)
+
+    if offer.status == IN_PROGRESS:
+        messages.error(request, 'This offer is already in progress '
+                                'and cannot accept new requests.')
+        return redirect('offer_detail', offer_id=offer.id)
+
     offer_form = OfferForm(user=request.user, instance=offer)
 
     if offer.author == request.user:
