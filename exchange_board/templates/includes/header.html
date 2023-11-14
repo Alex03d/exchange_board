@@ -2,7 +2,12 @@
 <!-- Header -->
 <header class="bg-light py-3">
     <nav class="container navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="{% url 'index' %}">Home</a>
+
+        <a class="navbar-brand" href="{% url 'index' %}">
+            <img src="{% static '/img/fav/favicon-32x32.ico' %}" alt="Logo" height="40"> <!-- Указывайте высоту, соответствующую вашему дизайну -->
+        </a>
+
+        <a class="navbar-brand" href="{% url 'index' %}">Handshakes (beta)</a>
 
         <div class="navbar-collapse" id="navbarNav">
             <!-- Левая часть -->

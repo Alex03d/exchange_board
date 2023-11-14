@@ -1,3 +1,5 @@
+import os
+
 from decimal import Decimal
 
 import requests
@@ -6,7 +8,10 @@ from loguru import logger
 
 from .models import ExchangeRate
 
-logger.add("my_log.log", rotation="1 day")
+
+base_directory = os.path.dirname(os.path.abspath(__file__))
+log_directory = os.path.join(base_directory, "logs")
+logger.add(f"{log_directory}/file_{{time}}.log", rotation="1 week")
 
 
 API_KEY = config('EXCHANGE_API_KEY')
@@ -43,8 +48,6 @@ def get_exchange_rate(base_currency, target_currency):
     response = requests.get(API_URL, headers=headers, params=params)
     response_data = response.json()
     if response.status_code != 200:
-        print("Error with status code:", response.status_code)
-        print(response.text)
         return None
 
     return response_data.get("result", None)
@@ -61,7 +64,6 @@ def get_exchange_rate_from_alternative_api(base_currency, target_currency):
                f"{target_currency}.json")
 
     response = requests.get(API_URL)
-    print(response.text)
     try:
         response_data = response.json()
     except requests.exceptions.JSONDecodeError:

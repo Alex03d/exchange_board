@@ -15,7 +15,11 @@ def rate_after_transaction(request, transaction_id):
         author = transaction.accepting_user
         recipient = transaction.offer.author
 
-    existing_rating = Rating.objects.filter(transaction=transaction, author=author, recipient=recipient).first()
+    existing_rating = Rating.objects.filter(
+        transaction=transaction,
+        author=author,
+        recipient=recipient
+    ).first()
 
     if request.method == 'POST':
         if existing_rating:
@@ -30,9 +34,18 @@ def rate_after_transaction(request, transaction_id):
 
             form.instance.transaction = transaction
             form.save()
-            return redirect('transaction_detail', transaction_id=transaction.id)
+            return redirect(
+                'transaction_detail',
+                transaction_id=transaction.id
+            )
 
     else:
-        form = RatingForm(instance=existing_rating) if existing_rating else RatingForm()
+        form = RatingForm(
+            instance=existing_rating
+        ) if existing_rating else RatingForm()
 
-    return render(request, 'rating/rate_after_transaction.html', {'form': form})
+    return render(
+        request,
+        'rating/rate_after_transaction.html',
+        {'form': form}
+    )

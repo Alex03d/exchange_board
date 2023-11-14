@@ -14,7 +14,9 @@
             <li>RUB to USD: {{ rub_to_usd }}</li>
             <li>MNT to RUB: {{ mnt_to_rub }}</li>
             <li>MNT to USD: {{ mnt_to_usd }}</li>
-            <li>Альтернативный курс: {{ usd_to_rub_alternative }}</li>
+            {% if request.user.is_superuser %}
+                <li>Alternative rate: {{ usd_to_rub_alternative }}</li>
+            {% endif %}
         </ul>
         <small>Note: During the transaction, the exchange rate may be updated based on data from the Exchange Rates Data API.</small>
     </div>

@@ -96,7 +96,7 @@ def confirm_email(request, token):
         return render(
             request,
             'users/error.html',
-            {'message': 'Неверная или использованная ссылка подтверждения.'}
+            {'message': 'Invalid or used confirmation link.'}
         )
 
 
@@ -342,8 +342,8 @@ def confirm_email_code(request):
             return render(
                 request,
                 'users/error.html',
-                {'message': 'Неверный или уже '
-                            'использованный код подтверждения.'}
+                {'message': 'Invalid or used '
+                            'confirmation code.'}
             )
     else:
         return render(request, 'users/confirm_email_code.html')

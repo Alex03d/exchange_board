@@ -87,10 +87,10 @@ def create_request_for_transaction(request, offer_id):
                 )
                 author_email = offer.author.email
                 send_mail(
-                    'Новая заявка на ваше предложение',
-                    f'Пользователь {request.user.username} отправил '
-                    f'заявку на ваше предложение. Пожалуйста, проверьте '
-                    f'ваш аккаунт для деталей.',
+                    'New Application for Your Offer',
+                    f'User {request.user.username} has submitted an '
+                    f'application for your offer. Please check '
+                    f'your account for details.',
 
                     settings.DEFAULT_FROM_EMAIL,
                     [author_email],
@@ -110,7 +110,11 @@ def create_request_for_transaction(request, offer_id):
         'offer': offer
     }
 
-    return render(request, 'request_for_transaction/request_for_transaction.html', context)
+    return render(
+        request,
+        'request_for_transaction/request_for_transaction.html',
+        context
+    )
 
 
 @login_required
@@ -196,9 +200,9 @@ def accept_request(request, request_id):
     )
     applicant_email = request_for_transaction.applicant.email
     send_mail(
-        'Ваша заявка была принята',
-        'Ваша заявка на транзакцию была принята. Пожалуйста, проверьте '
-        'детали транзакции на сайте.',
+        'Your application has been accepted',
+        'Your transaction request has been accepted. '
+        'Please check the transaction details on the website.',
         settings.DEFAULT_FROM_EMAIL,
         [applicant_email],
         fail_silently=False,
@@ -224,12 +228,12 @@ def reject_request(request, request_id):
     request_for_transaction.save()
     # applicant_email = request_for_transaction.applicant.email
     # send_mail(
-    #     'Ваша заявка была отклонена',
-    #     'К сожалению, автор офера отклонил Вашу заявку на транзакцию. '
-    #     'Возможно, он нашел более подходящего ему контрагента '
-    #     'из близкого круга своих контактов. Однако вы можете создать свой '
-    #     'офер на продажу валюты, и контрагент для Вашей сделки обязательно '
-    #     'найдется!.',
+    #     'Your Application Has Been Declined',
+    #     'Unfortunately, the author of the offer has declined your transaction request. '
+    #     'It is possible that they found a more suitable counterpart '
+    #     'from within their close circle of contacts. However, you can create your own '
+    #     'offer to sell currency, and a counterpart for your deal will certainly '
+    #     'be found!',
     #     settings.DEFAULT_FROM_EMAIL,
     #     [applicant_email],
     #     fail_silently=False,

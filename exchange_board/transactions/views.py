@@ -191,8 +191,8 @@ def accepting_user_confirms_money_received(request, transaction_id):
     transaction.save()
     # author_email = transaction.offer.author.email
     # send_mail(
-    #     'Утверждение об оплате',
-    #     'Контрагент подтверждает, что перевод был выполнен.',
+    #     'Payment Confirmation',
+    #     'The counterparty confirms that the transfer has been made.',
     #     settings.DEFAULT_FROM_EMAIL,
     #     [author_email],
     #     fail_silently=False,
@@ -213,8 +213,8 @@ def author_confirms_money_received(request, transaction_id):
 
     # accepting_user_email = transaction.accepting_user.email
     # send_mail(
-    #     'Подтверждение об оплате',
-    #     'Автор транзакции подтверждает, что перевод был выполнен.',
+    #     'Payment Confirmation',
+    #     'The author of the transaction confirms that the transfer has been completed.',
     #     settings.DEFAULT_FROM_EMAIL,
     #     [accepting_user_email],
     #     fail_silently=False,
@@ -235,8 +235,9 @@ def accepting_user_asserts_transfer_done(request, transaction_id):
 
     # author_email = transaction.offer.author.email
     # send_mail(
-    #     'Утверждение об оплате',
-    #     'Контрагент утверждает, что перевод был выполнен. Пожалуйста, проверьте и подтвердите получение средств.',
+    #     'Payment Confirmation',
+    #     'The counterparty asserts that the transfer has been made. '
+    #     'Please check and confirm the receipt of funds.',
     #     settings.DEFAULT_FROM_EMAIL,
     #     [author_email],
     #     fail_silently=False,
@@ -254,8 +255,9 @@ def author_asserts_transfer_done(request, transaction_id):
 
         # accepting_user_email = transaction.accepting_user.email
         # send_mail(
-        #     'Утверждение об оплате',
-        #     'Автор транзакции утверждает, что перевод был выполнен. Пожалуйста, проверьте и подтвердите получение средств.',
+        #     'Payment Confirmation',
+        #     'The author of the transaction asserts that the transfer has been completed. '
+        #     'Please check and confirm the receipt of funds.',
         #     settings.DEFAULT_FROM_EMAIL,
         #     [accepting_user_email],
         #     fail_silently=False,
