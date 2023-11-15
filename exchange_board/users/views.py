@@ -8,14 +8,19 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
 
+from logging_app.loguru_config import logger
 from .forms import CustomUserCreationForm
 from .models import CustomUser, EmailConfirmation, Invitation, UserFollow
 
 
 def register(request, invite_code):
+    logger.info(f"Начало регистрации пользователя с "
+                f"пригласительным кодом {invite_code}")
     try:
         invitation = Invitation.objects.get(code=invite_code, used=False)
     except Invitation.DoesNotExist:
+        logger.error(f"Ошибка регистрации: пригласительный код "
+                     f"{invite_code} неверный или уже использован")
         return render(
             request,
             'users/error.html', {'message': 'Invalid or used invitation code.'}
@@ -82,6 +87,7 @@ def register(request, invite_code):
 
 
 def confirm_email(request, token):
+    logger.info(f"Попытка подтверждения email с токеном {token}")
     try:
         conf = EmailConfirmation.objects.get(
             confirmation_token=token,
@@ -93,6 +99,8 @@ def confirm_email(request, token):
         conf.save()
         return redirect('users:login')
     except EmailConfirmation.DoesNotExist:
+        logger.error(f"Ошибка подтверждения email: неверная или "
+                     f"использованная ссылка подтверждения {token}")
         return render(
             request,
             'users/error.html',
@@ -102,6 +110,7 @@ def confirm_email(request, token):
 
 def create_invite_page(request):
     user = request.user
+    logger.info(f"Пользователь {user.username} создает страницу приглашения")
     previous_invitations = Invitation.objects.filter(inviter=user)
     previous_invitations_data = [
         (
@@ -127,6 +136,8 @@ def create_invite_page(request):
 
 def generate_invite_link(request):
     user = request.user
+    logger.info(f"Пользователь {user.username} генерирует "
+                f"пригласительную ссылку")
     created_invites = Invitation.objects.filter(inviter=user).count()
 
     if user.is_superuser or (created_invites < 3 and user.invites_left > 0):
@@ -142,8 +153,9 @@ def generate_invite_link(request):
         )
 
         return JsonResponse({'invite_link': invite_link})
-
-    return JsonResponse({'error': 'No invitations left.'}, status=400)
+    else:
+        logger.error(f"Пользователь {user.username} не может создать больше пригласительных ссылок")
+        return JsonResponse({'error': 'No invitations left.'}, status=400)
 
 
 def login_view(request):
@@ -152,6 +164,7 @@ def login_view(request):
 
     if request.method == 'POST':
         username = request.POST.get('username')
+        logger.info(f"Попытка входа в систему пользователя {username}")
         password = request.POST.get('password')
         user = authenticate(request, username=username, password=password)
         if user is not None:
@@ -171,6 +184,8 @@ def login_view(request):
                     }
                 )
         else:
+            logger.error(f"Ошибка входа: неверное имя пользователя или "
+                         f"пароль для {username}")
             return render(
                 request,
                 'users/login.html',
@@ -180,6 +195,7 @@ def login_view(request):
 
 
 def logout_view(request):
+    logger.info(f"Пользователь {request.user.username} выходит из системы")
     logout(request)
     return redirect('index')
 
@@ -270,7 +286,8 @@ def instructions_view(request):
 def resend_confirmation(request):
     if request.method == 'POST':
         email = request.POST.get('email')
-
+        logger.info(f"Попытка повторной отправки "
+                    f"подтверждения на email {email}")
         try:
             user = CustomUser.objects.get(
                 email=email,
@@ -308,6 +325,8 @@ def resend_confirmation(request):
                 )
 
         except CustomUser.DoesNotExist:
+            logger.error(f"Пользователь с email {email} не "
+                         f"найден или email уже подтвержден")
             return render(
                 request,
                 'users/resend_confirmation_no_exist_or_sent.html',
@@ -315,6 +334,8 @@ def resend_confirmation(request):
                             'or the email has already been confirmed.'}
             )
         except EmailConfirmation.DoesNotExist:
+            logger.error(f"Запрос на подтверждение {email} не "
+                         f"найден.")
             return render(
                 request,
                 'users/confirmation_email_sent.html',
@@ -328,6 +349,7 @@ def resend_confirmation(request):
 def confirm_email_code(request):
     if request.method == 'POST':
         code = request.POST.get('code')
+        logger.info(f"Попытка подтверждения email с кодом {code}")
         try:
             email_conf = EmailConfirmation.objects.get(
                 confirmation_code=code,
@@ -337,8 +359,11 @@ def confirm_email_code(request):
             email_conf.user.is_email_confirmed = True
             email_conf.user.save()
             email_conf.save()
+            logger.info(f"Email успешно подтвержден с кодом {code}")
             return redirect('users:email_confirmed')
         except EmailConfirmation.DoesNotExist:
+            logger.error(f"Неверный или уже использованный "
+                         f"код подтверждения {code}")
             return render(
                 request,
                 'users/error.html',
@@ -350,4 +375,5 @@ def confirm_email_code(request):
 
 
 def email_confirmed(request):
+    logger.info(f"Пользователь {request.user.username} подтвердил свой email")
     return render(request, 'users/email_confirmed.html')

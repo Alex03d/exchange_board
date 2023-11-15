@@ -1,24 +1,17 @@
-import os
-
 from decimal import Decimal
 
 import requests
 from decouple import config
-from loguru import logger
 
 from .models import ExchangeRate
-
-
-base_directory = os.path.dirname(os.path.abspath(__file__))
-log_directory = os.path.join(base_directory, "logs")
-logger.add(f"{log_directory}/file_{{time}}.log", rotation="1 week")
-
+from logging_app.loguru_config import logger
 
 API_KEY = config('EXCHANGE_API_KEY')
 ALTERNATIVE_API_KEY = config('CURRENCY_LAYER_API_KEY')
 
 
 def update_exchange_rates():
+    logger.info("Обновление обменных курсов начато")
     usd_to_rub = get_exchange_rate("USD", "RUB")
     mnt_to_rub = get_exchange_rate("RUB", "MNT")
     mnt_to_usd = get_exchange_rate("USD", "MNT")
@@ -31,10 +24,13 @@ def update_exchange_rates():
             mnt_to_usd=mnt_to_usd,
             usd_to_rub_alternative=usd_to_rub_alternative
         )
+        logger.info("Обновление обменных курсов завершено")
+    else:
+        logger.error("Не завершено обновление обменных курсов")
 
 
 def get_exchange_rate(base_currency, target_currency):
-    logger.info(f"Sending request to API for {base_currency} to {target_currency}")
+    logger.info(f"Отправка АПИ запроса курса {base_currency} к {target_currency}")
     API_URL = "https://api.apilayer.com/exchangerates_data/convert"
     headers = {
         "apikey": API_KEY
@@ -48,15 +44,20 @@ def get_exchange_rate(base_currency, target_currency):
     response = requests.get(API_URL, headers=headers, params=params)
     response_data = response.json()
     if response.status_code != 200:
+        logger.error(
+            f"Ошибка API при запросе {base_currency} "
+            f"к {target_currency}: {response.status_code}"
+        )
         return None
-
+    logger.info(f"Получен курс обмена для {base_currency} к "
+                f"{target_currency}: {response_data.get('result', None)}")
     return response_data.get("result", None)
 
 
 def get_exchange_rate_from_alternative_api(base_currency, target_currency):
     logger.info(
-        f"Sending request to alternative API "
-        f"for {base_currency} to {target_currency}"
+        f"Отправка альтернативного API запроса курса"
+        f"{base_currency} к {target_currency}"
     )
 
     API_URL = (f"https://cdn.jsdelivr.net/gh/fawazahmed0/"
@@ -85,9 +86,13 @@ def get_exchange_rate_from_alternative_api(base_currency, target_currency):
 
 def get_required_amount_to_be_exchanged(offer):
     latest_rate = ExchangeRate.latest()
+    if not latest_rate:
+        logger.error("Ошибка: не удалось получить последние курсы обмена валют")
+        return None
     rub_to_usd = latest_rate.usd_to_rub
     mnt_to_rub = latest_rate.mnt_to_rub
     mnt_to_usd = latest_rate.mnt_to_usd
+    logger.info(f"Расчет требуемой суммы обмена для предложения: {offer}")
 
     required_amount = None
     if offer.currency_offered.name == 'RUB':
@@ -106,6 +111,11 @@ def get_required_amount_to_be_exchanged(offer):
         elif offer.currency_needed.name == 'MNT':
             required_amount = offer.amount_offered * Decimal(mnt_to_usd)
 
+    if required_amount is None:
+        logger.error(f"Ошибка при расчете требуемой "
+                     f"суммы для предложения: {offer}")
+    else:
+        logger.info(f"Расчетная требуемая сумма: {required_amount}")
     return {
         'rub_to_usd': rub_to_usd,
         'mnt_to_rub': mnt_to_rub,

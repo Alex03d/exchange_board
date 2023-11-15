@@ -15,10 +15,12 @@ from users.views import handshake_count
 
 from .forms import OfferForm
 from .models import IN_PROGRESS, Offer
+from logging_app.loguru_config import logger
 from transactions.models import Transaction
 
 
 def index(request):
+    logger.info("Загрузка главной страницы предложений")
     if ExchangeRate.needs_update():
         update_exchange_rates()
 
@@ -28,17 +30,20 @@ def index(request):
     mnt_to_usd = latest_rate.mnt_to_usd
     usd_to_rub_alternative = latest_rate.usd_to_rub_alternative
 
-    offers_list = Offer.objects.order_by('-publishing_date').annotate(
-        has_requests=Exists(RequestForTransaction.objects.filter(
-            offer=OuterRef('pk')
+    if request.user.is_authenticated:
+        offers_list = Offer.objects.order_by('-publishing_date').annotate(
+            has_requests=Exists(RequestForTransaction.objects.filter(
+                offer=OuterRef('pk')
+            ))
         )
-        )
-    )
+    else:
+        offers_list = []
     paginator = Paginator(offers_list, 10)
     page = request.GET.get('page')
     offers = paginator.get_page(page)
 
     if not rub_to_usd or not mnt_to_rub:
+        logger.error("Ошибка при получении курсов обмена валют")
         messages.error(request, "Couldn't fetch the exchange rates. "
                                 "Some values might be missing.")
 
@@ -56,6 +61,7 @@ def index(request):
 
 @login_required
 def create_offer(request):
+    logger.info("Начало создания нового предложения")
     bank_details_by_currency = {}
 
     if request.method == 'POST':
@@ -120,7 +126,9 @@ def create_offer(request):
                     'Please check and try again.'
                 )
 
+            logger.info("Предложение успешно создано")
         else:
+            logger.error("Ошибка валидации формы создания предложения")
             for error in offer_form.errors.values():
                 messages.error(request, error)
             bank_detail_form = BankDetailForm(request.POST)
@@ -148,6 +156,7 @@ def create_offer(request):
 
 @login_required
 def offer_detail(request, offer_id):
+    logger.info(f"Загрузка страницы деталей предложения с ID {offer_id}")
     offer = get_object_or_404(Offer, id=offer_id)
     author_code = offer.author.referral_code
     current_user_code = request.user.referral_code
@@ -170,6 +179,7 @@ def offer_detail(request, offer_id):
     try:
         transaction = offer.transaction
     except Transaction.DoesNotExist:
+        logger.error(f"Транзакция для предложения с ID {offer_id} не найдена")
         pass
 
     context = {

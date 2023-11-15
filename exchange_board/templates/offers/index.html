@@ -4,7 +4,9 @@
 {% load custom_filters %}
 
 <div class="container mt-5">
-    <h1 class="display-6 text-left mb-5">Hi, {{request.user|capfirst }}!</h1>
+    <h1 class="display-6 text-left mb-5">
+    Hey, {% if request.user.is_authenticated %}{{ request.user|capfirst }}{% else %}Buddy{% endif %}!
+    </h1>
 
 
     <div class="text-border-block">

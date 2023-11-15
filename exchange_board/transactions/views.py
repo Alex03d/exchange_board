@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from comments.forms import TransactionCommentForm
 from comments.models import TransactionComment
 from exchange_rates.views import get_required_amount_to_be_exchanged
+from logging_app.loguru_config import logger
 from rating.models import Rating
 from requests_for_transaction.models import RequestForTransaction
 from users.views import handshake_count
@@ -17,6 +18,7 @@ from .models import CLOSED, Transaction
 
 @login_required
 def transaction_detail(request, transaction_id):
+    logger.info(f"Детали транзакции с ID {transaction_id} запрашиваются")
     transaction = get_object_or_404(Transaction, id=transaction_id)
 
     offer = transaction.offer
@@ -126,11 +128,14 @@ def transaction_detail(request, transaction_id):
             or request.user == transaction.accepting_user):
         return render(request, 'transactions/transaction_detail.html', context)
     else:
+        logger.error(f"Доступ к деталям транзакции с ID {transaction_id} запрещен")
         return HttpResponseForbidden("You are not allowed to view this transaction.")
 
 
 @login_required
 def upload_screenshot(request, transaction_id, user_role):
+    logger.info(f"Загрузка скриншота для транзакции "
+                f"с ID {transaction_id}, роль: {user_role}")
     transaction = get_object_or_404(Transaction, id=transaction_id)
 
     if user_role == "author" and transaction.offer.author != request.user:
@@ -152,6 +157,8 @@ def upload_screenshot(request, transaction_id, user_role):
             instance=transaction
         )
         if form.is_valid():
+            logger.info(f"Скриншот для транзакции с "
+                        f"ID {transaction_id} успешно загружен")
             form.save()
             return redirect(
                 'transaction_detail',
@@ -181,8 +188,13 @@ def accepting_user_uploads_screenshot(request, transaction_id):
 
 @login_required
 def accepting_user_confirms_money_received(request, transaction_id):
+    logger.info(f"Принимающий пользователь пытается подтвердить "
+                f"получение денег для транзакции {transaction_id}")
     transaction = get_object_or_404(Transaction, id=transaction_id)
     if transaction.accepting_user != request.user:
+        logger.error(
+            f"Пользователь {request.user} не имеет права подтвердить "
+            f"получение денег для транзакции {transaction_id}")
         return HttpResponseForbidden(
             "You don't have permission to perform this action."
         )
@@ -197,11 +209,15 @@ def accepting_user_confirms_money_received(request, transaction_id):
     #     [author_email],
     #     fail_silently=False,
     # )
+    logger.info(f"Принимающий пользователь успешно подтвердил получение "
+                f"денег для транзакции {transaction_id}")
     return redirect('transaction_detail', transaction_id=transaction.id)
 
 
 @login_required
 def author_confirms_money_received(request, transaction_id):
+    logger.info(f"Автор транзакции {transaction_id} пытается "
+                f"подтвердить получение денег")
     transaction = get_object_or_404(Transaction, id=transaction_id)
     transaction.author_confirms_money_received = 'YES'
     transaction.status = 'CLOSED'
@@ -219,14 +235,21 @@ def author_confirms_money_received(request, transaction_id):
     #     [accepting_user_email],
     #     fail_silently=False,
     # )
-
+    logger.info(f"Автор транзакции {transaction_id} успешно подтвердил "
+                f"получение денег и транзакция закрыта")
     return redirect('transaction_detail', transaction_id=transaction.id)
 
 
 @login_required
 def accepting_user_asserts_transfer_done(request, transaction_id):
+    logger.info(
+        f"Принимающий пользователь {request.user} пытается утвердить "
+        f"выполнение перевода для транзакции {transaction_id}")
     transaction = get_object_or_404(Transaction, id=transaction_id)
     if transaction.accepting_user != request.user:
+        logger.error(
+            f"Пользователь {request.user} не имеет права утвердить "
+            f"выполнение перевода для транзакции {transaction_id}")
         return HttpResponseForbidden(
             "You don't have permission to perform this action."
         )
@@ -242,11 +265,17 @@ def accepting_user_asserts_transfer_done(request, transaction_id):
     #     [author_email],
     #     fail_silently=False,
     # )
+    logger.info(
+        f"Принимающий пользователь {request.user} успешно утвердил "
+        f"выполнение перевода для транзакции {transaction_id}")
     return redirect('transaction_detail', transaction_id=transaction.id)
 
 
 @login_required
 def author_asserts_transfer_done(request, transaction_id):
+    logger.info(
+        f"Автор транзакции {request.user} заявляет о "
+        f"выполнении перевода для транзакции {transaction_id}")
     transaction = get_object_or_404(Transaction, id=transaction_id)
     if transaction.offer.author == request.user:
         transaction.author_asserts_transfer_done = 'YES'
@@ -262,4 +291,7 @@ def author_asserts_transfer_done(request, transaction_id):
         #     [accepting_user_email],
         #     fail_silently=False,
         # )
+        logger.info(
+            f"Автор транзакции {request.user} успешно утвердил выполнение "
+            f"перевода для транзакции {transaction_id}")
     return redirect('transaction_detail', transaction_id=transaction.id)

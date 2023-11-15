@@ -19,6 +19,7 @@ INSTALLED_APPS = [
     'transactions.apps.TransactionsConfig',
     'exchange_rates.apps.ExchangeRatesConfig',
     'requests_for_transaction.apps.RequestsForTransactionConfig',
+    'logging_app.apps.LoggingAppConfig',
     'bank_details.apps.BankDetailsConfig',
     'notifications.apps.NotificationsConfig',
     'django.contrib.admin',

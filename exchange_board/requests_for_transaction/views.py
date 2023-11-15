@@ -8,17 +8,20 @@ from django.shortcuts import get_object_or_404, redirect, render
 from exchange_rates.views import (get_exchange_rate,
                                   get_required_amount_to_be_exchanged,
                                   update_exchange_rates)
+from notifications.views import send_acceptance_notification
 from offers.forms import OfferForm
 from offers.models import IN_PROGRESS, Offer
 from requests_for_transaction.forms import RequestForm
 from transactions.models import Transaction
 from users.views import handshake_count
+from logging_app.loguru_config import logger
 
 from .models import RequestForTransaction
 
 
 @login_required
 def create_request_for_transaction(request, offer_id):
+    logger.info(f"Создание запроса на транзакцию для предложения с ID {offer_id}")
     offer = get_object_or_404(Offer, id=offer_id)
 
     if offer.status == IN_PROGRESS:
@@ -59,7 +62,6 @@ def create_request_for_transaction(request, offer_id):
                     new_bank_detail.currency = offer.currency_offered
                     new_bank_detail.save()
                     bank_detail_to_use = new_bank_detail
-                    print("POST data:", request.POST)
 
                 else:
                     messages.error(request, 'Invalid bank detail form. '
@@ -73,7 +75,6 @@ def create_request_for_transaction(request, offer_id):
                 if (selected_bank_detail
                         and selected_bank_detail.user == request.user):
                     bank_detail_to_use = selected_bank_detail
-                    print("POST data:", request.POST)
 
                 else:
                     messages.error(request, 'Invalid bank detail selection. '
@@ -95,8 +96,13 @@ def create_request_for_transaction(request, offer_id):
                     settings.DEFAULT_FROM_EMAIL,
                     [author_email],
                 )
+                logger.info("Отправка имейла о поступлении"
+                            "отклика на офер")
 
                 return redirect('offer_detail', offer_id=offer.id)
+            logger.info("Запрос на транзакцию успешно создан")
+        else:
+            logger.error("Ошибка валидации формы запроса на транзакцию")
 
     else:
         offer_form = OfferForm(user=request.user)
@@ -124,6 +130,8 @@ def view_requests_for_transaction(request, request_id):
     ).exclude(status='REJECTED')
     offer = get_object_or_404(Offer, id=request_id)
     if not requests_for_transaction.exists():
+        logger.error(f"Запросы на транзакцию для предложения "
+                     f"с ID {request_id} не найдены")
         return HttpResponseNotFound(
             'No requests found for this offer. '
             '<a href="/">Return to home</a>.'
@@ -177,6 +185,7 @@ def view_requests_for_transaction(request, request_id):
 
 @login_required
 def accept_request(request, request_id):
+    logger.info(f"Принятие запроса на транзакцию с ID {request_id}")
     request_for_transaction = get_object_or_404(
         RequestForTransaction,
         id=request_id
@@ -207,12 +216,14 @@ def accept_request(request, request_id):
         [applicant_email],
         fail_silently=False,
     )
+    send_acceptance_notification(request_for_transaction.applicant, offer)
 
     return redirect('transaction_detail', transaction_id=transaction.id)
 
 
 @login_required
 def reject_request(request, request_id):
+    logger.info(f"Отклонение запроса на транзакцию с ID {request_id}")
     request_for_transaction = get_object_or_404(
         RequestForTransaction,
         id=request_id
@@ -244,6 +255,7 @@ def reject_request(request, request_id):
 
 @login_required
 def start_transaction(request, offer_id):
+    logger.info(f"Начало транзакции для предложения с ID {offer_id}")
     offer = get_object_or_404(Offer, id=offer_id)
     if offer.author == request.user:
         return redirect('index')
