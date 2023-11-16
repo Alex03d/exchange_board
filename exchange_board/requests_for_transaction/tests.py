@@ -1,11 +1,12 @@
-from django.test import TestCase, Client
-from django.urls import reverse
-from offers.models import Offer, Currency
 from bank_details.models import BankDetail
-from users.models import CustomUser
+from django.test import Client, TestCase
+from django.urls import reverse
 from exchange_rates.models import ExchangeRate
-from .models import RequestForTransaction
+from offers.models import Currency, Offer
 from transactions.models import Transaction
+from users.models import CustomUser
+
+from .models import RequestForTransaction
 
 
 class TransactionRequestTestCase(TestCase):

@@ -1,12 +1,12 @@
 import requests
-from django.http import JsonResponse
-from django.contrib.sites.shortcuts import get_current_site
 from django.conf import settings
+from django.contrib.sites.shortcuts import get_current_site
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
-from offers.models import Offer
-from logging_app.loguru_config import logger
 from exchange_rates.models import ExchangeRate
+from logging_app.loguru_config import logger
+from offers.models import Offer
 
 
 def send_telegram_notification(message):
@@ -35,7 +35,7 @@ def notify_new_offer(request, offer_id):
     mnt_to_rub = latest_rate.mnt_to_rub
     mnt_to_usd = latest_rate.mnt_to_usd
     message = (
-        f"NEW OFFER № {offer.id}! \n\n"
+        f"<b>NEW OFFER № {offer.id}!</b> \n\n"
         f"{offer.author.username} <a href='{offer_link}'>sells {offer.amount_offered} {offer.currency_offered} and wants to buy {offer.currency_needed}</a> \n\n"
         f"Approximate exchange rates:\n\n"
         f"1 USD = {rub_to_usd} RUB,\n"
@@ -53,7 +53,7 @@ def notify_new_offer(request, offer_id):
 
 def send_acceptance_notification(applicant, offer):
     message = (
-        f"OFFER № {offer.id} is now IN PROGRESS.\n\n"
+        f"<b>OFFER № {offer.id} is now IN PROGRESS!</b>\n\n"
         f"{offer.author.username} has accepted the request from {applicant.username}.\n\n"
         "If you have applied for this offer and were not accepted, "
         "you can always create your own currency exchange offer, "

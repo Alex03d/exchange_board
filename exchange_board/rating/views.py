@@ -1,10 +1,10 @@
 from django.shortcuts import get_object_or_404, redirect, render
+from logging_app.loguru_config import logger
 from transactions.models import Transaction
 
 from .forms import RatingForm
 from .models import Rating
 
-from logging_app.loguru_config import logger
 
 def rate_after_transaction(request, transaction_id):
     logger.info(f"Начало процесса оценки для транзакции с ID {transaction_id}")

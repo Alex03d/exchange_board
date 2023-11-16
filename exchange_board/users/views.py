@@ -7,8 +7,8 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
-
 from logging_app.loguru_config import logger
+
 from .forms import CustomUserCreationForm
 from .models import CustomUser, EmailConfirmation, Invitation, UserFollow
 

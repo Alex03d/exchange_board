@@ -2,9 +2,9 @@ from decimal import Decimal
 
 import requests
 from decouple import config
+from logging_app.loguru_config import logger
 
 from .models import ExchangeRate
-from logging_app.loguru_config import logger
 
 API_KEY = config('EXCHANGE_API_KEY')
 ALTERNATIVE_API_KEY = config('CURRENCY_LAYER_API_KEY')

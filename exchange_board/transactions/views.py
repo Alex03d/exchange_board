@@ -1,11 +1,11 @@
+from comments.forms import TransactionCommentForm
+from comments.models import TransactionComment
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.core.paginator import Paginator
 from django.http import HttpResponseForbidden, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
-from comments.forms import TransactionCommentForm
-from comments.models import TransactionComment
 from exchange_rates.views import get_required_amount_to_be_exchanged
 from logging_app.loguru_config import logger
 from rating.models import Rating

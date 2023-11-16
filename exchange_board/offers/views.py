@@ -9,14 +9,14 @@ from exchange_rates.models import ExchangeRate
 from exchange_rates.views import (get_exchange_rate,
                                   get_required_amount_to_be_exchanged,
                                   update_exchange_rates)
-from requests_for_transaction.models import RequestForTransaction
+from logging_app.loguru_config import logger
 from notifications.views import notify_new_offer
+from requests_for_transaction.models import RequestForTransaction
+from transactions.models import Transaction
 from users.views import handshake_count
 
 from .forms import OfferForm
 from .models import IN_PROGRESS, Offer
-from logging_app.loguru_config import logger
-from transactions.models import Transaction
 
 
 def index(request):

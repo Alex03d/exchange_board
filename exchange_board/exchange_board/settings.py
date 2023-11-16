@@ -4,7 +4,6 @@ from decouple import config
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# SECRET_KEY = 'gbtpb5p_hg&sazjr+eo=+n7z5swi0sdau%g9@jn_op(*lu+m#b'
 SECRET_KEY = config('SECRET_KEY')
 
 DEBUG = True
@@ -65,12 +64,24 @@ STATIC_URL = '/static/'
 
 WSGI_APPLICATION = 'exchange_board.wsgi.application'
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+if DEBUG:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'имя_базы_данных',
+            'USER': 'пользователь',
+            'PASSWORD': 'пароль',
+            'HOST': 'localhost',
+            'PORT': '3306',
+        }
+    }
 
 AUTH_PASSWORD_VALIDATORS = [
     {

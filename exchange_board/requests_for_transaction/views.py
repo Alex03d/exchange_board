@@ -8,13 +8,13 @@ from django.shortcuts import get_object_or_404, redirect, render
 from exchange_rates.views import (get_exchange_rate,
                                   get_required_amount_to_be_exchanged,
                                   update_exchange_rates)
+from logging_app.loguru_config import logger
 from notifications.views import send_acceptance_notification
 from offers.forms import OfferForm
 from offers.models import IN_PROGRESS, Offer
 from requests_for_transaction.forms import RequestForm
 from transactions.models import Transaction
 from users.views import handshake_count
-from logging_app.loguru_config import logger
 
 from .models import RequestForTransaction
 
