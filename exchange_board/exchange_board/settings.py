@@ -61,7 +61,7 @@ TEMPLATES = [
 
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATIC_URL = '/static/'
-STATIC_ROOT = '/home/ps0jc8heuqta/ashignet.club/static/'
+STATIC_ROOT = '/home/ps0jc8heuqta/ashignet.club/static'
 
 WSGI_APPLICATION = 'exchange_board.wsgi.application'
 
@@ -108,7 +108,7 @@ MEDIA_URL = '/media/'
 if DEBUG:
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 else:
-    MEDIA_ROOT = 'home/ps0jc8heuqta/ashignet.club/media/'
+    MEDIA_ROOT = 'home/ps0jc8heuqta/ashignet.club/media'
 
 # TIME_ZONE = 'UTC'
 TIME_ZONE = 'Asia/Ulaanbaatar'
