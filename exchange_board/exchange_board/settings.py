@@ -66,24 +66,24 @@ STATIC_ROOT = '/home/ps0jc8heuqta/ashignet.club/static/'
 
 WSGI_APPLICATION = 'exchange_board.wsgi.application'
 
-if DEBUG:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-        }
+# if DEBUG:
+#     DATABASES = {
+#         'default': {
+#             'ENGINE': 'django.db.backends.sqlite3',
+#             'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#         }
+#     }
+# else:
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'ashignet',
+        'USER': config('MY_SQL_USER'),
+        'PASSWORD': config('MY_SQL_PASSWORD'),
+        'HOST': 'localhost',
+        'PORT': '3306',
     }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'ashignet',
-            'USER': config('MY_SQL_USER'),
-            'PASSWORD': config('MY_SQL_PASSWORD'),
-            'HOST': 'localhost',
-            'PORT': '3306',
-        }
-    }
+}
 
 AUTH_PASSWORD_VALIDATORS = [
     {
