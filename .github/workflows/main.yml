@@ -1,24 +1,28 @@
-name: FTP Deploy
+name: Deploy to Hosting via FTP
 
 on:
   push:
     branches:
-      - main  # or any other branch you want to deploy from
+      - main  # Change this to the branch you want to deploy from
 
 jobs:
-  deploy:
-    name: Deploy to FTP
-    runs-on: ubuntu-latest  # The type of runner that the job will run on
+  ftp-deploy:
+    name: Deploy via FTP
+    runs-on: ubuntu-latest  # Runner environment
 
     steps:
-    - name: Checking out the repository
-      uses: actions/checkout@v2  # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - name: Checking out code
+      uses: actions/checkout@v3  # This action checks out your repository
 
-    - name: FTP-Deploy-Action
-      uses: SamKirkland/FTP-Deploy-Action@3.1.1  # Use the latest version of FTP-Deploy-Action
+    - name: List files in the repository
+      run: ls -R  # This command will list all files in the repository for debugging purposes
+
+    - name: FTP Deploy
+      uses: SamKirkland/FTP-Deploy-Action@3.1.1
       with:
-        ftp-server: ${{ secrets.FTP_SERVER }}  # FTP server address, e.g., ftp://ftp.yourwebsite.com
+        ftp-server: ${{ secrets.FTP_SERVER }}  # FTP server URL
         ftp-username: ${{ secrets.FTP_USERNAME }}  # FTP username
         ftp-password: ${{ secrets.FTP_PASSWORD }}  # FTP password
-        local-dir: ./  # Directory to upload from, './' denotes the root of your project
-        git-ftp-args: --insecure  # Additional arguments to pass to git-ftp, '--insecure' is optional depending on your FTP server
+        # If you want to upload the entire repo, you can leave local-dir as './'
+        # If you want to upload a specific directory, specify it like 'local-dir: /path/to/your/directory/'
+        local-dir: ./  
