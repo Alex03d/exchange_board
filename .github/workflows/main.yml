@@ -3,19 +3,19 @@ name: Deploy to Hosting via FTP
 on:
   push:
     branches:
-      - main  # Change this to the branch you want to deploy from
+      - main
 
 jobs:
   ftp-deploy:
     name: Deploy via FTP
-    runs-on: ubuntu-latest  # Runner environment
+    runs-on: ubuntu-latest
 
     steps:
     - name: Checking out code
-      uses: actions/checkout@v3  # This action checks out your repository
+      uses: actions/checkout@v3
 
     - name: List files in the repository
-      run: ls -R  # This command will list all files in the repository for debugging purposes
+      run: ls -R
 
     - name: FTP Deploy
       uses: SamKirkland/FTP-Deploy-Action@3.1.1
@@ -24,4 +24,4 @@ jobs:
         ftp-username: ${{ secrets.FTP_USERNAME }}
         ftp-password: ${{ secrets.FTP_PASSWORD }}
         local-dir: ./
-        git-ftp-args: --verbose
+
