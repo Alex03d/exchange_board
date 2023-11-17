@@ -61,6 +61,7 @@ TEMPLATES = [
 
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATIC_URL = '/static/'
+# STATIC_ROOT = '/home/ps0jc8heuqta/ashignet.info/static/'
 
 WSGI_APPLICATION = 'exchange_board.wsgi.application'
 
