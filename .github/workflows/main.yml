@@ -15,7 +15,7 @@ jobs:
       uses: actions/checkout@v2  # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
 
     - name: FTP-Deploy-Action
-      uses: SamKirkland/FTP-Deploy-Action@4  # Use the latest version of FTP-Deploy-Action
+      uses: SamKirkland/FTP-Deploy-Action@4.3.4  # Use the latest version of FTP-Deploy-Action
       with:
         ftp-server: ${{ secrets.FTP_SERVER }}  # FTP server address, e.g., ftp://ftp.yourwebsite.com
         ftp-username: ${{ secrets.FTP_USERNAME }}  # FTP username
