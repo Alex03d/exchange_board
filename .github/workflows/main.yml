@@ -1,21 +1,24 @@
-name: Publish Website to CPanel
+name: FTP Deploy
 
 on:
   push:
     branches:
-      - main
+      - main  # or any other branch you want to deploy from
 
 jobs:
-  FTP-Deploy-Action:
-    name: FTP-Deploy-Action
-    runs-on: ubuntu-latest
+  deploy:
+    name: Deploy to FTP
+    runs-on: ubuntu-latest  # The type of runner that the job will run on
+
     steps:
-      - uses: actions/checkout@v2.1.0
-        with:
-          fetch-depth: 2
-      - name: FTP-Deploy-Action
-        uses: SamKirkland/FTP-Deploy-Action@3.1.1
-        with:
-          ftp-server: ${{ secrets.FTP_SERVER }}
-          ftp-username: ${{ secrets.FTP_USERNAME }}
-          ftp-password: ${{ secrets.FTP_PASSWORD }}
+    - name: Checking out the repository
+      uses: actions/checkout@v2  # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+
+    - name: FTP-Deploy-Action
+      uses: SamKirkland/FTP-Deploy-Action@4  # Use the latest version of FTP-Deploy-Action
+      with:
+        ftp-server: ${{ secrets.FTP_SERVER }}  # FTP server address, e.g., ftp://ftp.yourwebsite.com
+        ftp-username: ${{ secrets.FTP_USERNAME }}  # FTP username
+        ftp-password: ${{ secrets.FTP_PASSWORD }}  # FTP password
+        local-dir: ./  # Directory to upload from, './' denotes the root of your project
+        git-ftp-args: --insecure  # Additional arguments to pass to git-ftp, '--insecure' is optional depending on your FTP server
