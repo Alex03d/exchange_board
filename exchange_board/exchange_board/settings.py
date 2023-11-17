@@ -76,9 +76,9 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'имя_базы_данных',
-            'USER': 'пользователь',
-            'PASSWORD': 'пароль',
+            'NAME': 'ashignet',
+            'USER': config('MY_SQL_USER'),
+            'PASSWORD': config('MY_SQL_PASSWORD'),
             'HOST': 'localhost',
             'PORT': '3306',
         }
