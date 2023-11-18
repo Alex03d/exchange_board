@@ -1,6 +1,34 @@
 <!-- Footer -->
+<style>
+  .footer-container {
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-start; /* Элементы выравниваются по левому краю */
+      align-items: center;
+      flex-wrap: wrap; /* Элементы переносятся на новую строку, если не хватает места */
+      width: 100%; /* Задаем контейнеру полную ширину */
+  }
+
+  .footer-nav-link {
+      margin-right: 10px; /* Отступ между ссылками */
+      color: black; /* Цвет текста ссылок */
+  }
+
+  .footer-nav-link:last-child {
+      margin-right: auto; /* Правый отступ автоматический, что толкает следующий элемент вправо */
+  }
+
+  .footer-text {
+      margin-bottom: 0; /* Убираем нижний отступ */
+      margin-left: auto; /* Автоматический левый отступ выравнивает текст вправо */
+  }
+</style>
+
 <footer class="border-top py-3 mt-4 bg-light">
-    <div class="container text-center">
-        <p class="mb-0">© {{ year }} Copyright Handshakes</p>
+    <div class="container footer-container">
+        <a href="https://t.me/+C0A67r8WRXtiODYy" target="_blank" class="footer-nav-link">About Us</a>
+        <a href="https://t.me/Sharga_42_support" target="_blank" class="footer-nav-link">Support</a>
+        <!-- Элемент для копирайта с классом footer-text будет выровнен вправо -->
+        <p class="footer-text">© {{ year }} Copyright Ashignet</p>
     </div>
 </footer>
