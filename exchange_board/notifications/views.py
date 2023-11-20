@@ -41,7 +41,7 @@ def notify_new_offer(request, offer_id):
         f"1 USD = {rub_to_usd} RUB,\n"
         f"1 RUB = {mnt_to_rub} MNT,\n"
         f"1 USD = {mnt_to_usd} MNT.\n\n"
-        f"Click <a href='{offer_link}'>here</a> to check."
+        f"Click <a href='{offer_link}'>here</a> to check (you need to be logged in!!!)."
     )
     if send_telegram_notification(message):
         logger.info(f"Уведомление о новом предложении с ID {offer_id} успешно отправлено")
