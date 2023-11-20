@@ -9,8 +9,9 @@
         <li>Status: {{ offer.get_status_display }}</li>
     </ul>
 
-<div class="text-border-block">
+
 {% for data in applicants_data %}
+<div class="text-border-block">
     <div class="mb-4">
         <h5>Transaction Request by:
                 <a href="{% url 'users:user_profile' username=data.applicant.username %}" class="user-link">
