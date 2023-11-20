@@ -90,6 +90,7 @@ def create_offer(request):
                     request,
                     'Your offer has been successfully created.'
                 )
+                notify_new_offer(request, offer.id)
                 return redirect('offer_detail', offer_id=offer.id)
 
             elif selection == 'existing':
