@@ -6,7 +6,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 SECRET_KEY = config('SECRET_KEY')
 
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -105,11 +105,11 @@ AUTH_USER_MODEL = 'users.CustomUser'
 LANGUAGE_CODE = 'en-us'
 
 MEDIA_URL = '/media/'
-# MEDIA_ROOT = '/home/ps0jc8heuqta/public_html/media'
-if DEBUG:
-    MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
-else:
-    MEDIA_ROOT = 'home/ps0jc8heuqta/public_html/media'
+MEDIA_ROOT = '/home/ps0jc8heuqta/public_html/media'
+# if DEBUG:
+#     MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+# else:
+#     MEDIA_ROOT = 'home/ps0jc8heuqta/public_html/media'
 
 # TIME_ZONE = 'UTC'
 TIME_ZONE = 'Asia/Ulaanbaatar'

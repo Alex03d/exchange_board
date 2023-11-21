@@ -30,7 +30,7 @@
     <div class="card mb-4">
         <div class="card-body">
             <h5 class="card-title">
-                        <a href="{% url 'users:user_profile' username=offer.author.username %}" class="user-link">
+                <a href="{% url 'users:user_profile' username=offer.author.username %}" class="user-link">
                 Posted by {{ offer.author.username|capfirst }}
             </a></h5>
             <p class="card-text">
