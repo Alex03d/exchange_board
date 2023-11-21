@@ -12,3 +12,8 @@ def intspace(value):
         return formatted_value
     except:
         return value
+
+
+@register.filter(name='range')
+def filter_range(start, end):
+    return range(start, end)

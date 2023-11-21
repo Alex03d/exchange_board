@@ -38,7 +38,14 @@
                 Currency for sale: <strong> {{ offer.amount_offered|intspace }} {{ offer.currency_offered }} </strong> <br>
                 Requested currency: {{ offer.currency_needed }} <br>
                 Status: {{ offer.status }} <br>
-                Rating: {{ offer.author.aggregated_rating|floatformat:2 }}
+                Rating of {{ offer.author.username|capfirst }}: {{ offer.author.aggregated_rating|floatformat:2 }}
+                {% for i in 1|range:6 %}
+                    {% if i <= offer.author.aggregated_rating %}
+                        <span class="star">&#9733;</span>
+                    {% else %}
+                        <span class="star">&#9734;</span>
+                    {% endif %}
+                {% endfor %}
             </p>
 
             {% if offer.transaction %}
