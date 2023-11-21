@@ -57,10 +57,30 @@
                                     <span class="star">&#9734;</span>
                                 {% endif %}
                             {% endfor %}
+
                         </p>
                     </h5>
                 </div>
             </div>
+
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h5><strong>User Scores and Comments:</strong></h5> <br>
+                    {% if user_ratings %}
+                        <ul class="simple-list">
+                        {% for rating in user_ratings %}
+                            <li>
+                                <p>Score: {{ rating.score }}</p>
+                                <p>Comment: {{ rating.comment|default:"No comment" }}</p>
+                            </li>
+                        {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>No ratings available.</p>
+                    {% endif %}
+                </div>
+            </div>
+
 
             <div class="card mt-3">
                 <div class="card-body">

@@ -13,6 +13,7 @@ from .forms import CustomUserCreationForm
 from .models import CustomUser, EmailConfirmation, Invitation, UserFollow
 
 from offers.models import Offer
+from rating.models import Rating
 from transactions.models import Transaction
 
 
@@ -271,7 +272,8 @@ def user_profile(request, username):
 
     handshakes = handshake_count(user_profile_code, current_user_code)
     inviter = user_profile.invited_by
-    aggregated_rating = user_profile.aggregated_rating,
+    aggregated_rating = user_profile.aggregated_rating
+    user_ratings = Rating.objects.filter(recipient=user_profile)
 
     author_offers = Offer.objects.filter(author=user_profile)
     author_transactions = Transaction.objects.filter(offer__in=author_offers)
@@ -282,6 +284,7 @@ def user_profile(request, username):
         'handshakes': handshakes,
         'handshake_range': range(handshakes),
         'aggregated_rating': aggregated_rating,
+        'user_ratings': user_ratings,
         'author_transactions': author_transactions,
     }
     return render(request, 'users/profile.html', context)

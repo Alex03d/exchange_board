@@ -105,11 +105,11 @@ AUTH_USER_MODEL = 'users.CustomUser'
 LANGUAGE_CODE = 'en-us'
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = '/home/ps0jc8heuqta/public_html/media'
-# if DEBUG:
-#     MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
-# else:
-#     MEDIA_ROOT = 'home/ps0jc8heuqta/ashignet.club/media'
+
+if DEBUG:
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+else:
+    MEDIA_ROOT = '/home/ps0jc8heuqta/public_html/media'
 
 # TIME_ZONE = 'UTC'
 TIME_ZONE = 'Asia/Ulaanbaatar'
