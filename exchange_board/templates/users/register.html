@@ -13,6 +13,12 @@
     <p>
         <label for="{{ form.password1.id_for_label }}">Password:</label>
         {{ form.password1 }}
+
+    <p>
+        {% if form.password1.errors %}
+            <div class="error">{{ form.password1.errors.as_text }}</div>
+        {% endif %}
+    </p>
     </p>
     <p>
         <label for="{{ form.password2.id_for_label }}">Confirm Password:</label>
@@ -26,12 +32,6 @@
     </p>
 
     <button type="submit" class="btn-minimalist">Register</button>
-
-    <p>
-        {% if form.password1.errors %}
-            <div class="error">{{ form.password1.errors.as_text }}</div>
-        {% endif %}
-    </p>
 
 
     {% if form.non_field_errors %}
