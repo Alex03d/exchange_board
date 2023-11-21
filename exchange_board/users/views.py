@@ -12,6 +12,9 @@ from logging_app.loguru_config import logger
 from .forms import CustomUserCreationForm
 from .models import CustomUser, EmailConfirmation, Invitation, UserFollow
 
+from offers.models import Offer
+from transactions.models import Transaction
+
 
 def register(request, invite_code):
     logger.info(f"Начало регистрации пользователя с "
@@ -265,16 +268,21 @@ def user_profile(request, username):
         current_user_code = request.user.referral_code
     else:
         current_user_code = None
-    handshakes = handshake_count(user_profile_code, current_user_code)
 
+    handshakes = handshake_count(user_profile_code, current_user_code)
     inviter = user_profile.invited_by
+    aggregated_rating = user_profile.aggregated_rating,
+
+    author_offers = Offer.objects.filter(author=user_profile)
+    author_transactions = Transaction.objects.filter(offer__in=author_offers)
     context = {
         'user_profile': user_profile,
         'is_following': is_following,
         'inviter': inviter,
         'handshakes': handshakes,
         'handshake_range': range(handshakes),
-        'aggregated_rating': user_profile.aggregated_rating,
+        'aggregated_rating': aggregated_rating,
+        'author_transactions': author_transactions,
     }
     return render(request, 'users/profile.html', context)
 

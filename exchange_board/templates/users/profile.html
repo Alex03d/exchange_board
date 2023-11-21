@@ -26,7 +26,7 @@
                 <div class="card-body">
                     <h5>User's name:
                         {% if user_profile.username %}
-                            {{ user_profile.username|capfirst }}
+                            <strong>{{ user_profile.username|capfirst }}</strong>
                         {% else %}
                             Data not provided
                         {% endif %}
@@ -49,16 +49,22 @@
                     </h5>
 
                     <h5>
-                        <p>Rating: {{ aggregated_rating|floatformat:2|default:"No rating so far" }}</p>
+                        <p>Rating: {{ user_profile.aggregated_rating|floatformat:2|default:"No rating so far" }}
+                            {% for i in 1|range:6 %}
+                                {% if i <= user_profile.aggregated_rating %}
+                                    <span class="star">&#9733;</span>
+                                {% else %}
+                                    <span class="star">&#9734;</span>
+                                {% endif %}
+                            {% endfor %}
+                        </p>
                     </h5>
-
                 </div>
             </div>
 
-            <!-- Внутренний блок для предложений -->
             <div class="card mt-3">
                 <div class="card-body">
-                    <h5>Offers:</h5>
+                    <h5><strong>Offers:</strong></h5><br>
                     <ul class="simple-list">
                     {% for offer in user_profile.offers.all %}
                         <li>
@@ -71,10 +77,26 @@
                 </div>
             </div>
 
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h5><strong>Transactions initiated by {{ user_profile.username|capfirst }}:</strong></h5> <br>
+                    <ul class="simple-list">
+                    {% for transaction in author_transactions %}
+                        <li>
+                            Transaction for {{ transaction.offer.amount_offered|intspace }} {{ transaction.offer.currency_offered }} - {{ transaction.status }}
+                        </li>
+                    {% empty %}
+                        <li>No transactions as author</li>
+                    {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+
             <!-- Внутренний блок для транзакций -->
             <div class="card mt-3">
                 <div class="card-body">
-                    <h5>Transactions:</h5>
+                    <h5><strong>Transactions accepted by {{ user_profile.username|capfirst }}:</strong></h5> <br>
                     <ul class="simple-list">
                     {% for transaction in user_profile.accepted_transactions.all %}
                         <li>

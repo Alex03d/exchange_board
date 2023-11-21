@@ -1,4 +1,5 @@
 from django import template
+import math
 
 register = template.Library()
 
@@ -17,3 +18,8 @@ def intspace(value):
 @register.filter(name='range')
 def filter_range(start, end):
     return range(start, end)
+
+
+@register.filter(name='floor')
+def floor(value):
+    return math.floor(value)
