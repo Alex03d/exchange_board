@@ -3,4 +3,6 @@
 {% block content %}
 <h2>Error</h2>
 <p>{{ message }}</p>
+
+<p>If you sent a wrong code by mistake, please try to enter the code again <a href="{% url 'users:confirm_email_code' %}">here</a>.</p>
 {% endblock %}
