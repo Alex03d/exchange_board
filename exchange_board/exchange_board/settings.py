@@ -109,7 +109,7 @@ if DEBUG:
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 else:
     MEDIA_URL = "https://ashignet.club/media/"
-    MEDIA_ROOT = 'home/ps0jc8heuqta/public_html/media'
+    MEDIA_ROOT = 'home/ps0jc8heuqta/public_html/media/'
 
 # TIME_ZONE = 'UTC'
 TIME_ZONE = 'Asia/Ulaanbaatar'
