@@ -29,11 +29,17 @@ def register(request, invite_code):
             request,
             'users/error.html', {'message': 'Invalid or used invitation code.'}
         )
+    logger.info(f"Пройдено начало регистрации пользователя с "
+                f"пригласительным кодом {invite_code}")
 
     inviter = invitation.inviter
+    logger.info(f"Запрошен пригласитель")
     if request.method == 'POST':
+        logger.info(f"if request.method == 'POST'")
         form = CustomUserCreationForm(request.POST)
+        logger.info(f"form = CustomUserCreationForm(request.POST)")
         if form.is_valid():
+            logger.info(f"if form.is_valid():")
             user = form.save(commit=False)
             user.email = form.cleaned_data['email']
             user.invited_by = invitation.inviter
