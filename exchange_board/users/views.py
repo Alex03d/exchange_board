@@ -54,7 +54,7 @@ def register(request, invite_code):
             )
             logger.info(f"next_sub_code")
             user.referral_code = f"{inviter.referral_code}-{next_sub_code}"
-            logger.info(f"user.referral_code")
+            logger.info(f"user.referral_code {user.referral_code}")
             user.save()
             logger.info(f"user.save()")
             email_conf = EmailConfirmation(user=user)
