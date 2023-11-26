@@ -41,17 +41,26 @@ def register(request, invite_code):
         if form.is_valid():
             logger.info(f"if form.is_valid():")
             user = form.save(commit=False)
+            logger.info(f"user = form.save(commit=False)")
             user.email = form.cleaned_data['email']
+            logger.info(f"user.email = form.cleaned_data['email']")
             user.invited_by = invitation.inviter
+            logger.info(f"user.invited_by = invitation.inviter")
             user.invitation_code_used = invite_code
+            logger.info(f"user.invitation_code_used = invite_code")
 
             next_sub_code = (
                     CustomUser.objects.filter(invited_by=inviter).count() + 1
             )
+            logger.info(f"next_sub_code")
             user.referral_code = f"{inviter.referral_code}-{next_sub_code}"
+            logger.info(f"user.referral_code")
             user.save()
+            logger.info(f"user.save()")
             email_conf = EmailConfirmation(user=user)
+            logger.info(f"email_conf")
             email_conf.save()
+            logger.info(f"email_conf.save()")
             email_subject = "Complete Your Registration with Handshakes"
             email_body = f"""
             Hello {user.username},
