@@ -31,7 +31,7 @@ class CustomUser(AbstractUser):
     aggregated_rating = models.FloatField(default=0.0)
 
     def save(self, *args, **kwargs):
-        if self.is_superuser:
+        if self.is_superuser and not self.pk:
             last_code = (
                 CustomUser.objects.filter(is_superuser=True)
                 .order_by('-referral_code')
@@ -40,6 +40,7 @@ class CustomUser(AbstractUser):
             )
             next_code = int(last_code) + 1 if last_code else 1
             self.referral_code = str(next_code)
+
         super(CustomUser, self).save(*args, **kwargs)
 
 
