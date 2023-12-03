@@ -12,21 +12,21 @@
     {% endif %}
 
     <p>
-        <label for="{{ form.username.id_for_label }}">Username:</label>
+        <label for="{{ form.username.id_for_label }}">Username (Нэвтрэх нэр):</label>
         {{ form.username }}
         {% if form.username.errors %}
             <div class="error">{{ form.username.errors.as_text }}</div>
         {% endif %}
     </p>
     <p>
-        <label for="{{ form.password1.id_for_label }}">Password:</label>
+        <label for="{{ form.password1.id_for_label }}">Password (нууц үг):</label>
         {{ form.password1 }}
         {% if form.password1.errors %}
             <div class="error">{{ form.password1.errors.as_text }}</div>
         {% endif %}
     </p>
     <p>
-        <label for="{{ form.password2.id_for_label }}">Confirm Password:</label>
+        <label for="{{ form.password2.id_for_label }}">Confirm Password (дахиад нууц үг):</label>
         {{ form.password2 }}
         {% if form.password2.errors %}
             <div class="error">{{ form.password2.errors.as_text }}</div>
@@ -40,6 +40,6 @@
         {% endif %}
     </p>
 
-    <button type="submit" class="btn-minimalist">Register</button>
+    <button type="submit" class="btn-minimalist">Register (Бүртгүүлэх)</button>
 </form>
 {% endblock %}
