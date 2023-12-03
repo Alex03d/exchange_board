@@ -12,28 +12,28 @@
     {% endif %}
 
     <p>
-        <label for="{{ form.username.id_for_label }}">Username (Нэвтрэх нэр):</label>
+        <label for="{{ form.username.id_for_label }}">Username [Нэвтрэх нэр]:</label>
         {{ form.username }}
         {% if form.username.errors %}
             <div class="error">{{ form.username.errors.as_text }}</div>
         {% endif %}
     </p>
     <p>
-        <label for="{{ form.password1.id_for_label }}">Password (нууц үг):</label>
+        <label for="{{ form.password1.id_for_label }}">Password [Нууц үг]:</label>
         {{ form.password1 }}
         {% if form.password1.errors %}
             <div class="error">{{ form.password1.errors.as_text }}</div>
         {% endif %}
     </p>
     <p>
-        <label for="{{ form.password2.id_for_label }}">Confirm Password (дахиад нууц үг):</label>
+        <label for="{{ form.password2.id_for_label }}">Confirm Password [Дахиад нууц үг]:</label>
         {{ form.password2 }}
         {% if form.password2.errors %}
             <div class="error">{{ form.password2.errors.as_text }}</div>
         {% endif %}
     </p>
     <p>
-        <label for="{{ form.email.id_for_label }}">Email:</label>
+        <label for="{{ form.email.id_for_label }}">Email [Цахим шуудан]:</label>
         {{ form.email }}
         {% if form.email.errors %}
             <div class="error">{{ form.email.errors.as_text }}</div>
