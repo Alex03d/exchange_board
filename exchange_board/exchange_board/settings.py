@@ -132,6 +132,8 @@ ANYMAIL = {
 
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL')
 
+DEFAULT_CHARSET = 'utf-8'
+
 # EMAIL_BACKEND = 'anymail.backends.mailjet.EmailBackend'
 
 # ANYMAIL = {
