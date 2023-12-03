@@ -61,11 +61,25 @@ def register(request, invite_code):
             logger.info(f"email_conf")
             email_conf.save()
             logger.info(f"email_conf.save()")
-            email_subject = "Complete Your Registration with Handshakes"
+            email_subject = "Complete Your Registration with Ashignet"
             email_body = f"""
+            
+            Сайн байна уу {user.username},
+            Ашигнет-д бүртгүүлсэнд баярлалаа! Бүртгэлээ дуусгаж, имэйл 
+            хаягаа баталгаажуулахын тулд, дараах баталгаажуулах кодыг 
+            ашиглана уу:
+            
+            {email_conf.confirmation_code}
+            
+            Та бүртгэлээ идэвхжүүлэхийн тулд баталгаажуулах хуудсанд 
+            энэ кодыг оруулах хэрэгтэй.
+            
+            Тавтай морилно уу,
+            Ашигнет баг
+
             Hello {user.username},
             
-            Thank you for signing up with Handshakes! We're excited to have 
+            Thank you for signing up with Ashignet! We're excited to have 
             you join our community where you can connect, share, and engage 
             with others.
 
@@ -78,11 +92,11 @@ def register(request, invite_code):
             This verification helps to keep your account secure and ensures 
             that you can recover your account if you ever lose access.
 
-            If you didn't sign up for Handshakes, you can safely ignore 
+            If you didn't sign up for Ashignet, you can safely ignore 
             this email.
 
             Welcome aboard,
-            The Handshakes Team
+            The Ashignet Team
             """
             send_mail(
                 email_subject,
