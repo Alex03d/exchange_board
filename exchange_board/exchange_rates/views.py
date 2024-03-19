@@ -72,12 +72,12 @@ def get_exchange_rate_from_alternative_api(base_currency, target_currency):
             f"Failed to decode JSON from response "
             f"for {base_currency} to {target_currency}"
         )
-        return None
+        return 0
 
     if response.status_code != 200 or 'error' in response_data:
         logger.error(f"Error with status code: {response.status_code}")
         logger.error(response.text)
-        return None
+        return 0
 
     rate = response_data['rub']
 
