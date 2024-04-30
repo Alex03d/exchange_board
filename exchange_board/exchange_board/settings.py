@@ -21,6 +21,7 @@ INSTALLED_APPS = [
     'logging_app.apps.LoggingAppConfig',
     'bank_details.apps.BankDetailsConfig',
     'notifications.apps.NotificationsConfig',
+    'tic_tac.apps.TicTacConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

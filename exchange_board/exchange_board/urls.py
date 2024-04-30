@@ -10,6 +10,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('transaction/', include('transactions.urls')),
     path('request/', include('requests_for_transaction.urls')),
+    path('tic-tac-toe/', include('tic_tac.urls')),
 ]
 
 

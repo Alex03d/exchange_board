@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}Tic Tac Toe{% endblock %}
+
+{% block content %}
+<html>
+<head>
+    <title>Tic Tac Toe Home Page</title>
+</head>
+<body>
+    <h1>Cycling Tic Tac Toe</h1>
+    <a href="{% url 'tic_tac:new_game' %}" class="btn-minimalist">New Game</a>
+</body>
+</html>
+{% endblock %}
